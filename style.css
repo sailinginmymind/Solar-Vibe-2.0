@@ -345,3 +345,27 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 
 .nav-item span { font-size: 32px; display: block; margin-bottom: 4px; }
 .nav-item.active { color: #38bdf8; }
+
+/* --- GARAGE SPECIFIC (NUOVO) --- */
+.garage-input-group {
+    display: flex;
+    gap: 10px; /* Spazio tra input e pulsante */
+    align-items: center; /* Allinea verticalmente al centro */
+    margin-bottom: 15px; /* Spazio sotto il gruppo */
+}
+
+/* Modifica specifica per l'input dentro questo gruppo */
+.garage-input-group .manual-input {
+    margin: 0; /* Rimuove margini extra */
+    flex: 1; /* Prende tutto lo spazio orizzontale disponibile */
+}
+
+/* Modifica specifica per il pulsante mini in questo gruppo */
+.garage-input-group .mini-btn {
+    height: 38px; /* Assicura che sia alto quanto l'input */
+    width: 45px; /* Larghezza fissa per l'icona */
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
