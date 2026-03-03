@@ -4,6 +4,7 @@
  */
 
 // Stato dell'applicazione
+let wattMode = 'W'; // Può essere 'W' o 'Wh'
 let state = {
     isWh: false,
     currentSOC: 50,
@@ -21,6 +22,23 @@ window.onload = () => {
     document.getElementById('btn-gps').click();
 };
 
+function toggleWattMode() {
+    wattMode = (wattMode === 'W') ? 'Wh' : 'W';
+    
+    const displayVal = document.querySelector('.main-wattage');
+    const displayLabel = document.getElementById('watt-label'); // Assicurati di avere questo ID nel testo sotto il numero
+    
+    if (wattMode === 'Wh') {
+        displayVal.style.color = "#fbbf24"; // Giallo Solar
+        if(displayLabel) displayLabel.innerText = "ENERGIA ACCUMULATA (Wh)";
+    } else {
+        displayVal.style.color = "#38bdf8"; // Azzurro Vibe
+        if(displayLabel) displayLabel.innerText = "POTENZA ISTANTANEA (W)";
+    }
+    
+    // Questa chiamata è fondamentale: ricalcola il numero in base alla modalità scelta
+    updateAll(); 
+}
 function initEventListeners() {
     document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
     // Navbar
@@ -34,7 +52,7 @@ function initEventListeners() {
     });
 
     // Toggle Unità (Watt/Wh)
-    document.getElementById('w_out').addEventListener('click', toggleUnit);
+    document.querySelector('.main-wattage').addEventListener('click', toggleWattMode);
 
     // GPS Button
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
