@@ -450,27 +450,27 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     justify-content: space-between;
 }
 
-/* Regoliamo i badge dei report per farli stare vicini */
+/* --- FIX DIMENSIONI TESTO REPORT --- */
+
 #view-energy .report-grid .w-badge {
-    flex: 1;                  /* Ognuno prende 1/3 dello spazio */
-    min-height: 90px;         /* Altezza fissa per uniformità */
-    padding: 10px 4px;        /* Ridotto padding laterale */
-    border-radius: 18px;
+    flex: 1;
+    min-height: 100px;        /* Un po' più alto per dare respiro */
+    padding: 15px 5px;        /* Aumentato padding verticale, ridotto orizzontale */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 #view-energy .report-grid .w-badge span {
-    font-size: 10px;           /* Aumentato da 8px a 10px */
-    letter-spacing: 0.5px;
-    line-height: 1.1;          /* Permette al testo di stare vicino se va a capo */
-    margin-bottom: 5px;
-    color: #38bdf8;            /* Colore azzurro per l'etichetta */
-    display: block;
-    width: 100%;               /* Occupa tutta la larghezza del badge */
+    font-size: 13px !important; /* Molto più grande per l'etichetta */
+    font-weight: 800;
+    margin-bottom: 8px;
+    white-space: nowrap;        /* Evita che vada a capo male */
 }
 
 #view-energy .report-grid .w-badge b {
-    font-size: 16px;           /* Aumentato da 14px a 16px per il tempo (es: 2h 15m) */
-    color: white;
+    font-size: 22px !important; /* Valore numerico bello evidente */
     font-weight: 900;
-    display: block;
+    color: #fff;
 }
