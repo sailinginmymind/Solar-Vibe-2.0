@@ -137,8 +137,8 @@ h2 {
 }
 
 #sunrise-txt, #sunset-txt { 
-    color: white !important; 
-    font-size: 20px !important; 
+    color: #fbbf24 !important; 
+    font-size: 22px !important; 
     font-weight: 900;
     display: block;
     margin-top: 5px;
