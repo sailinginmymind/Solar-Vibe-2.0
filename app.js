@@ -113,34 +113,45 @@ async function updateAll() {
 
     if (!lat || !lng) return;
 
-    try {
-        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
-        if(!state.weatherData) return;
+   // Cerca questo blocco dentro updateAll e sostituiscilo/controllalo:
+try {
+    state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
+    
+    // Se i dati non arrivano, usciamo per non rompere il resto
+    if(!state.weatherData || !state.weatherData.hourly || !state.weatherData.daily) {
+        console.error("Dati meteo non ricevuti dall'API");
+        return;
+    }
 
-        const hourIdx = parseInt(time.split(':')[0]);
-        const hDec = SolarEngine.timeToDecimal(time);
-        const sunriseStr = state.weatherData.daily.sunrise[0].split('T')[1];
-        const sunsetStr = state.weatherData.daily.sunset[0].split('T')[1];
-        const sunH = SolarEngine.timeToDecimal(sunriseStr);
-        const setH = SolarEngine.timeToDecimal(sunsetStr);
+    const hourIdx = parseInt(time.split(':')[0]);
+    // Prendi i dati dall'ora corrente (0-23)
+    const cloud = state.weatherData.hourly.cloud_cover[hourIdx];
+    const temp = state.weatherData.hourly.temperature_2m[hourIdx];
+    const hum = state.weatherData.hourly.relative_humidity_2m[hourIdx];
+    const wind = state.weatherData.hourly.wind_speed_10m[hourIdx];
 
-        document.getElementById('sunrise-txt').innerText = sunriseStr;
-        document.getElementById('sunset-txt').innerText = sunsetStr;
-        document.getElementById('display-hour-center').innerText = time;
-        
-        const cloud = state.weatherData.hourly.cloud_cover[hourIdx];
-        document.getElementById('r-cloud-percent').innerText = cloud + "%";
-        document.getElementById('r-temp').innerText = Math.round(state.weatherData.hourly.temperature_2m[hourIdx]) + "°";
-        document.getElementById('r-hum').innerText = state.weatherData.hourly.relative_humidity_2m[hourIdx] + "%";
-        document.getElementById('r-wind').innerText = Math.round(state.weatherData.hourly.wind_speed_10m[hourIdx]) + " km/h";
-        
-        const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, cloud);
-        updateSunUI(hDec, sunH, setH);
-        
-        const valFinale = Math.round(state.isWh ? power * 0.9 : power); 
-        displayVal.innerText = valFinale + (state.isWh ? " Wh" : " W");
-        updateReportUI(power, sunH, setH);
-    } catch (e) { console.error(e); }
+    // Aggiorna i testi dei badge
+    document.getElementById('r-cloud-percent').innerText = cloud + "%";
+    document.getElementById('r-temp').innerText = Math.round(temp) + "°";
+    document.getElementById('r-hum').innerText = hum + "%";
+    document.getElementById('r-wind').innerText = Math.round(wind) + " km/h";
+
+    // Alba e Tramonto (Prendiamo il primo giorno)
+    const sunriseStr = state.weatherData.daily.sunrise[0].split('T')[1].substring(0, 5);
+    const sunsetStr = state.weatherData.daily.sunset[0].split('T')[1].substring(0, 5);
+    
+    document.getElementById('sunrise-txt').innerText = sunriseStr;
+    document.getElementById('sunset-txt').innerText = sunsetStr;
+
+    // Calcolo per il movimento del sole
+    const hDec = SolarEngine.timeToDecimal(time);
+    const sunH = SolarEngine.timeToDecimal(sunriseStr);
+    const setH = SolarEngine.timeToDecimal(sunsetStr);
+    
+    updateSunUI(hDec, sunH, setH);
+
+} catch (e) {
+    console.error("Errore durante il recupero del meteo:", e);
 }
 
 function updateSunUI(hDec, sunH, setH) {
