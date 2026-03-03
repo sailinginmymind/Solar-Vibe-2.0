@@ -244,26 +244,40 @@ h2 {
     color: white;
     line-height: 1.2;
 }
-/* --- CONTENITORE INPUT MANUALI (DATA, ORA, LAT, LNG) --- */
+
+/* --- CONTENITORE INPUT MANUALI (BLOCCATO 2x2 PER PC E MOBILE) --- */
 .manual-controls {
-    display: grid;
-    /* Di base su desktop stanno su una riga sola (4 colonne) */
-    grid-template-columns: repeat(4, 1fr); 
-    gap: 10px;
+    display: grid !important;
+    /* Forza 2 colonne fisse al 50% ciascuna su ogni dispositivo */
+    grid-template-columns: 1fr 1fr !important; 
+    gap: 12px;                 /* Spazio tra i quadratini per evitare sovrapposizioni */
     margin-top: 20px;
     padding: 0 10px;
 }
 
-/* Stilizzazione dei singoli campi di input */
+/* Stilizzazione dei singoli campi di input (Ora, Data, Lat, Lng) */
 .manual-input {
     background: rgba(15, 23, 42, 0.8);
     border: 1px solid rgba(56, 189, 248, 0.3);
     border-radius: 8px;
     color: #fff;
-    padding: 8px;
-    font-size: 12px;
+    padding: 12px 5px;         /* Spazio interno per rendere i tasti facili da cliccare */
+    font-size: 14px;
     text-align: center;
-    width: 100%; /* Si adatta alla colonna della griglia */
+    width: 100%;               
+    box-sizing: border-box;    /* Impedisce al padding di allargare il quadratino all'esterno */
+}
+
+/* --- FIX PER EVITARE CHE SI TOCCHINO SU MOBILE --- */
+@media (max-width: 480px) {
+    .manual-controls {
+        gap: 8px;              /* Riduce leggermente il distacco su schermi stretti */
+    }
+
+    .manual-input {
+        font-size: 13px;       /* Rimpicciolisce il testo per farlo stare nel box */
+        padding: 10px 2px;     /* Riduce lo spazio interno ai lati */
+    }
 }
 
 /* --- ADATTABILITÀ MOBILE (IL TRUCCO PER IL TELEFONO) --- */
