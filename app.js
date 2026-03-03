@@ -54,20 +54,40 @@ function initEventListeners() {
 
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
+    const originalText = "📡 AGGIORNA GPS E ORA ATTUALE";
+    const originalBg = btn.style.background; // Salva il colore originale
+
     btn.innerText = "SINCRO IN CORSO...";
+    btn.disabled = true; // Evita click multipli durante il caricamento
+
     try {
         const coords = await WeatherAPI.getUserLocation();
         const now = new Date();
+        
         document.getElementById('input-lat').value = coords.latitude.toFixed(4);
         document.getElementById('input-lng').value = coords.longitude.toFixed(4);
         document.getElementById('input-date').value = now.toISOString().split('T')[0];
         document.getElementById('input-time').value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        
         await updateAll();
+
+        // --- ANIMAZIONE DI SUCCESSO ---
         btn.innerText = "✅ SINCRO COMPLETATA";
+        btn.style.background = "#22c55e"; // Verde smeraldo
+        btn.style.boxShadow = "0 0 15px #22c55e";
+        // ------------------------------
+
     } catch (err) {
         btn.innerText = "❌ ERRORE GPS";
+        btn.style.background = "#ef4444"; // Rosso errore
     } finally {
-        setTimeout(() => { btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE"; }, 3000);
+        btn.disabled = false;
+        // Ripristina lo stato originale dopo 3 secondi
+        setTimeout(() => { 
+            btn.innerText = originalText; 
+            btn.style.background = originalBg;
+            btn.style.boxShadow = "";
+        }, 3000);
     }
 }
 
