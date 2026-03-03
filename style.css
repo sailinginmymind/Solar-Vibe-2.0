@@ -470,78 +470,48 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 }
 /* --- MODIFICA ORIZZONTALE TEMPI DI CARICA --- */
 
-/* Applichiamo il flex solo alla griglia dei report */
 #view-energy .report-grid {
-    display: flex;            /* Mette i badge in fila */
-    flex-direction: row;      /* Forza l'orizzontale */
-    gap: 8px;                 /* Spazio tra i badge */
+    display: flex;            
+    flex-direction: row;      
+    gap: 5px;                 /* Ridotto leggermente per guadagnare spazio su mobile */
     margin: 20px 0;
     justify-content: space-between;
 }
 
-/* --- FIX DIMENSIONI TESTO REPORT --- */
+/* --- FIX DIMENSIONI TESTO REPORT (ADATTABILE) --- */
 
 #view-energy .report-grid .w-badge {
-    flex: 1;
-    min-height: 100px;        /* Un po' più alto per dare respiro */
-    padding: 15px 5px;        /* Aumentato padding verticale, ridotto orizzontale */
+    flex: 1;                  /* Ognuno prende 1/3 dello spazio */
+    min-height: 80px;         /* Ridotta l'altezza per non occupare troppo schermo */
+    padding: 10px 2px;        /* Padding minimo ai lati */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    text-align: center;
 }
 
+/* L'etichetta (es: "A 80% IN") */
 #view-energy .report-grid .w-badge span {
-    font-size: 22px !important; /* Molto più grande per l'etichetta */
+    font-size: 10px !important; /* Rimpicciolito drasticamente per il mobile */
     font-weight: 800;
-    margin-bottom: 8px;
-    white-space: nowrap;        /* Evita che vada a capo male */
+    color: #94a3b8;             /* Grigio per non appesantire */
+    margin-bottom: 4px;
+    white-space: nowrap;        
+    letter-spacing: 0.5px;
 }
 
+/* Il valore temporale (es: "2h 30m") */
 #view-energy .report-grid .w-badge b {
-    font-size: 22px !important; /* Valore numerico bello evidente */
+    font-size: 16px !important; /* Dimensione bilanciata: leggibile ma non enorme */
     font-weight: 900;
     color: #fff;
-}
-/* --- STILIZZAZIONE DISPLAY PRODUZIONE TOTALE --- */
-
-.total-display-box {
-    display: flex;                /* Attiva la modalità riga */
-    justify-content: space-between; /* Spinge il testo a sinistra e il numero a destra */
-    align-items: center;          /* Allinea tutto al centro verticalmente */
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    padding: 15px 20px;
-    border-radius: 20px;
-    border-left: 5px solid #fbbf24; /* La barretta gialla a sinistra */
-    margin: 20px 0;
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    line-height: 1;
 }
 
-.label-stack {
-    display: flex;
-    flex-direction: column;       /* Mette PRODUZIONE sopra e TOTALE sotto */
-    text-align: left;
-    gap: 2px;
-}
-
-.label-stack span {
-    font-size: 11px;
-    font-weight: 900;
-    color: #94a3b8;               /* Grigio chiaro per le etichette */
-    letter-spacing: 1.5px;
-    line-height: 1.1;
-}
-
-.eq-symbol {
-    color: #fbbf24;               /* L'uguale diventa giallo */
-    font-size: 14px;
-    margin-left: 3px;
-}
-
-.value-huge {
-    font-size: 32px !important;   /* Numero grande e d'impatto */
-    font-weight: 900;
-    color: #fbbf24;               /* Giallo solare */
-    text-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
-    font-family: 'Courier New', monospace; /* Stile digitale */
+/* --- OTTIMIZZAZIONE EXTRA PER SCHERMI MOLTO PICCOLI --- */
+@media (max-width: 375px) {
+    #view-energy .report-grid .w-badge b {
+        font-size: 14px !important; /* Ulteriore riduzione per telefoni stretti */
+    }
 }
