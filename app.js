@@ -55,10 +55,10 @@ function initEventListeners() {
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
     const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
-    const originalBg = btn.style.background; // Salva il colore originale
+    const originalBg = btn.style.background;
 
     btn.innerText = "SINCRONIZZAZIONE IN CORSO...";
-    btn.disabled = true; // Evita click multipli durante il caricamento
+    btn.disabled = true;
 
     try {
         const coords = await WeatherAPI.getUserLocation();
@@ -71,18 +71,15 @@ async function handleGpsSync() {
         
         await updateAll();
 
-        // --- ANIMAZIONE DI SUCCESSO ---
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
-        btn.style.background = "#22c55e"; // Verde smeraldo
+        btn.style.background = "#22c55e";
         btn.style.boxShadow = "0 0 15px #22c55e";
-        // ------------------------------
 
     } catch (err) {
         btn.innerText = "❌ ERRORE GPS";
-        btn.style.background = "#ef4444"; // Rosso errore
+        btn.style.background = "#ef4444";
     } finally {
         btn.disabled = false;
-        // Ripristina lo stato originale dopo 3 secondi
         setTimeout(() => { 
             btn.innerText = originalText; 
             btn.style.background = originalBg;
@@ -130,13 +127,12 @@ async function updateAll() {
         
         displayVal.innerText = Math.round(state.isWh ? power * 0.9 : power) + (state.isWh ? " Wh" : " W");
 
-        // --- QUESTE SONO LE RIGHE CHE RIPRISTINANO IL SOLE E IL REPORT ---
         if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
         updateReportUI(power, sunH, setH);
-        // ----------------------------------------------------------------
 
     } catch (e) { console.error("Errore updateAll:", e); }
 }
+
 function updateReportUI(currentPower, sunH, setH) {
     const chart = document.getElementById('hourly-chart');
     const detailBox = document.getElementById('detail-display');
@@ -174,12 +170,11 @@ function updateReportUI(currentPower, sunH, setH) {
         bar.addEventListener('click', showDetail);
         chart.appendChild(bar);
     }
-if (totalDisplay) {
+    if (totalDisplay) {
         totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
     }
 }
 
-function switchView(vId, el) {
 function switchView(vId, el) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -231,36 +226,32 @@ function setupStars() {
         container.appendChild(star);
     }
 }
+
 function updateSunUI(hDec, sunH, setH) {
     const sun = document.getElementById('sun-body');
     const sky = document.getElementById('sky-box');
     const stars = document.getElementById('stars-container');
     if (!sun || !sky) return;
 
-    // Se è notte (prima dell'alba o dopo il tramonto)
     if (hDec < sunH || hDec > setH) {
-        sun.style.display = "none"; // Nascondi il sole
-        sky.style.background = "linear-gradient(to bottom, #0f172a, #1e293b)"; // Cielo scuro
-        if (stars) stars.style.opacity = "1"; // Mostra le stelle
+        sun.style.display = "none";
+        sky.style.background = "linear-gradient(to bottom, #0f172a, #1e293b)";
+        if (stars) stars.style.opacity = "1";
     } else {
-        // Se è giorno
         sun.style.display = "block";
-        if (stars) stars.style.opacity = "0"; // Nascondi le stelle
+        if (stars) stars.style.opacity = "0";
         
-        // Calcola posizione (0% a 100% dell'arco)
         const progress = (hDec - sunH) / (setH - sunH);
         const posX = progress * 100;
-        // Curva seno per l'altezza (altezza massima al 50% del percorso)
         const posY = Math.sin(progress * Math.PI) * 80; 
 
         sun.style.left = `${posX}%`;
         sun.style.bottom = `${posY}%`;
 
-        // Cambia colore cielo in base all'ora (Alba/Mezzogiorno/Tramonto)
         if (progress < 0.2 || progress > 0.8) {
-            sky.style.background = "linear-gradient(to bottom, #f59e0b, #7c2d12)"; // Colori caldi
+            sky.style.background = "linear-gradient(to bottom, #f59e0b, #7c2d12)";
         } else {
-            sky.style.background = "linear-gradient(to bottom, #38bdf8, #1d4ed8)"; // Azzurro vivo
+            sky.style.background = "linear-gradient(to bottom, #38bdf8, #1d4ed8)";
         }
     }
 }
