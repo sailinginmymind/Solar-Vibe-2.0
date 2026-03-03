@@ -495,3 +495,45 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     font-weight: 900;
     color: #fff;
 }
+/* --- STILIZZAZIONE DISPLAY PRODUZIONE TOTALE --- */
+
+.total-display-box {
+    display: flex;                /* Attiva la modalità riga */
+    justify-content: space-between; /* Spinge il testo a sinistra e il numero a destra */
+    align-items: center;          /* Allinea tutto al centro verticalmente */
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    padding: 15px 20px;
+    border-radius: 20px;
+    border-left: 5px solid #fbbf24; /* La barretta gialla a sinistra */
+    margin: 20px 0;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+}
+
+.label-stack {
+    display: flex;
+    flex-direction: column;       /* Mette PRODUZIONE sopra e TOTALE sotto */
+    text-align: left;
+    gap: 2px;
+}
+
+.label-stack span {
+    font-size: 11px;
+    font-weight: 900;
+    color: #94a3b8;               /* Grigio chiaro per le etichette */
+    letter-spacing: 1.5px;
+    line-height: 1.1;
+}
+
+.eq-symbol {
+    color: #fbbf24;               /* L'uguale diventa giallo */
+    font-size: 14px;
+    margin-left: 3px;
+}
+
+.value-huge {
+    font-size: 32px !important;   /* Numero grande e d'impatto */
+    font-weight: 900;
+    color: #fbbf24;               /* Giallo solare */
+    text-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+    font-family: 'Courier New', monospace; /* Stile digitale */
+}
