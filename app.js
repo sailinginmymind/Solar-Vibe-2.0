@@ -54,10 +54,10 @@ function initEventListeners() {
 
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
-    const originalText = "📡 AGGIORNA GPS E ORA ATTUALE";
+    const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
     const originalBg = btn.style.background; // Salva il colore originale
 
-    btn.innerText = "SINCRO IN CORSO...";
+    btn.innerText = "SINCRONIZZAZIONE IN CORSO...";
     btn.disabled = true; // Evita click multipli durante il caricamento
 
     try {
@@ -72,7 +72,7 @@ async function handleGpsSync() {
         await updateAll();
 
         // --- ANIMAZIONE DI SUCCESSO ---
-        btn.innerText = "✅ SINCRO COMPLETATA";
+        btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e"; // Verde smeraldo
         btn.style.boxShadow = "0 0 15px #22c55e";
         // ------------------------------
