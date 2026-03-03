@@ -6,8 +6,7 @@
 const SolarEngine = {
     // Calcola la produzione istantanea (Watt)
     calculatePower(hDec, sunH, setH, panelWp, cloudCover) {
-        if (hDec < sunH || hDec > setH) return 0;
-
+      
         // Progressione arco solare (0.0 a 1.0)
         const progress = (hDec - sunH) / (setH - sunH);
         const arcHeight = Math.sin(progress * Math.PI);
