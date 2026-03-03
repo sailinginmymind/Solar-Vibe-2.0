@@ -129,16 +129,17 @@ h2 {
 }
 
 /* --- ORIZZONTE (ALBA E TRAMONTO) --- */
-    font-size: 12px !important; 
-    color: #fbbf24 !important;
-    font-weight: 900; 
+.h-label { 
+    font-size: 12px !important;  
+    color: #fbbf24 !important; 
+    font-weight: 900;  
     text-transform: uppercase;
     text-align: center;
 }
 
 #sunrise-txt, #sunset-txt { 
-    color: #fbbf24 !important; 
-    font-size: 20px !important; 
+    color: #fbbf24 !important;  
+    font-size: 20px !important;  
     font-weight: 900;
     display: block;
     margin-top: 5px;
