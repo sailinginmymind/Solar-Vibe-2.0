@@ -22,6 +22,7 @@ window.onload = () => {
 };
 
 function initEventListeners() {
+    document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
     // Navbar
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
@@ -220,9 +221,26 @@ function editSpec(type) {
 }
 
 function saveGarageName() {
+    const btn = document.getElementById('btn-save-name');
     const val = document.getElementById('camper_name_input').value;
+    
+    // Salva nel localStorage
     localStorage.setItem('vibe_camper_name', val);
+    
+    // Aggiorna il titolo in alto
     document.getElementById('camper-name-display').innerText = (val || "IL MIO CAMPER").toUpperCase();
+    
+    // Feedback visivo sul pulsante
+    const originalText = btn.innerText;
+    const originalBg = btn.style.background;
+    
+    btn.innerText = "✅ SALVATO!";
+    btn.style.background = "#22c55e"; // Verde
+    
+    setTimeout(() => {
+        btn.innerText = originalText;
+        btn.style.background = originalBg;
+    }, 2000);
 }
 
 function loadSavedData() {
