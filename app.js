@@ -174,7 +174,8 @@ function updateReportUI(currentPower, sunH, setH) {
         bar.addEventListener('click', showDetail);
         chart.appendChild(bar);
     }
-    if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal);
+if (totalDisplay) {
+    totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
 }
 
 function switchView(vId, el) {
