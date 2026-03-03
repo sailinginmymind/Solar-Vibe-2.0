@@ -175,9 +175,11 @@ function updateReportUI(currentPower, sunH, setH) {
         chart.appendChild(bar);
     }
 if (totalDisplay) {
-    totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
+        totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
+    }
 }
 
+function switchView(vId, el) {
 function switchView(vId, el) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
