@@ -47,7 +47,6 @@ function initEventListeners() {
     });
 
     // Garage
-    document.getElementById('camper_name_input').addEventListener('input', saveGarageName);
     document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
 }
@@ -224,25 +223,23 @@ function saveGarageName() {
     const btn = document.getElementById('btn-save-name');
     const val = document.getElementById('camper_name_input').value;
     
-    // Salva nel localStorage
+    // 1. Salva nel localStorage
     localStorage.setItem('vibe_camper_name', val);
     
-    // Aggiorna il titolo in alto
-    document.getElementById('camper-name-display').innerText = (val || "IL MIO CAMPER").toUpperCase();
+    // 2. Aggiorna il titolo principale (solo ORA al click)
+    // Se è vuoto, usa un fallback
+    const displayName = (val || "IL MIO VAN").toUpperCase();
+    document.getElementById('camper-name-display').innerText = displayName;
     
-    // Feedback visivo sul pulsante
-    const originalText = btn.innerText;
-    const originalBg = btn.style.background;
-    
-    btn.innerText = "✅ SALVATO!";
+    // 3. Feedback visivo sul mini-pulsante
+    btn.innerText = "✅";
     btn.style.background = "#22c55e"; // Verde
     
     setTimeout(() => {
-        btn.innerText = originalText;
-        btn.style.background = originalBg;
-    }, 2000);
+        btn.innerText = "💾";
+        btn.style.background = "#38bdf8"; // Torna all'azzurro originale
+    }, 1500);
 }
-
 function loadSavedData() {
     const name = localStorage.getItem('vibe_camper_name') || "";
     document.getElementById('camper_name_input').value = name;
