@@ -1,5 +1,5 @@
 /**
- * APP.JS - Configurato esattamente per il tuo index.html
+ * APP.JS - Versione Definitiva e Pulita
  */
 
 let state = {
@@ -13,12 +13,12 @@ let state = {
 window.onload = () => {
     initEventListeners();
     loadSavedData();
-    // Esegue il primo aggiornamento automatico
+    setupStars();
+    // Primo avvio automatico
     document.getElementById('btn-gps').click();
 };
 
 function initEventListeners() {
-    // Gestione click sul numero grande (w_out)
     const displayVal = document.getElementById('w_out');
     if (displayVal) {
         displayVal.addEventListener('click', () => {
@@ -27,27 +27,26 @@ function initEventListeners() {
         });
     }
 
-    // Navbar
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
 
-    // GPS Button
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    // Inputs Dashboard
     ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
-        document.getElementById(id).addEventListener('change', updateAll);
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', updateAll);
     });
 
-    // Slider Batteria
-    document.getElementById('soc-slider').addEventListener('input', (e) => {
-        state.currentSOC = e.target.value;
-        document.getElementById('soc-val').innerText = state.currentSOC + "%";
-        updateAll();
-    });
+    const socSlider = document.getElementById('soc-slider');
+    if (socSlider) {
+        socSlider.addEventListener('input', (e) => {
+            state.currentSOC = e.target.value;
+            document.getElementById('soc-val').innerText = state.currentSOC + "%";
+            updateAll();
+        });
+    }
 
-    // Garage
     document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
     document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
@@ -82,7 +81,6 @@ async function updateAll() {
 
     if (!lat || !lng || !displayVal) return;
 
-    // Cambia Colore e Etichetta
     displayVal.style.color = state.isWh ? "#fbbf24" : "#38bdf8";
     if (displayLabel) displayLabel.innerText = state.isWh ? "Clicca per i Watt" : "Clicca per i Wattora";
 
@@ -92,68 +90,46 @@ async function updateAll() {
 
         const hourIdx = parseInt(time.split(':')[0]);
         const hDec = SolarEngine.timeToDecimal(time);
-        
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
-        // Dati Alba/Tramonto
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         document.getElementById('sunrise-txt').innerText = sunrise;
         document.getElementById('sunset-txt').innerText = sunset;
         document.getElementById('display-hour-center').innerText = time;
 
-        // Badge Meteo
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
 
-        // Calcolo Potenza
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
         const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         
-        // Aggiorna numero grande
         displayVal.innerText = Math.round(state.isWh ? power * 0.9 : power) + (state.isWh ? " Wh" : " W");
 
-        // UI Extra
-        if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
         updateReportUI(power, sunH, setH);
-
     } catch (e) { console.error("Errore updateAll:", e); }
 }
 
-// Navigazione
-function switchView(vId, el) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    document.getElementById('view-' + vId).classList.add('active');
-    el.classList.add('active');
-}
-
 function updateReportUI(currentPower, sunH, setH) {
-    // 1. Controllo elementi base
     const chart = document.getElementById('hourly-chart');
     const detailBox = document.getElementById('detail-display');
     const totalDisplay = document.getElementById('total-wh-day');
     
     if (!chart || !state.weatherData) return;
 
-    // 2. Aggiorna i tempi di carica (Basati sulla tua batteria attuale)
     document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, state.battAh);
     document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, state.battAh);
     document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, state.battAh);
 
-    // 3. Pulisci il grafico prima di ridisegnare
     chart.innerHTML = "";
     let dailyTotal = 0;
-
-    // 4. Definisci l'arco temporale (Alba -> Tramonto)
     const startHour = Math.floor(sunH);
     const endHour = Math.ceil(setH);
 
-    // 5. Genera le barre
     for (let h = startHour; h <= endHour; h++) {
         const cloud = state.weatherData.hourly.cloud_cover[h] || 0;
         const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, cloud);
@@ -161,86 +137,40 @@ function updateReportUI(currentPower, sunH, setH) {
 
         const bar = document.createElement('div');
         bar.className = 'bar';
-        // Altezza minima 2% per rendere cliccabili anche le ore a 0W
-        const heightPct = Math.max(2, (hP / state.panelWp * 100));
-        bar.style.height = heightPct + "%";
+        bar.style.height = Math.max(5, (hP / state.panelWp * 100)) + "%";
 
-        // Funzione per mostrare il dato grande quando tocchi/passi sopra
         const showDetail = () => {
             document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
             bar.classList.add('active');
             if (detailBox) {
-                detailBox.innerHTML = `ORE ${h}:00 <span style="margin:0 10px; opacity:0.5;">|</span> <span style="color:#fff">${Math.round(hP)} W</span>`;
+                detailBox.innerHTML = `ORE ${h}:00 <span style="margin:0 10px; opacity:0.5;">→</span> <span style="color:#fff">${Math.round(hP)} W</span>`;
             }
         };
 
         bar.addEventListener('mouseenter', showDetail);
         bar.addEventListener('click', showDetail);
-        bar.addEventListener('touchstart', (e) => { 
-            showDetail(); 
-        }, {passive: true});
-
         chart.appendChild(bar);
     }
-
-    // 6. Scrivi il totale giornaliero
     if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal);
 }
-    // Aggiorna il totale giornaliero
-    const totalDisplay = document.getElementById('total-wh-day');
-    if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal);
-}
-        const showDetail = () => {
-            // Rimuove "active" da tutte le altre barre
-            document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
-            // Aggiunge "active" a quella cliccata
-            bar.classList.add('active');
-            
-            // Scrive il dato GRANDE nel nuovo contenitore
-            const detailBox = document.getElementById('detail-display');
-            detailBox.innerHTML = `ORE ${h}:00 <span style="margin:0 10px">→</span> ${Math.round(hP)} W`;
-            detailBox.style.transform = "scale(1.1)";
-            
-            // Feedback anche sulla label totale
-            const totalDisplay = document.getElementById('total-wh-day');
-            totalDisplay.innerText = Math.round(hP); 
-        };
 
-        bar.addEventListener('mouseenter', showDetail); // Per PC
-        bar.addEventListener('touchstart', (e) => {     // Per Mobile (più reattivo)
-            e.preventDefault();
-            showDetail();
-        });
-
-        chart.appendChild(bar);
-    }
-        // Evento per mostrare i Watt (Desktop e Mobile)
-        const showVal = () => {
-            const displayTotal = document.getElementById('total-wh-day');
-            displayTotal.innerHTML = `Ore ${h}:00 → <b>${Math.round(hP)} W</b>`;
-            // Ripristina il totale dopo 3 secondi
-            setTimeout(() => {
-                displayTotal.innerText = Math.round(dailyTotal);
-            }, 3000);
-        };
-
-        bar.addEventListener('mouseenter', showVal);
-        bar.addEventListener('click', showVal);
-
-        chart.appendChild(bar);
-    }
-    document.getElementById('total-wh-day').innerText = Math.round(dailyTotal);
+function switchView(vId, el) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    const target = document.getElementById('view-' + vId);
+    if (target) target.classList.add('active');
+    if (el) el.classList.add('active');
 }
 
 function editSpec(type) {
     let v = prompt(type === 'batt' ? "Ah Batteria:" : "Watt Pannelli (Wp):");
     if (v && !isNaN(v)) {
         if (type === 'batt') {
-            state.battAh = v;
+            state.battAh = parseFloat(v);
             localStorage.setItem('vibe_batt_ah', v);
             document.getElementById('batt_val').innerText = v;
         } else {
-            state.panelWp = v;
+            state.panelWp = parseFloat(v);
             localStorage.setItem('vibe_panel_wp', v);
             document.getElementById('panel_val').innerText = v;
         }
@@ -265,6 +195,7 @@ function loadSavedData() {
 function setupStars() {
     const container = document.getElementById('stars-container');
     if (!container) return;
+    container.innerHTML = "";
     for (let i = 0; i < 50; i++) {
         const star = document.createElement('div');
         star.className = 'star';
