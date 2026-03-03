@@ -82,7 +82,7 @@ async function handleGpsSync() {
     }
 }
 
-// Core Update
+// Cerca questo blocco nel tuo app.js attuale e sostituiscilo interamente:
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
@@ -93,26 +93,47 @@ async function updateAll() {
 
     // Fetch dati meteo
     state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
-    if(!state.weatherData) return;
+    
+    // Controllo sicurezza dati
+    if(!state.weatherData || !state.weatherData.hourly) {
+        console.error("Dati meteo mancanti o incompleti");
+        return;
+    }
 
     const hourIdx = parseInt(time.split(':')[0]);
     const hDec = SolarEngine.timeToDecimal(time);
-    const sunH = SolarEngine.timeToDecimal(state.weatherData.daily.sunrise[0].split('T')[1]);
-    const setH = SolarEngine.timeToDecimal(state.weatherData.daily.sunset[0].split('T')[1]);
+    
+    // Recupero orari Alba e Tramonto
+    const sunriseStr = state.weatherData.daily.sunrise[0].split('T')[1];
+    const sunsetStr = state.weatherData.daily.sunset[0].split('T')[1];
+    const sunH = SolarEngine.timeToDecimal(sunriseStr);
+    const setH = SolarEngine.timeToDecimal(sunsetStr);
 
-    // Update Dashboard
-    document.getElementById('sunrise-txt').innerText = state.weatherData.daily.sunrise[0].split('T')[1];
-    document.getElementById('sunset-txt').innerText = state.weatherData.daily.sunset[0].split('T')[1];
+    // --- AGGIORNAMENTO UI DASHBOARD ---
+    document.getElementById('sunrise-txt').innerText = sunriseStr;
+    document.getElementById('sunset-txt').innerText = sunsetStr;
     document.getElementById('display-hour-center').innerText = time;
-    document.getElementById('r-cloud-percent').innerText = state.weatherData.hourly.cloud_cover[hourIdx] + "%";
     
-    const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, state.weatherData.hourly.cloud_cover[hourIdx]);
+    // Estrazione Dati Meteo Orari
+    const cloud = state.weatherData.hourly.cloud_cover[hourIdx];
+    const temp = state.weatherData.hourly.temperature_2m[hourIdx];
+    const hum = state.weatherData.hourly.relative_humidity_2m[hourIdx];
+    const wind = state.weatherData.hourly.wind_speed_10m[hourIdx];
+
+    // Inserimento nei badge
+    document.getElementById('r-cloud-percent').innerText = cloud + "%";
+    document.getElementById('r-temp').innerText = Math.round(temp) + "°";
+    document.getElementById('r-hum').innerText = hum + "%";
+    document.getElementById('r-wind').innerText = Math.round(wind) + " km/h";
     
-    // UI Sun position
+    // Calcolo Potenza
+    const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, cloud);
+    
+    // Update Sole e Display Watt
     updateSunUI(hDec, sunH, setH);
     document.getElementById('w_out').innerText = Math.round(state.isWh ? power * 0.9 : power) + (state.isWh ? " Wh" : " W");
 
-    // Update Report
+    // Update Report e Grafico
     updateReportUI(power, sunH, setH);
 }
 
