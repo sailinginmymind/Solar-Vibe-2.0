@@ -133,45 +133,59 @@ function switchView(vId, el) {
 }
 
 function updateReportUI(currentPower, sunH, setH) {
-    // Aggiorna tempi di carica
+    // 1. Controllo elementi base
+    const chart = document.getElementById('hourly-chart');
+    const detailBox = document.getElementById('detail-display');
+    const totalDisplay = document.getElementById('total-wh-day');
+    
+    if (!chart || !state.weatherData) return;
+
+    // 2. Aggiorna i tempi di carica (Basati sulla tua batteria attuale)
     document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, state.battAh);
     document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, state.battAh);
     document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, state.battAh);
 
-    const chart = document.getElementById('hourly-chart');
-    const detailBox = document.getElementById('detail-display'); // Assicurati che questo ID esista in HTML!
-    if (!chart) return;
+    // 3. Pulisci il grafico prima di ridisegnare
     chart.innerHTML = "";
-    
     let dailyTotal = 0;
+
+    // 4. Definisci l'arco temporale (Alba -> Tramonto)
     const startHour = Math.floor(sunH);
     const endHour = Math.ceil(setH);
 
+    // 5. Genera le barre
     for (let h = startHour; h <= endHour; h++) {
-        const cloud = state.weatherData.hourly.cloud_cover[h];
+        const cloud = state.weatherData.hourly.cloud_cover[h] || 0;
         const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, cloud);
         dailyTotal += hP;
 
         const bar = document.createElement('div');
         bar.className = 'bar';
-        bar.style.height = (hP / state.panelWp * 100) + "%";
+        // Altezza minima 2% per rendere cliccabili anche le ore a 0W
+        const heightPct = Math.max(2, (hP / state.panelWp * 100));
+        bar.style.height = heightPct + "%";
 
-        // Funzione per mostrare il dettaglio grande
+        // Funzione per mostrare il dato grande quando tocchi/passi sopra
         const showDetail = () => {
             document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
             bar.classList.add('active');
-            
             if (detailBox) {
-                detailBox.innerHTML = `ORE ${h}:00 <span style="margin:0 10px">→</span> ${Math.round(hP)} W`;
+                detailBox.innerHTML = `ORE ${h}:00 <span style="margin:0 10px; opacity:0.5;">|</span> <span style="color:#fff">${Math.round(hP)} W</span>`;
             }
         };
 
         bar.addEventListener('mouseenter', showDetail);
         bar.addEventListener('click', showDetail);
+        bar.addEventListener('touchstart', (e) => { 
+            showDetail(); 
+        }, {passive: true});
 
         chart.appendChild(bar);
     }
-    
+
+    // 6. Scrivi il totale giornaliero
+    if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal);
+}
     // Aggiorna il totale giornaliero
     const totalDisplay = document.getElementById('total-wh-day');
     if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal);
