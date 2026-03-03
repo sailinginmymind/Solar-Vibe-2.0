@@ -148,17 +148,39 @@ function updateReportUI(currentPower, sunH, setH) {
     const startHour = Math.floor(sunH);
     const endHour = Math.ceil(setH);
 
-    for (let h = startHour; h <= endHour; h++) {
+for (let h = startHour; h <= endHour; h++) {
         const cloud = state.weatherData.hourly.cloud_cover[h];
         const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, cloud);
         dailyTotal += hP;
 
         const bar = document.createElement('div');
         bar.className = 'bar';
-        // Altezza proporzionale alla potenza massima dei pannelli
         bar.style.height = (hP / state.panelWp * 100) + "%";
-        bar.setAttribute('data-label', h + "h");
 
+        const showDetail = () => {
+            // Rimuove "active" da tutte le altre barre
+            document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
+            // Aggiunge "active" a quella cliccata
+            bar.classList.add('active');
+            
+            // Scrive il dato GRANDE nel nuovo contenitore
+            const detailBox = document.getElementById('detail-display');
+            detailBox.innerHTML = `ORE ${h}:00 <span style="margin:0 10px">→</span> ${Math.round(hP)} W`;
+            detailBox.style.transform = "scale(1.1)";
+            
+            // Feedback anche sulla label totale
+            const totalDisplay = document.getElementById('total-wh-day');
+            totalDisplay.innerText = Math.round(hP); 
+        };
+
+        bar.addEventListener('mouseenter', showDetail); // Per PC
+        bar.addEventListener('touchstart', (e) => {     // Per Mobile (più reattivo)
+            e.preventDefault();
+            showDetail();
+        });
+
+        chart.appendChild(bar);
+    }
         // Evento per mostrare i Watt (Desktop e Mobile)
         const showVal = () => {
             const displayTotal = document.getElementById('total-wh-day');
