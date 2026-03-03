@@ -244,27 +244,40 @@ h2 {
     color: white;
     line-height: 1.2;
 }
-/* --- CONTROLLI --- */
-.manual-controls { 
-    background: #0f172a; 
-    padding: 15px; 
-    border-radius: 20px; 
-    margin-top: 20px; 
-    border: 1px solid #334155; 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 10px; 
+/* --- CONTENITORE INPUT MANUALI (DATA, ORA, LAT, LNG) --- */
+.manual-controls {
+    display: grid;
+    /* Di base su desktop stanno su una riga sola (4 colonne) */
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 10px;
+    margin-top: 20px;
+    padding: 0 10px;
 }
 
-.manual-input { 
-    background: #1e293b; 
-    color: white; 
-    border: 1px solid #334155; 
-    padding: 10px; 
-    border-radius: 10px; 
-    font-size: 13px; 
-    width: 100%; 
-    font-weight: bold; 
+/* Stilizzazione dei singoli campi di input */
+.manual-input {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 8px;
+    color: #fff;
+    padding: 8px;
+    font-size: 12px;
+    text-align: center;
+    width: 100%; /* Si adatta alla colonna della griglia */
+}
+
+/* --- ADATTABILITÀ MOBILE (IL TRUCCO PER IL TELEFONO) --- */
+@media (max-width: 480px) {
+    .manual-controls {
+        /* Su schermi piccoli diventano 2 colonne e 2 righe */
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 8px;
+    }
+    
+    .manual-input {
+        font-size: 14px; /* Leggermente più grande per facilitare il tocco */
+        padding: 12px 8px;
+    }
 }
 
 .btn-live { 
