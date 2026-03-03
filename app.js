@@ -76,9 +76,19 @@ async function handleGpsSync() {
         await updateAll();
         btn.innerText = "✅ SINCRO COMPLETATA";
     } catch (err) {
-        btn.innerText = "❌ ERRORE GPS";
+        console.error("Dettaglio Errore GPS:", err);
+        // Questo switch ci dice la verità:
+        let msg = "ERRORE GPS";
+        if (err.code === 1) msg = "PERMESSO NEGATO";
+        if (err.code === 2) msg = "POSIZIONE NON DISP.";
+        if (err.code === 3) msg = "TIMEOUT GPS";
+        
+        btn.innerText = "❌ " + msg;
     } finally {
-        setTimeout(() => { btn.classList.remove('syncing'); btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE"; }, 2000);
+        setTimeout(() => { 
+            btn.classList.remove('syncing'); 
+            btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE"; 
+        }, 3000);
     }
 }
 
