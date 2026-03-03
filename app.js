@@ -205,3 +205,36 @@ function setupStars() {
         container.appendChild(star);
     }
 }
+function updateSunUI(hDec, sunH, setH) {
+    const sun = document.getElementById('sun-body');
+    const sky = document.getElementById('sky-box');
+    const stars = document.getElementById('stars-container');
+    if (!sun || !sky) return;
+
+    // Se è notte (prima dell'alba o dopo il tramonto)
+    if (hDec < sunH || hDec > setH) {
+        sun.style.display = "none"; // Nascondi il sole
+        sky.style.background = "linear-gradient(to bottom, #0f172a, #1e293b)"; // Cielo scuro
+        if (stars) stars.style.opacity = "1"; // Mostra le stelle
+    } else {
+        // Se è giorno
+        sun.style.display = "block";
+        if (stars) stars.style.opacity = "0"; // Nascondi le stelle
+        
+        // Calcola posizione (0% a 100% dell'arco)
+        const progress = (hDec - sunH) / (setH - sunH);
+        const posX = progress * 100;
+        // Curva seno per l'altezza (altezza massima al 50% del percorso)
+        const posY = Math.sin(progress * Math.PI) * 80; 
+
+        sun.style.left = `${posX}%`;
+        sun.style.bottom = `${posY}%`;
+
+        // Cambia colore cielo in base all'ora (Alba/Mezzogiorno/Tramonto)
+        if (progress < 0.2 || progress > 0.8) {
+            sky.style.background = "linear-gradient(to bottom, #f59e0b, #7c2d12)"; // Colori caldi
+        } else {
+            sky.style.background = "linear-gradient(to bottom, #38bdf8, #1d4ed8)"; // Azzurro vivo
+        }
+    }
+}
