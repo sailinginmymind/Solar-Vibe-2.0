@@ -329,15 +329,26 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     background: #ffffff;
     filter: drop-shadow(0 0 8px #fbbf24);
 }
-/* Label dell'ora sotto la barra (opzionale) */
+/* Nascondiamo le etichette ammucchiate sotto le barre */
 .bar::after {
-    content: attr(data-label);
-    position: absolute;
-    bottom: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 10px;
-    color: #94a3b8;
+    display: none; 
+}
+/* Contenitore del dato evidenziato (lo mettiamo sopra il grafico) */
+#detail-display {
+    text-align: center;
+    height: 40px;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fbbf24;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+}
+/* La barra selezionata diventa bianca e "salta" fuori */
+.bar.active {
+    background: #ffffff !important;
+    transform: scaleY(1.05);
+    filter: drop-shadow(0 0 8px #fbbf24);
 }
 .total-label { 
     text-align: center; 
