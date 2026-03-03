@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vibe Solar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-container">
+    <h2 id="camper-name-display">IL MIO CAMPER</h2>
+
+    <div id="view-live" class="view active">
+        <button id="btn-gps" class="btn-live">📡 AGGIORNA GPS E ORA ATTUALE</button>
+        <div id="main-card" class="card">
+            <div id="sky-box" class="solar-system">
+                <div id="stars-container"></div>
+                <div id="sun-body"></div> 
+                <div class="horizon-mask"></div>
+                <div class="horizon-data">
+                    <div class="h-label">ALBA<br><span id="sunrise-txt">--:--</span></div>
+                    <div class="h-label" style="text-align:right">TRAMONTO<br><span id="sunset-txt">--:--</span></div>
+                </div>
+                <div class="core-display">
+                    <span id="display-hour-center">--:--</span>
+                    <span id="r-cloud-percent">--%</span>
+                    <span class="sub-label">NUBI</span>
+                </div>
+            </div>
+            <span id="w_out" class="big-w">0 W</span>
+            <span id="unit-label" class="unit-hint">Clicca per i Wattora</span>
+            <div class="weather-badges">
+                <div class="w-badge"><span class="w-label">VENTO</span><span id="r-wind" class="w-val">--</span></div>
+                <div class="w-badge"><span class="w-label">UMIDITÀ</span><span id="r-hum" class="w-val">--</span></div>
+                <div class="w-badge"><span class="w-label">TEMP.</span><span id="r-temp" class="w-val">--</span></div>
+            </div>
+            <div class="manual-controls">
+                <input type="time" id="input-time" class="manual-input">
+                <input type="date" id="input-date" class="manual-input">
+                <input type="number" id="input-lat" placeholder="Lat" class="manual-input" step="0.01">
+                <input type="number" id="input-lng" placeholder="Lng" class="manual-input" step="0.01">
+            </div>
+        </div>
+    </div>
+
+    <div id="view-energy" class="view">
+        <div class="card">
+            <h3 class="section-title">STATO CARICA</h3>
+            <div class="slider-box">
+                <div class="slider-header">
+                    <span>BATTERIA ATTUALE</span>
+                    <span id="soc-val">50%</span>
+                </div>
+                <input type="range" id="soc-slider" min="0" max="100" value="50">
+            </div>
+            <div class="report-grid">
+                <div class="w-badge"><span>A 80% IN</span><br><b id="charge_80_txt">--</b></div>
+                <div class="w-badge" style="border-color:#fbbf24"><span>90% IN</span><br><b id="charge_90_txt">--</b></div>
+                <div class="w-badge" style="border-color:#22c55e"><span>FULL IN</span><br><b id="charge_100_txt">--</b></div>
+            </div>
+            <h3 class="section-title" style="margin-top:30px">PREVISIONE ODIERNA</h3>
+            <div id="hourly-chart" class="chart-container"></div>
+            <p class="total-label">PRODUZIONE TOTALE: <span id="total-wh-day">0</span> Wh</p>
+        </div>
+    </div>
+
+    <div id="view-garage" class="view">
+        <div class="card">
+            <h3 class="section-title">GARAGE</h3>
+            <input type="text" id="camper_name_input" placeholder="NOME CAMPER" class="manual-input">
+            <div class="garage-row">
+                <span>🔋 Batteria: <b><span id="batt_val">100</span> Ah</b></span>
+                <button id="edit-batt-btn" class="mini-btn">EDIT</button>
+            </div>
+            <div class="garage-row">
+                <span>☀️ Pannelli: <b><span id="panel_val">100</span> Wp</b></span>
+                <button id="edit-pan-btn" class="mini-btn">EDIT</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="navbar-wrapper">
+        <div class="navbar">
+            <div class="nav-item active" data-view="live"><span>🛰️</span>DASHBOARD</div>
+            <div class="nav-item" data-view="energy"><span>📊</span>REPORT</div>
+            <div class="nav-item" data-view="garage"><span>🚐</span>GARAGE</div>
+        </div>
+    </div>
+</div>
+
+<script src="weather-api.js"></script>
+<script src="solar-engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
