@@ -110,10 +110,13 @@ async function updateAll() {
         
         displayVal.innerText = Math.round(state.isWh ? power * 0.9 : power) + (state.isWh ? " Wh" : " W");
 
+        // --- QUESTE SONO LE RIGHE CHE RIPRISTINANO IL SOLE E IL REPORT ---
+        if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
         updateReportUI(power, sunH, setH);
+        // ----------------------------------------------------------------
+
     } catch (e) { console.error("Errore updateAll:", e); }
 }
-
 function updateReportUI(currentPower, sunH, setH) {
     const chart = document.getElementById('hourly-chart');
     const detailBox = document.getElementById('detail-display');
