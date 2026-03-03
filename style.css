@@ -282,23 +282,31 @@ h2 {
 
 .btn-live.syncing { background: #22c55e; color: white; }
 
-/* --- REPORT SPECIFIC --- */
-.slider-box { 
-    margin: 15px 0; 
-    background: #0f172a; 
-    padding: 15px; 
-    border-radius: 15px; 
+/* Il contenitore sopra lo slider */
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; /* Allinea il testo alla base */
+    margin-bottom: 15px;   /* Più spazio dallo slider */
+    padding: 0 5px;
 }
 
-.slider-header { 
-    display: flex; 
-    justify-content: space-between; 
-    font-size: 11px; 
-    font-weight: 900; 
-    margin-bottom: 8px; 
+/* Etichetta "BATTERIA ATTUALE" */
+.slider-header span:first-child {
+    font-size: 14px;      /* Più leggibile */
+    font-weight: 900;
+    color: #94a3b8;
+    letter-spacing: 2px;
 }
 
-#soc-val { color: #fbbf24; }
+/* La percentuale (es: 50%) */
+#soc-val {
+    font-size: 28px !important; /* Molto più grande */
+    font-weight: 900;
+    color: #38bdf8;             /* Usiamo l'azzurro per differenziarla dal giallo solare */
+    line-height: 1;
+    text-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+}
 
 input[type=range] { width: 100%; accent-color: #38bdf8; }
 
