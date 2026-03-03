@@ -255,3 +255,34 @@ function updateSunUI(hDec, sunH, setH) {
         }
     }
 }
+/* --- RIPRISTINO TIMEOUT GRAFICO --- */
+
+// Variabile per gestire il timer globalmente
+let chartSelectionTimer;
+
+// Funzione che "ascolta" i click sul contenitore del grafico
+document.getElementById('hourly-chart').addEventListener('click', (e) => {
+    // Controlla se abbiamo cliccato proprio su una barra
+    const bar = e.target.closest('.bar');
+    if (!bar) return;
+
+    const display = document.getElementById('detail-display');
+
+    // 1. Pulizia: togliamo 'active' da tutte le altre barre
+    document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
+    
+    // 2. Attiviamo la barra cliccata (diventa bianca come da tuo CSS)
+    bar.classList.add('active');
+
+    // 3. LOGICA DEL TIMEOUT DI 3 SECONDI
+    clearTimeout(chartSelectionTimer); // Reset se clicchi un'altra barra velocemente
+    
+    chartSelectionTimer = setTimeout(() => {
+        // Torna alla scritta neutra
+        display.innerText = "Tocca una barra per i dettagli";
+        display.style.color = "#94a3b8"; // Grigio neutro
+        
+        // Rimuove l'illuminazione dalla barra
+        bar.classList.remove('active');
+    }, 3000); // 3 secondi
+});
