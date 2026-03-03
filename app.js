@@ -23,23 +23,24 @@ window.onload = () => {
 };
 
 function toggleWattMode() {
-    wattMode = (wattMode === 'W') ? 'Wh' : 'W';
+    wattMode = (wattMode === 'W') ? 'Wh' : 'W'; // Se è W diventa Wh, e viceversa
     
     const displayVal = document.querySelector('.main-wattage');
-    const displayLabel = document.getElementById('watt-label'); // Assicurati di avere questo ID nel testo sotto il numero
+    const displayLabel = document.getElementById('watt-label');
     
     if (wattMode === 'Wh') {
-        displayVal.style.color = "#fbbf24"; // Giallo Solar
+        displayVal.style.color = "#fbbf24"; // Giallo GPS
         if(displayLabel) displayLabel.innerText = "ENERGIA ACCUMULATA (Wh)";
     } else {
         displayVal.style.color = "#38bdf8"; // Azzurro Vibe
         if(displayLabel) displayLabel.innerText = "POTENZA ISTANTANEA (W)";
     }
     
-    // Questa chiamata è fondamentale: ricalcola il numero in base alla modalità scelta
+    // IMPORTANTE: Dopo aver cambiato colore, diciamo all'app di aggiornare il numero
     updateAll(); 
 }
 function initEventListeners() {
+    document.querySelector('.main-wattage').addEventListener('click', toggleWattMode);
     document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
     // Navbar
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -110,12 +111,21 @@ async function handleGpsSync() {
     }
 }
 
-// Cerca questo blocco nel tuo app.js attuale e sostituiscilo interamente:
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
     const date = document.getElementById('input-date').value;
     const time = document.getElementById('input-time').value;
+    const displayVal = document.querySelector('.main-wattage');
+   //Controlla lo stato ogni volta che aggiorni il numero
+    if (wattMode === 'Wh') {
+        displayVal.style.color = "#fbbf24"; // Mantieni il giallo
+        // Qui scriverai il calcolo per i Wh
+    } else {
+        displayVal.style.color = "#38bdf8"; // Mantieni l'azzurro
+        // Qui scriverai il calcolo per i W
+    }
+}
 
     if(!lat || !lng || !date || !time) return;
 
