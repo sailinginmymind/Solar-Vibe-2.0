@@ -302,23 +302,43 @@ h2 {
 
 input[type=range] { width: 100%; accent-color: #38bdf8; }
 
-.chart-container { 
-    display: flex; 
-    align-items: flex-end; 
-    justify-content: space-between; 
-    height: 120px; 
-    background: #0f172a; 
-    border-radius: 15px; 
-    padding: 15px 10px 5px 10px; 
+/* Contenitore grafico più alto */
+.chart-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 250px; /* Aumentato per visibilità */
+    padding: 20px 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 15px;
+    margin-top: 20px;
 }
-
-.bar { 
-    background: #38bdf8; 
-    width: 7%; 
-    border-radius: 3px 3px 0 0; 
-    transition: height 0.4s ease; 
+/* Barre più larghe e interattive */
+.bar {
+    flex: 1;
+    margin: 0 2px;
+    background: linear-gradient(to top, #fbbf24, #f59e0b);
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
 }
-
+/* Effetto al passaggio del mouse o click */
+.bar:hover {
+    background: #ffffff;
+    filter: drop-shadow(0 0 8px #fbbf24);
+}
+/* Label dell'ora sotto la barra (opzionale) */
+.bar::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #94a3b8;
+}
 .total-label { 
     text-align: center; 
     font-size: 12px; 
