@@ -112,27 +112,30 @@ async function handleGpsSync() {
 }
 
 async function updateAll() {
-    // 1. Recupera i valori dai campi input
-    const lat = document.getElementById('input-lat').value;
-    const lng = document.getElementById('input-lng').value;
-    const date = document.getElementById('input-date').value;
-    const time = document.getElementById('input-time').value;
+    try {
+        const lat = document.getElementById('input-lat').value;
+        const lng = document.getElementById('input-lng').value;
+        const date = document.getElementById('input-date').value;
+        const time = document.getElementById('input-time').value;
+        const displayVal = document.querySelector('.main-wattage');
 
-    if (!lat || !lng) return; // Se non c'è posizione, non fare nulla
+        // Se non ci sono coordinate, usciamo senza fare errori
+        if (!lat || !lng) return;
 
-    // 2. Chiama il motore di calcolo (solar-engine)
-    // Assicurati che calculateSolar sia il nome della funzione nel tuo solar-engine.js
-    const solarData = await calculateSolar(lat, lng, date, time);
+        // --- QUI AGGIUNGIAMO IL CAMBIO COLORE ---
+        if (wattMode === 'Wh') {
+            displayVal.style.color = "#fbbf24"; // Giallo
+        } else {
+            displayVal.style.color = "#38bdf8"; // Azzurro
+        }
 
-    const displayVal = document.querySelector('.main-wattage');
-    
-    // 3. Gestione Colore e Unità di Misura
-    if (wattMode === 'Wh') {
-        displayVal.style.color = "#fbbf24"; // Giallo
-        displayVal.innerText = Math.round(solarData.wattHour) + " Wh";
-    } else {
-        displayVal.style.color = "#38bdf8"; // Azzurro
-        displayVal.innerText = Math.round(solarData.watts) + " W";
+        // --- QUI CHIAMA IL TUO MOTORE DI CALCOLO ---
+        // Se la funzione calculateSolar non esiste ancora, commenta la riga sotto
+        // const solarData = await SolarEngine.calculate(lat, lng, date, time);
+        // displayVal.innerText = Math.round(solarData.watts) + " " + wattMode;
+
+    } catch (error) {
+        console.error("Errore dentro updateAll:", error);
     }
 }
 
