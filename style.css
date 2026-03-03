@@ -371,13 +371,26 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 /* Contenitore del dato evidenziato (lo mettiamo sopra il grafico) */
 #detail-display {
     text-align: center;
-    height: 40px;
+    min-height: 40px;
     margin-bottom: 10px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #fbbf24;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Stesso stile di "BATTERIA ATTUALE" */
+    font-size: 11px;
+    font-weight: 900;
+    color: #94a3b8;      /* Grigio di base */
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
     transition: all 0.3s ease;
-    text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+}
+
+/* Classe speciale per evidenziare la parola "barra" */
+.highlight-yellow {
+    color: #fbbf24;
+    margin: 0 5px;       /* Spazio intorno alla parola */
+}
 }
 /* La barra selezionata diventa bianca e "salta" fuori */
 .bar.active {
