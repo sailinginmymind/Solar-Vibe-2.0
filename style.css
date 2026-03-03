@@ -350,23 +350,21 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     transform: scaleY(1.05);
     filter: drop-shadow(0 0 8px #fbbf24);
 }
-/* --- STILE PRODUZIONE TOTALE --- */
-.total-label { 
-    text-align: center; 
-    font-size: 16px; /* Aumentato da 12px */
-    font-weight: 800; 
-    color: #94a3b8; 
-    margin-top: 25px;
-    letter-spacing: 1px;
+/* Testo "PRODUZIONE TOTALE" */
+.total-label span:first-child {
+    font-size: 13px;
+    font-weight: 800;
+    color: #94a3b8;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
+/* Il Numero (es: 5024 Wh) */
 #total-wh-day { 
     color: #fbbf24; 
-    font-size: 28px; /* Numero molto più grande */
-    display: block;  /* Mette il numero sotto la scritta */
-    margin-top: 5px;
+    font-size: 24px; 
     font-weight: 900;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
 }
 
 /* --- GARAGE --- */
