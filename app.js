@@ -133,22 +133,21 @@ function switchView(vId, el) {
 }
 
 function updateReportUI(currentPower, sunH, setH) {
-    // Aggiorna tempi di carica (basati sulla batteria salvata)
+    // Aggiorna tempi di carica
     document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, state.battAh);
     document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, state.battAh);
     document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, state.battAh);
 
     const chart = document.getElementById('hourly-chart');
+    const detailBox = document.getElementById('detail-display'); // Assicurati che questo ID esista in HTML!
     if (!chart) return;
     chart.innerHTML = "";
     
     let dailyTotal = 0;
-    
-    // Ciclo dalle ore di luce (arrotondate)
     const startHour = Math.floor(sunH);
     const endHour = Math.ceil(setH);
 
-for (let h = startHour; h <= endHour; h++) {
+    for (let h = startHour; h <= endHour; h++) {
         const cloud = state.weatherData.hourly.cloud_cover[h];
         const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, cloud);
         dailyTotal += hP;
@@ -157,6 +156,26 @@ for (let h = startHour; h <= endHour; h++) {
         bar.className = 'bar';
         bar.style.height = (hP / state.panelWp * 100) + "%";
 
+        // Funzione per mostrare il dettaglio grande
+        const showDetail = () => {
+            document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
+            bar.classList.add('active');
+            
+            if (detailBox) {
+                detailBox.innerHTML = `ORE ${h}:00 <span style="margin:0 10px">→</span> ${Math.round(hP)} W`;
+            }
+        };
+
+        bar.addEventListener('mouseenter', showDetail);
+        bar.addEventListener('click', showDetail);
+
+        chart.appendChild(bar);
+    }
+    
+    // Aggiorna il totale giornaliero
+    const totalDisplay = document.getElementById('total-wh-day');
+    if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal);
+}
         const showDetail = () => {
             // Rimuove "active" da tutte le altre barre
             document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
