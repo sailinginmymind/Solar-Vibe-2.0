@@ -24,25 +24,30 @@ window.onload = () => {
 };
 
 function toggleWattMode() {
-    wattMode = (wattMode === 'W') ? 'Wh' : 'W'; // Se è W diventa Wh, e viceversa
-    
+    // Cambia lo stato
+    wattMode = (wattMode === 'W') ? 'Wh' : 'W'; 
+    state.isWh = (wattMode === 'Wh');
+
     const displayVal = document.querySelector('.main-wattage');
     const displayLabel = document.getElementById('watt-label');
-    
-    if (wattMode === 'Wh') {
-        displayVal.style.color = "#fbbf24"; // Giallo GPS
+
+    if (state.isWh) {
+        displayVal.setAttribute('style', 'color: #fbbf24 !important'); // Forza il giallo
         if(displayLabel) displayLabel.innerText = "ENERGIA ACCUMULATA (Wh)";
     } else {
-        displayVal.style.color = "#38bdf8"; // Azzurro Vibe
+        displayVal.setAttribute('style', 'color: #38bdf8 !important'); // Forza l'azzurro
         if(displayLabel) displayLabel.innerText = "POTENZA ISTANTANEA (W)";
     }
-    
-    // IMPORTANTE: Dopo aver cambiato colore, diciamo all'app di aggiornare il numero
+
     updateAll(); 
 }
+
 function initEventListeners() {
+    // Gestione click sul numero grande (Unificato)
     document.querySelector('.main-wattage').addEventListener('click', toggleWattMode);
+    
     document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
+    
     // Navbar
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
@@ -52,9 +57,6 @@ function initEventListeners() {
     ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
         document.getElementById(id).addEventListener('change', updateAll);
     });
-
-    // Toggle Unità (Watt/Wh)
-    document.querySelector('.main-wattage').addEventListener('click', toggleWattMode);
 
     // GPS Button
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
@@ -227,12 +229,6 @@ function updateReportUI(currentPower, sunH, setH) {
     document.getElementById('total-wh-day').innerText = Math.round(dailyTotal);
 }
 
-// Helpers
-function toggleUnit() {
-    state.isWh = !state.isWh;
-    document.getElementById('unit-label').innerText = state.isWh ? "Clicca per i Watt" : "Clicca per i Wattora";
-    updateAll();
-}
 
 function editSpec(type) {
     const label = type === 'batt' ? "Ah Batteria:" : "Watt Pannelli (Wp):";
