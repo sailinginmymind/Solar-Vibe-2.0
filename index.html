@@ -44,10 +44,18 @@
         </div>
     </div>
 
-    <div id="view-energy" class="view">
-        <div id="detail-display">Tocca una barra per i dettagli</div>
-<div id="hourly-chart" class="chart-container"></div>
+<div id="view-energy" class="view">
         <div class="card">
+            <div id="detail-display" style="text-align:center; color:#fbbf24; font-weight:bold; margin-bottom:10px; min-height:1.5em;">
+                Tocca una barra per i dettagli
+            </div>
+            
+            <h3 class="section-title">PREVISIONE ODIERNA</h3>
+            <div id="hourly-chart" class="chart-container"></div>
+            <p class="total-label">PRODUZIONE TOTALE: <span id="total-wh-day">0</span> Wh</p>
+            
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
+
             <h3 class="section-title">STATO CARICA</h3>
             <div class="slider-box">
                 <div class="slider-header">
@@ -61,9 +69,6 @@
                 <div class="w-badge" style="border-color:#fbbf24"><span>90% IN</span><br><b id="charge_90_txt">--</b></div>
                 <div class="w-badge" style="border-color:#22c55e"><span>FULL IN</span><br><b id="charge_100_txt">--</b></div>
             </div>
-            <h3 class="section-title" style="margin-top:30px">PREVISIONE ODIERNA</h3>
-            <div id="hourly-chart" class="chart-container"></div>
-            <p class="total-label">PRODUZIONE TOTALE: <span id="total-wh-day">0</span> Wh</p>
         </div>
     </div>
 
