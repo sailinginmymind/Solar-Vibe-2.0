@@ -128,8 +128,25 @@ h2 {
     padding: 0 20px; 
 }
 
-.h-label { font-size: 9px; color: #fbbf24; font-weight: 900; }
+/* --- ORIZZONTE (ALBA E TRAMONTO) --- */
+.h-label { 
+    font-size: 11px; /* Leggermente più grande l'etichetta */
+    color: #fbbf24; 
+    font-weight: 900; 
+    line-height: 1.4;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Ombra per leggere meglio sul blu */
+}
 
+/* Gli orari specifici (es. 06:45) */
+#sunrise-txt, #sunset-txt { 
+    color: white !important; 
+    font-size: 16px !important; /* Ingrandito da 13px a 16px */
+    font-weight: 900;
+    display: block;
+    margin-top: 2px;
+}
+
+/* --- DISPLAY CENTRALE (NUBI E ORA) --- */
 .core-display { 
     position: absolute; 
     bottom: 35px; 
@@ -137,14 +154,37 @@ h2 {
     transform: translateX(-50%); 
     background: #0f172a; 
     border: 4px solid #334155; 
-    width: 100px; 
-    height: 100px; 
+    width: 115px; /* Aumentato da 100 a 115 per far stare i font grandi */
+    height: 115px; /* Aumentato da 100 a 115 */
     border-radius: 50%; 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
     justify-content: center; 
     z-index: 5; 
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+#display-hour-center { 
+    font-size: 24px; /* Ingrandito da 20px a 24px */
+    font-weight: 900; 
+    color: #fbbf24; 
+    line-height: 1;
+}
+
+#r-cloud-percent { 
+    font-size: 20px; /* Ingrandito da 14px a 20px */
+    color: #38bdf8; 
+    font-weight: 900; 
+    margin: 4px 0;
+}
+
+.sub-label { 
+    font-size: 9px; /* Da 7px a 9px */
+    font-weight: 900; 
+    color: #94a3b8;
+    text-transform: uppercase; 
+    letter-spacing: 1px;
 }
 
 #display-hour-center { font-size: 20px; font-weight: 900; color: #fbbf24; }
