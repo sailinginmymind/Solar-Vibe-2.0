@@ -4,7 +4,8 @@
  */
 
 // Stato dell'applicazione
-let wattMode = 'W'; // Può essere 'W' o 'Wh'
+// 1. Questa deve stare in cima al file app.js
+let wattMode = 'W';
 let state = {
     isWh: false,
     currentSOC: 50,
@@ -111,34 +112,38 @@ async function handleGpsSync() {
     }
 }
 
+// 2. La funzione di aggiornamento (Pulita e sicura)
 async function updateAll() {
     try {
-        const lat = document.getElementById('input-lat').value;
-        const lng = document.getElementById('input-lng').value;
-        const date = document.getElementById('input-date').value;
-        const time = document.getElementById('input-time').value;
         const displayVal = document.querySelector('.main-wattage');
+        if (!displayVal) return;
 
-        // Se non ci sono coordinate, usciamo senza fare errori
-        if (!lat || !lng) return;
-
-        // --- QUI AGGIUNGIAMO IL CAMBIO COLORE ---
+        // Gestione Colore
         if (wattMode === 'Wh') {
             displayVal.style.color = "#fbbf24"; // Giallo
         } else {
             displayVal.style.color = "#38bdf8"; // Azzurro
         }
 
-        // --- QUI CHIAMA IL TUO MOTORE DI CALCOLO ---
-        // Se la funzione calculateSolar non esiste ancora, commenta la riga sotto
-        // const solarData = await SolarEngine.calculate(lat, lng, date, time);
-        // displayVal.innerText = Math.round(solarData.watts) + " " + wattMode;
+        // Qui scriveremo in seguito la logica dei Wattora
+        console.log("UpdateAll eseguito in modalità: " + wattMode);
 
     } catch (error) {
-        console.error("Errore dentro updateAll:", error);
+        console.error("Errore in updateAll:", error);
     }
 }
 
+// 3. La funzione per il click
+function toggleWattMode() {
+    wattMode = (wattMode === 'W') ? 'Wh' : 'W';
+    
+    const displayLabel = document.getElementById('watt-label');
+    if (displayLabel) {
+        displayLabel.innerText = (wattMode === 'Wh') ? "ENERGIA ACCUMULATA (Wh)" : "POTENZA ISTANTANEA (W)";
+    }
+
+    updateAll(); 
+}
     // Fetch dati meteo
     state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
     
