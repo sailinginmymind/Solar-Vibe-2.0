@@ -463,7 +463,7 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 }
 
 #view-energy .report-grid .w-badge span {
-    font-size: 13px !important; /* Molto più grande per l'etichetta */
+    font-size: 22px !important; /* Molto più grande per l'etichetta */
     font-weight: 800;
     margin-bottom: 8px;
     white-space: nowrap;        /* Evita che vada a capo male */
