@@ -112,22 +112,29 @@ async function handleGpsSync() {
 }
 
 async function updateAll() {
+    // 1. Recupera i valori dai campi input
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
     const date = document.getElementById('input-date').value;
     const time = document.getElementById('input-time').value;
+
+    if (!lat || !lng) return; // Se non c'è posizione, non fare nulla
+
+    // 2. Chiama il motore di calcolo (solar-engine)
+    // Assicurati che calculateSolar sia il nome della funzione nel tuo solar-engine.js
+    const solarData = await calculateSolar(lat, lng, date, time);
+
     const displayVal = document.querySelector('.main-wattage');
-   //Controlla lo stato ogni volta che aggiorni il numero
+    
+    // 3. Gestione Colore e Unità di Misura
     if (wattMode === 'Wh') {
-        displayVal.style.color = "#fbbf24"; // Mantieni il giallo
-        // Qui scriverai il calcolo per i Wh
+        displayVal.style.color = "#fbbf24"; // Giallo
+        displayVal.innerText = Math.round(solarData.wattHour) + " Wh";
     } else {
-        displayVal.style.color = "#38bdf8"; // Mantieni l'azzurro
-        // Qui scriverai il calcolo per i W
+        displayVal.style.color = "#38bdf8"; // Azzurro
+        displayVal.innerText = Math.round(solarData.watts) + " W";
     }
 }
-
-    if(!lat || !lng || !date || !time) return;
 
     // Fetch dati meteo
     state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
