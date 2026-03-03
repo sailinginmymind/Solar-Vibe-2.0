@@ -255,50 +255,65 @@ function updateSunUI(hDec, sunH, setH) {
         }
     }
 }
-/* --- GESTIONE GRAFICO: HOVER (PC) E TOUCH (MOBILE) --- */
+/* --- GESTIONE GRAFICO: HOVER (PC) E TOUCH (MOBILE) AGGIORNATA --- */
 
 let chartSelectionTimer;
-const display = document.getElementById('detail-display');
 
-// 1. COMPORTAMENTO PER IL MOUSE (PC)
+// Evento Mouseover (Passaggio)
 document.getElementById('hourly-chart').addEventListener('mouseover', (e) => {
     const bar = e.target.closest('.bar');
     if (!bar) return;
 
-    // Quando passi sopra, pulisci il timer e accendi
     clearTimeout(chartSelectionTimer);
     document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
     bar.classList.add('active');
+    
+    // Ingrandiamo il testo per i dati dei tuoi 100 Ah
+    const display = document.getElementById('detail-display');
     display.style.color = "#fbbf24";
-    // Il testo "ORE X -> X W" viene aggiornato dal tuo sistema esistente
+    display.style.fontSize = "1.2rem"; 
+    display.style.letterSpacing = "normal";
 });
 
+// Evento Mouseout (Uscita)
 document.getElementById('hourly-chart').addEventListener('mouseout', (e) => {
     const bar = e.target.closest('.bar');
     if (!bar) return;
 
-    // Se non hai cliccato, spegni subito quando il mouse esce
     if (!chartSelectionTimer || chartSelectionTimer._called) {
         bar.classList.remove('active');
-        display.innerText = "Tocca una barra per i dettagli";
-        display.style.color = "#94a3b8";
+        resetDetailDisplay(); // Torna piccolo e grigio con 'barra' gialla
     }
 });
 
-// 2. COMPORTAMENTO PER IL CLICK/TOUCH (PC E MOBILE)
+// Evento Click (Fissaggio 3 secondi)
 document.getElementById('hourly-chart').addEventListener('click', (e) => {
     const bar = e.target.closest('.bar');
     if (!bar) return;
 
-    // Se clicchi (o tocchi su mobile), il dato resta fisso per 3 secondi
     clearTimeout(chartSelectionTimer);
-    
     bar.classList.add('active');
+    
+    const display = document.getElementById('detail-display');
     display.style.color = "#fbbf24";
+    display.style.fontSize = "1.2rem";
 
     chartSelectionTimer = setTimeout(() => {
         bar.classList.remove('active');
-        display.innerText = "Tocca una barra per i dettagli";
-        display.style.color = "#94a3b8";
+        resetDetailDisplay(); // Torna piccolo e grigio dopo 3 secondi
     }, 3000); 
 });
+
+// Avvio iniziale del display
+resetDetailDisplay();
+/* Funzione per resettare il display con lo stile etichetta */
+function resetDetailDisplay() {
+    const display = document.getElementById('detail-display');
+    if (!display) return;
+    // Inseriamo lo span per colorare solo la parola 'barra'
+    display.innerHTML = 'Tocca una <span style="color:#fbbf24; margin:0 4px;">BARRA</span> per i dettagli';
+    display.style.color = "#94a3b8"; 
+    display.style.fontSize = "11px"; // Font piccolo come "Batteria Attuale"
+    display.style.letterSpacing = "1.5px";
+    display.style.textTransform = "uppercase";
+}
