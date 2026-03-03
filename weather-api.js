@@ -1,45 +1,34 @@
 /**
  * WEATHER-API.JS
- * Gestisce la localizzazione GPS e le chiamate API meteo.
+ * Gestisce le chiamate al servizio meteo Open-Meteo
  */
-
 const WeatherAPI = {
-    // Recupera i dati meteo basandosi su coordinate e data
-    async fetchForecast(lat, lng, dateStr) {
-        try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,cloud_cover&daily=sunrise,sunset&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
-            const response = await fetch(url);
-            
-            if (!response.ok) throw new Error("Errore nel recupero dati meteo");
-            
-            return await response.json();
-        } catch (error) {
-            console.error("WeatherAPI Error:", error);
-            return null;
-        }
-    },
-
-    // Ottiene la posizione GPS dell'utente con timeout e opzioni extra
-    getUserLocation() {
+    // Recupera la posizione GPS dell'utente
+    getUserLocation: () => {
         return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                reject("Geolocalizzazione non supportata");
-            }
-            
-            const options = {
-                enableHighAccuracy: true,
-                timeout: 10000, // Aspetta fino a 10 secondi
-                maximumAge: 0   // Non usare posizioni vecchie in memoria
-            };
-
+            if (!navigator.geolocation) reject({ code: 0, message: "GPS non supportato" });
             navigator.geolocation.getCurrentPosition(
-                (position) => resolve(position.coords),
-                (error) => {
-                    console.error("GPS Error Code:", error.code, error.message);
-                    reject(error);
-                },
-                options
+                pos => resolve(pos.coords),
+                err => reject(err),
+                { timeout: 10000 }
             );
         });
+    },
+
+    // Scarica i dati meteo (Temperatura, Nubi, Vento, Umidità, Alba/Tramonto)
+    fetchForecast: async (lat, lng, date) => {
+        try {
+            // URL configurato con tutti i parametri necessari per i tuoi badge
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m&daily=sunrise,sunset&timezone=auto&start_date=${date}&end_date=${date}`;
+            
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Errore risposta API");
+            
+            const data = await response.json();
+            return data;
+        } catch (err) {
+            console.error("Errore fetch meteo:", err);
+            return null;
+        }
     }
 };
