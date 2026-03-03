@@ -132,8 +132,8 @@ function switchView(vId, el) {
     el.classList.add('active');
 }
 
-// --- Funzioni Report, Garage e Stars rimangono come prima ---
 function updateReportUI(currentPower, sunH, setH) {
+    // Aggiorna tempi di carica (basati sulla batteria salvata)
     document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, state.battAh);
     document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, state.battAh);
     document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, state.battAh);
@@ -141,13 +141,37 @@ function updateReportUI(currentPower, sunH, setH) {
     const chart = document.getElementById('hourly-chart');
     if (!chart) return;
     chart.innerHTML = "";
+    
     let dailyTotal = 0;
-    for (let h = 0; h < 24; h++) {
-        const p = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, state.weatherData.hourly.cloud_cover[h]);
-        dailyTotal += p;
+    
+    // Ciclo dalle ore di luce (arrotondate)
+    const startHour = Math.floor(sunH);
+    const endHour = Math.ceil(setH);
+
+    for (let h = startHour; h <= endHour; h++) {
+        const cloud = state.weatherData.hourly.cloud_cover[h];
+        const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, cloud);
+        dailyTotal += hP;
+
         const bar = document.createElement('div');
         bar.className = 'bar';
-        bar.style.height = (p / state.panelWp * 100) + "%";
+        // Altezza proporzionale alla potenza massima dei pannelli
+        bar.style.height = (hP / state.panelWp * 100) + "%";
+        bar.setAttribute('data-label', h + "h");
+
+        // Evento per mostrare i Watt (Desktop e Mobile)
+        const showVal = () => {
+            const displayTotal = document.getElementById('total-wh-day');
+            displayTotal.innerHTML = `Ore ${h}:00 → <b>${Math.round(hP)} W</b>`;
+            // Ripristina il totale dopo 3 secondi
+            setTimeout(() => {
+                displayTotal.innerText = Math.round(dailyTotal);
+            }, 3000);
+        };
+
+        bar.addEventListener('mouseenter', showVal);
+        bar.addEventListener('click', showVal);
+
         chart.appendChild(bar);
     }
     document.getElementById('total-wh-day').innerText = Math.round(dailyTotal);
