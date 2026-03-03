@@ -255,34 +255,35 @@ function updateSunUI(hDec, sunH, setH) {
         }
     }
 }
-/* --- RIPRISTINO TIMEOUT GRAFICO --- */
+/* --- RIPRISTINO TIMEOUT E COLORE GIALLO --- */
 
-// Variabile per gestire il timer globalmente
 let chartSelectionTimer;
 
-// Funzione che "ascolta" i click sul contenitore del grafico
 document.getElementById('hourly-chart').addEventListener('click', (e) => {
-    // Controlla se abbiamo cliccato proprio su una barra
     const bar = e.target.closest('.bar');
     if (!bar) return;
 
     const display = document.getElementById('detail-display');
 
-    // 1. Pulizia: togliamo 'active' da tutte le altre barre
+    // 1. Pulizia classi 'active'
     document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
     
-    // 2. Attiviamo la barra cliccata (diventa bianca come da tuo CSS)
+    // 2. Attiva la barra e imposta il colore GIALLO
     bar.classList.add('active');
+    display.style.color = "#fbbf24"; // Forza il giallo quando c'è il dato
 
-    // 3. LOGICA DEL TIMEOUT DI 3 SECONDI
-    clearTimeout(chartSelectionTimer); // Reset se clicchi un'altra barra velocemente
+    // Nota: Il testo "ORE X -> X W" viene già generato dal tuo script esistente,
+    // qui ci assicuriamo solo che il colore e il timer siano corretti.
+
+    // 3. LOGICA DEL TIMEOUT
+    clearTimeout(chartSelectionTimer);
     
     chartSelectionTimer = setTimeout(() => {
-        // Torna alla scritta neutra
+        // Torna alla scritta neutra e al colore grigio
         display.innerText = "Tocca una barra per i dettagli";
-        display.style.color = "#94a3b8"; // Grigio neutro
+        display.style.color = "#94a3b8"; 
         
-        // Rimuove l'illuminazione dalla barra
         bar.classList.remove('active');
-    }, 3000); // 3 secondi
+    }, 3000); 
 });
+
