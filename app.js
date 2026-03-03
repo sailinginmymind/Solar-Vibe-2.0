@@ -93,56 +93,6 @@ async function handleGpsSync() {
     }
 }
 
-async function updateAll() {
-    const lat = document.getElementById('input-lat').value;
-    const lng = document.getElementById('input-lng').value;
-    const date = document.getElementById('input-date').value;
-    const time = document.getElementById('input-time').value;
-    const displayVal = document.querySelector('.main-wattage');
-    const displayLabel = document.getElementById('watt-label');
-
-    if (!displayVal) return;
-
-    // Colore e Testo modalità
-    displayVal.style.color = state.isWh ? "#fbbf24" : "#38bdf8";
-    if(displayLabel) displayLabel.innerText = state.isWh ? "ENERGIA ACCUMULATA (Wh)" : "POTENZA ISTANTANEA (W)";
-
-    if (!lat || !lng) return;
-
-    try {
-        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
-        if(!state.weatherData || !state.weatherData.hourly) return;
-
-        const hourIdx = parseInt(time.split(':')[0]);
-        const hDec = SolarEngine.timeToDecimal(time);
-        
-        // Dati Daily (Alba/Tramonto)
-        const sunriseStr = state.weatherData.daily.sunrise[0].split('T')[1].substring(0, 5);
-        const sunsetStr = state.weatherData.daily.sunset[0].split('T')[1].substring(0, 5);
-        const sunH = SolarEngine.timeToDecimal(sunriseStr);
-        const setH = SolarEngine.timeToDecimal(sunsetStr);
-
-        document.getElementById('sunrise-txt').innerText = sunriseStr;
-        document.getElementById('sunset-txt').innerText = sunsetStr;
-        document.getElementById('display-hour-center').innerText = time;
-        
-        // Dati Hourly (Badge)
-        const cloud = state.weatherData.hourly.cloud_cover[hourIdx];
-        document.getElementById('r-cloud-percent').innerText = cloud + "%";
-        document.getElementById('r-temp').innerText = Math.round(state.weatherData.hourly.temperature_2m[hourIdx]) + "°";
-        document.getElementById('r-hum').innerText = state.weatherData.hourly.relative_humidity_2m[hourIdx] + "%";
-        document.getElementById('r-wind').innerText = Math.round(state.weatherData.hourly.wind_speed_10m[hourIdx]) + " km/h";
-        
-        // Calcolo e Sole
-        const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, cloud);
-        updateSunUI(hDec, sunH, setH);
-        
-        const valFinale = Math.round(state.isWh ? power * 0.9 : power); 
-        displayVal.innerText = valFinale + (state.isWh ? " Wh" : " W");
-        
-        updateReportUI(power, sunH, setH);
-    } catch (e) { console.error("Errore updateAll:", e); }
-}
 
 function updateSunUI(hDec, sunH, setH) {
     const sun = document.getElementById('sun-body');
@@ -163,7 +113,75 @@ function updateSunUI(hDec, sunH, setH) {
         sun.style.top = `${230 - (arc * 200)}px`;
     }
 }
+async function updateAll() {
+    const lat = document.getElementById('input-lat').value;
+    const lng = document.getElementById('input-lng').value;
+    const date = document.getElementById('input-date').value;
+    const time = document.getElementById('input-time').value;
+    const displayVal = document.querySelector('.main-wattage');
+    const displayLabel = document.getElementById('watt-label');
 
+    if (!displayVal) return;
+
+    // 1. Applica Colore e Testo modalità
+    displayVal.style.color = state.isWh ? "#fbbf24" : "#38bdf8";
+    if(displayLabel) displayLabel.innerText = state.isWh ? "ENERGIA ACCUMULATA (Wh)" : "POTENZA ISTANTANEA (W)";
+
+    // Se non abbiamo ancora le coordinate, non possiamo chiedere il meteo
+    if (!lat || !lng) return;
+
+    try {
+        console.log("Recupero dati meteo...");
+        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
+        
+        if(!state.weatherData || !state.weatherData.hourly) {
+            console.error("Dati meteo non ricevuti");
+            return;
+        }
+
+        const hourIdx = parseInt(time.split(':')[0]);
+        const hDec = SolarEngine.timeToDecimal(time);
+        
+        // --- RECUPERO DATI METEO ---
+        const hourly = state.weatherData.hourly;
+        const daily = state.weatherData.daily;
+
+        // Estrazione Alba e Tramonto
+        const sunriseStr = daily.sunrise[0].split('T')[1].substring(0, 5);
+        const sunsetStr = daily.sunset[0].split('T')[1].substring(0, 5);
+        const sunH = SolarEngine.timeToDecimal(sunriseStr);
+        const setH = SolarEngine.timeToDecimal(sunsetStr);
+
+        // --- AGGIORNAMENTO TESTI SULLO SCHERMO ---
+        // Qui scriviamo i dati nei badge rotondi
+        if(document.getElementById('sunrise-txt')) document.getElementById('sunrise-txt').innerText = sunriseStr;
+        if(document.getElementById('sunset-txt')) document.getElementById('sunset-txt').innerText = sunsetStr;
+        if(document.getElementById('display-hour-center')) document.getElementById('display-hour-center').innerText = time;
+        
+        // Dati meteo nei cerchi (Vento, Temp, ecc.)
+        document.getElementById('r-cloud-percent').innerText = (hourly.cloud_cover[hourIdx]) + "%";
+        document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
+        document.getElementById('r-hum').innerText = (hourly.relative_humidity_2m[hourIdx]) + "%";
+        document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
+        
+        // --- CALCOLO POTENZA E SOLE ---
+        const cloud = hourly.cloud_cover[hourIdx] || 0;
+        const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, cloud);
+        
+        // Muove il sole nel cielo
+        updateSunUI(hDec, sunH, setH);
+        
+        // Scrive il numero grande centrale
+        const valFinale = Math.round(state.isWh ? power * 0.9 : power); 
+        displayVal.innerText = valFinale + (state.isWh ? " Wh" : " W");
+        
+        // Aggiorna il grafico e i tempi di carica
+        updateReportUI(power, sunH, setH);
+
+    } catch (e) { 
+        console.error("Errore durante l'aggiornamento meteo:", e); 
+    }
+}
 function updateReportUI(currentPower, sunH, setH) {
     const t80Txt = document.getElementById('charge_80_txt');
     if(t80Txt) t80Txt.innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, state.battAh);
