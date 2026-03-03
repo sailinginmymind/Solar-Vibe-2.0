@@ -185,8 +185,27 @@ h2 {
     text-align: center; 
 }
 
-.w-label { font-size: 8px; color: #38bdf8; font-weight: 900; margin-bottom: 2px; }
-.w-val { font-weight: bold; font-size: 14px; }
+.w-badge { 
+    background: #0f172a; 
+    padding: 15px 10px; /* Più spazio interno */
+    border-radius: 18px; 
+    border: 1px solid #334155; 
+    text-align: center; 
+}
+
+.w-label { 
+    font-size: 10px; /* Da 8px a 10px */
+    color: #38bdf8; 
+    font-weight: 900; 
+    margin-bottom: 5px; 
+    letter-spacing: 1px;
+}
+
+.w-val { 
+    font-weight: 900; 
+    font-size: 18px; /* Da 14px a 18px */
+    color: white;
+}
 
 /* --- CONTROLLI --- */
 .manual-controls { 
