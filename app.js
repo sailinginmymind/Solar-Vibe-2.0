@@ -121,7 +121,7 @@ function generaBottoniGiorni() {
 function aggiornaTuttaInterfaccia() {
     console.log("Sincronizzo l'app sulla data:", dataSelezionata.toLocaleDateString());
 
-    // 1. Sincronizziamo l'input della data per i calcoli
+    // 1. Sincronizziamo l'input della data per i calcoli meteo
     const inputDate = document.getElementById('input-date');
     if (inputDate) {
         inputDate.value = dataSelezionata.toISOString().split('T')[0];
@@ -130,13 +130,11 @@ function aggiornaTuttaInterfaccia() {
     // 2. Chiamiamo updateAll() che ricalcola Watt e Grafico
     updateAll();
 
-    // 3. LOGICA DELLA SCRITTA (CORRETTA)
-    // Cerchiamo l'elemento del titolo nel report. 
-    // Dallo screenshot, è l'elemento azzurro sotto "TOCCA UNA BARRA..."
+    // 3. LOGICA DELLA SCRITTA DINAMICA (DATA COMPLETA)
     const titoli = document.querySelectorAll('h2, .view-title, .report-container h2');
     let sottotitolo = null;
 
-    // Cerchiamo tra i titoli quello che contiene la parola "PREVISIONE"
+    // Cerchiamo il titolo corretto nella pagina
     titoli.forEach(el => {
         if (el.innerText.includes("PREVISIONE")) {
             sottotitolo = el;
@@ -149,13 +147,15 @@ function aggiornaTuttaInterfaccia() {
         if (dataSelezionata.toDateString() === oggi) {
             // Se torniamo a OGGI
             sottotitolo.innerText = "PREVISIONE ODIERNA";
-            sottotitolo.style.color = "#38bdf8"; // Il tuo azzurro originale
+            sottotitolo.style.color = "#38bdf8"; 
         } else {
-            // Se clicchiamo un giorno futuro
-            const giornoX = dataSelezionata.getDate(); 
-            // Usiamo esattamente la frase che hai chiesto
-            sottotitolo.innerText = "PREVISIONE PER IL GIORNO " + giornoX;
-            sottotitolo.style.color = "var(--accento)"; // Giallo/Arancio
+            // Estraiamo il giorno e il mese in italiano (es: 8 Marzo)
+            const opzioni = { day: 'numeric', month: 'long' };
+            const dataEstesa = dataSelezionata.toLocaleDateString('it-IT', opzioni);
+            
+            // Componiamo la frase finale
+            sottotitolo.innerText = "PREVISIONE PER IL GIORNO " + dataEstesa.toUpperCase();
+            sottotitolo.style.color = "var(--accento)"; 
         }
     }
 }
