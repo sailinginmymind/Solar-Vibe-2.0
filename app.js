@@ -121,33 +121,30 @@ function generaBottoniGiorni() {
 function aggiornaTuttaInterfaccia() {
     console.log("Sincronizzo l'app sulla data:", dataSelezionata.toLocaleDateString());
 
-    // 1. Sincronizziamo il campo input date per le API
+    // 1. Sincronizziamo il campo input date
     const inputDate = document.getElementById('input-date');
     if (inputDate) {
         inputDate.value = dataSelezionata.toISOString().split('T')[0];
     }
 
-    // 2. Chiamiamo updateAll() per ricalcolare Watt e Grafico
+    // 2. Chiamiamo updateAll() per aggiornare i dati
     updateAll();
 
-    // 3. AGGIORNAMENTO SCRITTA PREVISIONE
+    // 3. AGGIORNAMENTO SCRITTA DINAMICA
     // Cerchiamo l'elemento che contiene "PREVISIONE ODIERNA"
-    // Dallo screenshot sembra essere un elemento con classe 'view-title' o un <h2>
     const sottotitolo = document.querySelector('.view-title') || document.querySelector('.report-container h2'); 
     const oggi = new Date().toDateString();
     
     if (sottotitolo) {
         if (dataSelezionata.toDateString() === oggi) {
-            // Se è oggi, rimettiamo la scritta originale
             sottotitolo.innerText = "PREVISIONE ODIERNA";
-            sottotitolo.style.color = ""; // Torna al colore originale del CSS (azzurro)
+            sottotitolo.style.color = ""; // Colore azzurro originale
         } else {
-            // Se è un altro giorno, scriviamo la data specifica
-            const opzioni = { day: 'numeric', month: 'long' };
-            const dataFormattata = dataSelezionata.toLocaleDateString('it-IT', opzioni);
-            
-            sottotitolo.innerText = "PREVISIONE DEL GIORNO " + dataFormattata.toUpperCase();
-            sottotitolo.style.color = "var(--accento)"; // Diventa giallo/arancio per evidenziare il cambio
+            // Seleziona il numero del giorno (X)
+            const giornoX = dataSelezionata.getDate();
+            // Inserisce esattamente la scritta richiesta
+            sottotitolo.innerText = "PREVISIONE DEL GIORNO " + giornoX;
+            sottotitolo.style.color = "var(--accento)"; // Giallo per evidenziare il cambio
         }
     }
 }
