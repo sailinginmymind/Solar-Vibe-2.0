@@ -256,7 +256,6 @@ function loadSavedData() {
         changeBg(savedColor); // Se c'è un colore salvato, lo applica subito
     }
 }
-}
 
 function setupStars() {
     const container = document.getElementById('stars-container');
