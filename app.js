@@ -59,34 +59,45 @@ function initEventListeners() {
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
 }
 
+/**
+ * Funzione: handleGpsSync
+ * Spiegazione: Ottiene la posizione GPS, aggiorna i dati e mostra 
+ * direttamente il feedback verde di successo (senza scritte intermedie).
+ */
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
     const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
     const originalBg = btn.style.background;
 
-    btn.innerText = "SINCRONIZZAZIONE IN CORSO...";
+    // Disabilitiamo il tasto per evitare click multipli, ma non cambiamo il testo subito
     btn.disabled = true;
 
     try {
+        // 1. Recupero Coordinate (dal file WeatherAPI.js)
         const coords = await WeatherAPI.getUserLocation();
         const now = new Date();
         
+        // 2. Aggiornamento Campi Input
         document.getElementById('input-lat').value = coords.latitude.toFixed(4);
         document.getElementById('input-lng').value = coords.longitude.toFixed(4);
         document.getElementById('input-date').value = now.toISOString().split('T')[0];
         document.getElementById('input-time').value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         
+        // 3. Aggiornamento di tutta l'interfaccia (Watt, Sole, Meteo)
         await updateAll();
 
+        // 4. RISULTATO DIRETTO: Animazione Verde e Messaggio di Successo
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
-        btn.style.background = "#22c55e";
-        btn.style.boxShadow = "0 0 15px #22c55e";
+        btn.style.background = "#22c55e"; // Verde smeraldo
+        btn.style.boxShadow = "0 0 15px #22c55e"; // Effetto bagliore
 
     } catch (err) {
+        // In caso di errore (GPS negato o segnale assente)
         btn.innerText = "❌ ERRORE GPS";
-        btn.style.background = "#ef4444";
+        btn.style.background = "#ef4444"; // Rosso
     } finally {
         btn.disabled = false;
+        // Torna allo stato originale dopo 3 secondi
         setTimeout(() => { 
             btn.innerText = originalText; 
             btn.style.background = originalBg;
