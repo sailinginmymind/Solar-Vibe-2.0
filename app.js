@@ -571,3 +571,30 @@ function changeBg(tema) {
     document.body.style.backgroundColor = tema;
     localStorage.setItem('vibe_bg_color', tema);
 }
+// VARIABILE PER MONITORARE IL GIORNO CORRENTE
+let giornoAttualeMonitor = new Date().getDate();
+
+// FUNZIONE DI CONTROLLO CAMBIO DATA AUTOMATICO
+function checkCambioGiorno() {
+    const oggi = new Date();
+    
+    // Se il giorno del mese è diverso da quello salvato...
+    if (oggi.getDate() !== giornoAttualeMonitor) {
+        console.log("Mezzanotte passata! Aggiorno il calendario...");
+        
+        // 1. Aggiorna il monitor al nuovo giorno
+        giornoAttualeMonitor = oggi.getDate();
+        
+        // 2. Resetta la data selezionata a 'oggi'
+        dataSelezionata = new Date();
+        
+        // 3. Rigenera i bottoni (così apparirà VEN 6 come primo)
+        generaBottoniGiorni();
+        
+        // 4. Aggiorna tutta l'interfaccia (titolo, grafici, etc.)
+        aggiornaTuttaInterfaccia();
+    }
+}
+
+// Controlla ogni 30 secondi se è cambiata la data
+setInterval(checkCambioGiorno, 30000);
