@@ -615,3 +615,9 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     text-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
     font-family: monospace;
 }
+/* Aggiungi o modifica queste righe nel tuo CSS */
+#w_out, #unit-label {
+    cursor: default !important; /* Forza il cursore a rimanere una freccia */
+    pointer-events: none;      /* Rende l'elemento "trasparente" ai click */
+    user-select: none;         /* Impedisce di evidenziare il testo per errore */
+}
