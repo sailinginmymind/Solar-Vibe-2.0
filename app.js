@@ -448,20 +448,7 @@ async function updateCityName(lat, lng) {
 }
 /**
  * Funzione: searchCityCoords
- * Cosa fa: Prende il nome di una città, trova Lat/Lng e aggiorna l'app.
- * @param {string} cityName - Il nome della città digitato.
- */
-/**
- * Funzione: searchCityCoords
- * Cosa fa: Cerca le coordinate di una città e aggiorna AUTOMATICAMENTE l'ora locale e il meteo.
- */
-/**
- * Funzione: searchCityCoords
- * Cosa fa: Cerca le coordinate di una città e aggiorna AUTOMATICAMENTE l'ora locale del posto.
- */
-/**
- * Funzione: searchCityCoords
- * Cosa fa: Cerca le coordinate di una città e AGGIORNA DATA E ORA locali del posto.
+ * Cosa fa: Cerca la città, trova l'ora locale e aggiorna i campi HTML che hai appena mostrato.
  */
 async function searchCityCoords(cityName) {
     if (!cityName) return;
@@ -470,7 +457,7 @@ async function searchCityCoords(cityName) {
     try {
         cityInput.style.color = "#fbbf24"; 
         
-        // 1. Cerchiamo le coordinate (Lat/Lng) su OpenStreetMap
+        // 1. Cerchiamo le coordinate
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
         const data = await response.json();
 
@@ -478,45 +465,41 @@ async function searchCityCoords(cityName) {
             const newLat = parseFloat(data[0].lat).toFixed(4);
             const newLng = parseFloat(data[0].lon).toFixed(4);
 
-            // Scriviamo i numeri nei quadratini della Dashboard
+            // Scriviamo Lat e Lng nei tuoi input
             document.getElementById('input-lat').value = newLat;
             document.getElementById('input-lng').value = newLng;
             cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
 
-            // 2. RECUPERO FUSO ORARIO E DATA LOCALE
-            // Interroghiamo il meteo per sapere che ore sono a Taipei (timezone=auto)
+            // 2. RECUPERO ORA E DATA LOCALE (Fuso Orario)
             const tzUrl = `https://api.open-meteo.com/v1/forecast?latitude=${newLat}&longitude=${newLng}&current=time&timezone=auto`;
             const tzResp = await fetch(tzUrl);
             const tzData = await tzResp.json();
             
             if (tzData.current && tzData.current.time) {
-                // L'API restituisce "2026-03-04T21:19"
+                // Esempio: "2026-03-04T21:30"
                 const parts = tzData.current.time.split('T');
-                const localDate = parts[0]; // "2026-03-04"
-                const localTime = parts[1].substring(0, 5); // "21:19"
+                const localDate = parts[0]; 
+                const localTime = parts[1].substring(0, 5); 
 
-                // --- AGGIORNAMENTO CAMPI DASHBOARD ---
-                // Qui forziamo la data e l'ora a cambiare nei quadratini sopra le coordinate
-                const dateField = document.getElementById('input-date');
-                const timeField = document.getElementById('input-time');
-
-                if (dateField) dateField.value = localDate;
-                if (timeField) timeField.value = localTime;
-                // -------------------------------------
+                // AGGIORNIAMO I CAMPI CHE ABBIAMO VISTO NEL TUO HTML
+                document.getElementById('input-date').value = localDate;
+                document.getElementById('input-time').value = localTime;
+                
+                // Aggiorniamo anche il testo dell'orologio centrale
+                const displayClock = document.getElementById('display-hour-center');
+                if (displayClock) displayClock.innerText = localTime;
             }
 
             cityInput.style.color = "#38bdf8";
 
-            // 3. LANCIO AGGIORNAMENTO TOTALE
-            // Ora updateAll leggerà la NUOVA DATA e la NUOVA ORA di Taipei
+            // 3. AGGIORNAMENTO GRAFICO E METEO
+            // Ora che l'input-time segna le 21:30, updateAll vedrà che è notte!
             updateAll(); 
             
         } else {
             alert("Città non trovata!");
-            cityInput.style.color = "#ef4444";
         }
     } catch (error) {
-        console.error("Errore ricerca posizione/fuso:", error);
-        cityInput.style.color = "#ef4444";
+        console.error("Errore teletrasporto:", error);
     }
 }
