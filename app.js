@@ -118,7 +118,6 @@ function generaBottoniGiorni() {
 }
 
 // IL REGISTA: Sincronizza tutta l'app
-// IL REGISTA: Sincronizza tutta l'app
 function aggiornaTuttaInterfaccia() {
     const inputDate = document.getElementById('input-date');
     if (inputDate) {
@@ -137,7 +136,7 @@ function aggiornaTuttaInterfaccia() {
     });
 
     const oggi = new Date().toDateString();
-    
+
     if (elementoTitolo) {
         if (dataSelezionata.toDateString() === oggi) {
             elementoTitolo.innerHTML = "PREVISIONE ODIERNA";
@@ -145,12 +144,15 @@ function aggiornaTuttaInterfaccia() {
         } else {
             const opzioni = { day: 'numeric', month: 'long' };
             const dataEstesa = dataSelezionata.toLocaleDateString('it-IT', opzioni).toUpperCase();
-            
-            // Manteniamo la base azzurra (#38bdf8)
+
             elementoTitolo.style.color = "#38bdf8"; 
-            
-            // Inseriamo lo span con il colore giallo (#fbbf24) solo per la data
-            elementoTitolo.innerHTML = `PREVISIONE PER IL GIORNO <span style="color: #fbbf24;">${dataEstesa}</span>`;
+
+            // Qui usiamo il <br> con la classe che abbiamo appena creato nel CSS
+            elementoTitolo.innerHTML = `
+                PREVISIONE PER IL GIORNO 
+                <br class="mobile-break">
+                <span style="color: #fbbf24;">${dataEstesa}</span>
+            `;
         }
     }
 }
