@@ -380,23 +380,32 @@ function resetDetailDisplay() {
  * @param {number} lat - Latitudine
  * @param {number} lng - Longitudine
  */
+/**
+ * Funzione: updateCityName
+ * Cosa fa: Traduce le coordinate (Lat/Lng) in un nome di città e lo scrive nella casella di input.
+ * @param {number} lat - Latitudine
+ * @param {number} lng - Longitudine
+ */
 async function updateCityName(lat, lng) {
-    const cityElement = document.getElementById('city-name');
-    if (!cityElement) return;
+    // 1. Cambiamo l'ID in 'city-input' (quello che abbiamo messo nell'HTML)
+    const cityInput = document.getElementById('city-input');
+    
+    // 2. Controllo fondamentale: se l'utente sta scrivendo nella casella, non sovrascrivere!
+    if (!cityInput || document.activeElement === cityInput) return;
 
     try {
-        // Interroghiamo Nominatim (OpenStreetMap)
-        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat, lng}&lon=${lng}`);
         const data = await response.json();
         
-        // Estraiamo la città, il comune o la frazione
-        const city = data.address.city || data.address.town || data.address.village || data.address.municipality || "Posizione ignota";
-        const country = data.address.country;
-
-        cityElement.innerText = `${city}, ${country}`;
+        // Estraiamo la città o il comune
+        const city = data.address.city || data.address.town || data.address.village || data.address.municipality || "POSIZIONE IGNOTA";
+        
+        // 3. USIAMO .value (per i campi input) invece di .innerText (per i testi fissi)
+        cityInput.value = city.toUpperCase(); 
+        
     } catch (error) {
         console.error("Errore recupero città:", error);
-        cityElement.innerText = "Località non trovata";
+        cityInput.value = "LOCALITÀ NON TROVATA";
     }
 }
 /**
