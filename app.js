@@ -441,12 +441,18 @@ async function updateCityName(lat, lng) {
  * Cosa fa: Prende il nome di una città, trova Lat/Lng e aggiorna l'app.
  * @param {string} cityName - Il nome della città digitato.
  */
+/**
+ * Funzione: searchCityCoords
+ * Cosa fa: Cerca le coordinate di una città e aggiorna AUTOMATICAMENTE l'ora locale e il meteo.
+ */
 async function searchCityCoords(cityName) {
     if (!cityName) return;
     const cityInput = document.getElementById('city-input');
 
     try {
-        cityInput.style.color = "#fbbf24"; 
+        cityInput.style.color = "#fbbf24"; // Giallo: ricerca in corso
+        
+        // 1. Cerchiamo le coordinate della città
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
         const data = await response.json();
 
@@ -454,26 +460,35 @@ async function searchCityCoords(cityName) {
             const newLat = parseFloat(data[0].lat).toFixed(4);
             const newLng = parseFloat(data[0].lon).toFixed(4);
 
+            // Aggiorniamo i campi visivi sulla Dashboard
             document.getElementById('input-lat').value = newLat;
             document.getElementById('input-lng').value = newLng;
             cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
 
-            // --- NUOVA LOGICA FUSO ORARIO ---
-            // Chiediamo al meteo che ore sono in quelle coordinate
-            const tzResp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${newLat}&longitude=${newLng}&current=time&timezone=auto`);
+            // 2. RECUPERO ORA LOCALE (Fuso Orario)
+            // Usiamo Open-Meteo per sapere che ore sono ESATTAMENTE a Taipei in questo momento
+            const tzUrl = `https://api.open-meteo.com/v1/forecast?latitude=${newLat}&longitude=${newLng}&current=time&timezone=auto`;
+            const tzResp = await fetch(tzUrl);
             const tzData = await tzResp.json();
             
             if (tzData.current && tzData.current.time) {
-                // Estraiamo solo l'ora (HH:mm) dal formato ISO
+                // Trasformiamo "2026-03-04T21:15" in "21:15"
                 const localTime = tzData.current.time.split('T')[1].substring(0, 5);
                 document.getElementById('input-time').value = localTime;
             }
-            // --------------------------------
 
-            cityInput.style.color = "#38bdf8";
-            updateAll(); // Ora aggiornerà anche il sole e il meteo con l'ora corretta!
+            cityInput.style.color = "#38bdf8"; // Torna azzurro: successo
+
+            // 3. AGGIORNAMENTO TOTALE
+            // Ora che abbiamo Lat, Lng e l'ORA DI TAIPEI, ricalcoliamo tutto
+            updateAll(); 
+            
+        } else {
+            alert("Città non trovata!");
+            cityInput.style.color = "#ef4444";
         }
     } catch (error) {
         console.error("Errore ricerca:", error);
+        cityInput.style.color = "#ef4444";
     }
 }
