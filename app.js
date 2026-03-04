@@ -30,7 +30,15 @@ function initEventListeners() {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
-
+// Cerca la città quando premi INVIO nella casella
+const cityInput = document.getElementById('city-input');
+if (cityInput) {
+    cityInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            searchCityCoords(this.value);
+        }
+    });
+}
     const socSlider = document.getElementById('soc-slider');
     if (socSlider) {
         socSlider.addEventListener('input', (e) => {
