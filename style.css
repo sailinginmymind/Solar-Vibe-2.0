@@ -167,21 +167,22 @@ h2 {
 
 /* --- ORIZZONTE (ALBA E TRAMONTO) --- */
 .h-label { 
-    font-size: 11px !important;  
+    font-size: 14px !important;  
     /* CAMBIO: Usa var(--accento) se vuoi che cambi col tema, 
        oppure lascia #fbbf24 se preferisci che l'alba resti sempre gialla */
     color: var(--accento) !important; 
     font-weight: 900;  
     text-transform: uppercase;
     text-align: center;
+    letter-spacing: 1px; /* Un po' di spazio tra le lettere per stile */
 }
 
 #sunrise-txt, #sunset-txt { 
     color: #fff !important; /* Testo dell'ora in bianco per massima leggibilità */
-    font-size: 18px !important; /* Ridotto leggermente per un look più pulito */
+    font-size: 24px !important; /* Ridotto leggermente per un look più pulito */
     font-weight: 900;
     display: block;
-    margin-top: 3px;
+    margin-top: 5px;
     /* Aggiunge un bagliore del colore del tema all'orario */
     text-shadow: 0 0 10px var(--accento); 
 }
