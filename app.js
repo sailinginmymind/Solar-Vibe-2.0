@@ -86,40 +86,68 @@ function initEventListeners() {
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
 }
 
+/**
+ * FUNZIONE GPS CORRETTA
+ * Utilizza il sistema nativo del browser e sincronizza l'ora locale del posto.
+ */
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
     const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
-    const originalBg = btn.style.background;
 
-    btn.innerText = "SINCRONIZZAZIONE IN CORSO...";
+    btn.innerText = "🛰️ SINCRONIZZAZIONE IN CORSO...";
     btn.disabled = true;
 
-    try {
-        const coords = await WeatherAPI.getUserLocation();
-        const now = new Date();
-        
-        document.getElementById('input-lat').value = coords.latitude.toFixed(4);
-        document.getElementById('input-lng').value = coords.longitude.toFixed(4);
-        document.getElementById('input-date').value = now.toISOString().split('T')[0];
-        document.getElementById('input-time').value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        
-        await updateAll();
+    // Usiamo il sistema standard del browser (più affidabile)
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+            const lat = pos.coords.latitude.toFixed(4);
+            const lng = pos.coords.longitude.toFixed(4);
 
-        btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
-        btn.style.background = "#22c55e";
-        btn.style.boxShadow = "0 0 15px #22c55e";
+            // 1. Scriviamo le coordinate nei quadratini
+            document.getElementById('input-lat').value = lat;
+            document.getElementById('input-lng').value = lng;
 
-    } catch (err) {
-        btn.innerText = "❌ ERRORE GPS";
+            // 2. RECUPERO ORA LOCALE (Fondamentale per la tua richiesta)
+            // Interpelliamo l'API per sapere che ore sono in quel punto esatto
+            const tzResp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=time&timezone=auto`);
+            const tzData = await tzResp.json();
+            
+            if (tzData.current) {
+                const parts = tzData.current.time.split('T');
+                // Aggiorniamo i campi data e ora con l'ora reale del posto
+                document.getElementById('input-date').value = parts[0];
+                document.getElementById('input-time').value = parts[1].substring(0, 5);
+                document.getElementById('display-hour-center').innerText = parts[1].substring(0, 5);
+            }
+
+            // 3. AGGIORNAMENTO TOTALE (Meteo, Watt, Sole)
+            await updateAll();
+
+            // Feedback successo
+            btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
+            btn.style.background = "#22c55e";
+            btn.style.boxShadow = "0 0 15px #22c55e";
+
+        } catch (err) {
+            console.error("Errore durante il refresh dati:", err);
+            btn.innerText = "❌ ERRORE DATI";
+            btn.style.background = "#ef4444";
+        } finally {
+            btn.disabled = false;
+            setTimeout(() => { 
+                btn.innerText = originalText; 
+                btn.style.background = ""; 
+                btn.style.boxShadow = "";
+            }, 3000);
+        }
+    }, (err) => {
+        // Se l'utente nega il permesso o il segnale manca
+        console.error("Errore Geolocation:", err);
+        btn.innerText = "❌ GPS DISATTIVATO";
         btn.style.background = "#ef4444";
-    } finally {
         btn.disabled = false;
-        setTimeout(() => { 
-            btn.innerText = originalText; 
-            btn.style.background = originalBg;
-            btn.style.boxShadow = "";
-        }, 3000);
-    }
+        setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; }, 3000);
+    });
 }
 
 async function updateAll() {
