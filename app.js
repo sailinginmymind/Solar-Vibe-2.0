@@ -408,58 +408,24 @@ function resetDetailDisplay() {
     display.style.textTransform = "uppercase";
 }
 /**
- * Funzione: updateCityName
- * Cosa fa: Prende Lat e Lng e chiede a un servizio esterno il nome della città.
- * @param {number} lat - Latitudine
- * @param {number} lng - Longitudine
- */
-/**
- * Funzione: updateCityName
- * Cosa fa: Traduce le coordinate (Lat/Lng) in un nome di città e lo scrive nella casella di input.
- * @param {number} lat - Latitudine
- * @param {number} lng - Longitudine
- */
-async function updateCityName(lat, lng) {
-    const cityInput = document.getElementById('city-input');
-    if (!cityInput || document.activeElement === cityInput) return;
-
-    // Puliamo i valori da eventuali spazi bianchi
-    const cleanLat = String(lat).trim();
-    const cleanLng = String(lng).trim();
-
-    try {
-        // CORREZIONE: Abbiamo rimosso la virgola di troppo e pulito la stringa
-        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${cleanLat}&lon=${cleanLng}`;
-        
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        // Logica per estrarre il nome corretto
-        const city = data.address.city || data.address.town || data.address.village || data.address.suburb || "POSIZIONE IGNOTA";
-        const country = data.address.country || "";
-
-        cityInput.value = country ? `${city}, ${country}`.toUpperCase() : city.toUpperCase();
-        cityInput.style.color = "#38bdf8"; 
-
-    } catch (error) {
-        console.error("Errore Geocoding:", error);
-        cityInput.value = "LOCALITÀ NON TROVATA";
-    }
-}
-
  * Funzione: searchCityCoords
- * Cosa fa: Cerca la città, trova l'ora locale e FORZA l'aggiornamento di:
- * 1. Cerchio centrale (Ora)
- * 2. Riquadri in basso (Data e Ora)
- * 3. Meteo e Sole (tramite updateAll)
+ * Cosa fa: Cerca la città, trova l'ora locale e aggiorna TUTTA l'interfaccia.
+ * Include protezioni per evitare il blocco dell'app.
  */
 async function searchCityCoords(cityName) {
     if (!cityName) return;
+    
+    // Riferimenti agli elementi HTML
     const cityInput = document.getElementById('city-input');
+    const latField = document.getElementById('input-lat');
+    const lngField = document.getElementById('input-lng');
+    const dateField = document.getElementById('input-date');
+    const timeField = document.getElementById('input-time');
+    const centerClock = document.getElementById('display-hour-center');
 
     try {
-        cityInput.style.color = "#fbbf24"; // Giallo: sto cercando...
-        
+        if (cityInput) cityInput.style.color = "#fbbf24"; // Feedback visivo: Giallo
+
         // 1. Cerchiamo le coordinate su OpenStreetMap
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
         const data = await response.json();
@@ -468,45 +434,43 @@ async function searchCityCoords(cityName) {
             const newLat = parseFloat(data[0].lat).toFixed(4);
             const newLng = parseFloat(data[0].lon).toFixed(4);
 
-            // Scriviamo i numeri nei quadratini in basso
-            document.getElementById('input-lat').value = newLat;
-            document.getElementById('input-lng').value = newLng;
-            cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
+            // Scriviamo i numeri nei quadratini (se esistono)
+            if (latField) latField.value = newLat;
+            if (lngField) lngField.value = newLng;
+            if (cityInput) cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
 
-            // 2. RECUPERO ORA E DATA LOCALE (Fuso Orario di Taipei)
+            // 2. RECUPERO FUSO ORARIO E DATA (Teletrasporto temporale)
             const tzUrl = `https://api.open-meteo.com/v1/forecast?latitude=${newLat}&longitude=${newLng}&current=time&timezone=auto`;
             const tzResp = await fetch(tzUrl);
             const tzData = await tzResp.json();
             
             if (tzData.current && tzData.current.time) {
-                // Esempio: "2026-03-04T21:30"
                 const parts = tzData.current.time.split('T');
                 const localDate = parts[0]; 
                 const localTime = parts[1].substring(0, 5); 
 
-                // --- AGGIORNAMENTO DEI 4 RIQUADRI IN BASSO ---
-                document.getElementById('input-date').value = localDate;
-                document.getElementById('input-time').value = localTime;
+                // Aggiorniamo i campi DATA e ORA (Riquadri in basso)
+                if (dateField) dateField.value = localDate;
+                if (timeField) timeField.value = localTime;
                 
-                // --- AGGIORNAMENTO DEL CERCHIO GRAFICO (IN ALTO) ---
-                const displayClock = document.getElementById('display-hour-center');
-                if (displayClock) {
-                    displayClock.innerText = localTime; // Aggiorna l'ora dentro il cerchio
-                }
+                // Aggiorniamo l'OROLOGIO nel CERCHIO (In alto)
+                if (centerClock) centerClock.innerText = localTime;
             }
 
-            cityInput.style.color = "#38bdf8"; // Torna azzurro: trovato!
+            if (cityInput) cityInput.style.color = "#38bdf8"; // Torna Azzurro
 
-            // 3. AGGIORNAMENTO FINALE DI TUTTA LA DASHBOARD
-            // Ora updateAll leggerà i nuovi valori e sposterà il sole
-            updateAll(); 
+            // 3. AGGIORNAMENTO FINALE DI TUTTO
+            // Verifichiamo che la funzione updateAll esista prima di chiamarla
+            if (typeof updateAll === 'function') {
+                updateAll(); 
+            }
             
         } else {
             alert("Città non trovata!");
-            cityInput.style.color = "#ef4444";
+            if (cityInput) cityInput.style.color = "#ef4444";
         }
     } catch (error) {
-        console.error("Errore teletrasporto Taipei:", error);
-        cityInput.style.color = "#ef4444";
+        console.error("Errore critico durante la ricerca:", error);
+        if (cityInput) cityInput.style.color = "#ef4444";
     }
 }
