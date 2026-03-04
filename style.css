@@ -54,6 +54,8 @@ body {
     width: 100%; 
     max-width: 600px; 
     padding: 15px; 
+    padding-bottom: 100px; /* Crea uno spazio vuoto sotto così puoi scorrere tutto il contenuto */
+    overflow-x: hidden;
 }
 
 /* --- VISTE & ANIMAZIONI --- */
