@@ -120,23 +120,16 @@ function generaBottoniGiorni() {
 // IL REGISTA: Sincronizza tutta l'app
 // IL REGISTA: Sincronizza tutta l'app
 function aggiornaTuttaInterfaccia() {
-    console.log("Sincronizzo l'app sulla data:", dataSelezionata.toLocaleDateString());
-
-    // 1. Sincronizziamo l'input della data per i calcoli meteo
     const inputDate = document.getElementById('input-date');
     if (inputDate) {
         inputDate.value = dataSelezionata.toISOString().split('T')[0];
     }
 
-    // 2. Chiamiamo updateAll() che ricalcola Watt e Grafico
     updateAll();
 
-    // 3. LOGICA DELLA SCRITTA DINAMICA (Puntando all'h3 corretto)
-    // Cerchiamo tutti gli h3 che hanno la classe 'section-title'
     const titoli = document.querySelectorAll('h3.section-title');
     let elementoTitolo = null;
 
-    // Troviamo quello che parla di "PREVISIONE" (è il primo h3 nel view-energy)
     titoli.forEach(el => {
         if (el.innerText.includes("PREVISIONE")) {
             elementoTitolo = el;
@@ -147,19 +140,17 @@ function aggiornaTuttaInterfaccia() {
     
     if (elementoTitolo) {
         if (dataSelezionata.toDateString() === oggi) {
-            // Se torniamo a OGGI
-            elementoTitolo.innerText = "PREVISIONE ODIERNA";
-            elementoTitolo.style.color = "#38bdf8"; // Il tuo azzurro
+            elementoTitolo.innerHTML = "PREVISIONE ODIERNA";
+            elementoTitolo.style.color = "#38bdf8"; 
         } else {
-            // Estraiamo il giorno e il mese (es: 8 MARZO)
             const opzioni = { day: 'numeric', month: 'long' };
             const dataEstesa = dataSelezionata.toLocaleDateString('it-IT', opzioni).toUpperCase();
             
-            // Componiamo la frase finale esattamente come l'hai chiesta
-            elementoTitolo.innerText = "PREVISIONE PER IL GIORNO " + dataEstesa;
+            // Manteniamo la base azzurra (#38bdf8)
+            elementoTitolo.style.color = "#38bdf8"; 
             
-            // Cambiamo colore in giallo (accento) per evidenziare il cambio data
-            elementoTitolo.style.color = "var(--accento)"; 
+            // Inseriamo lo span con il colore giallo (#fbbf24) solo per la data
+            elementoTitolo.innerHTML = `PREVISIONE PER IL GIORNO <span style="color: #fbbf24;">${dataEstesa}</span>`;
         }
     }
 }
