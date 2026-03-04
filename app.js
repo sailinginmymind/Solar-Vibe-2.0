@@ -197,7 +197,7 @@ async function handleGpsSync() {
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
-    const date = document.getElementById('input-date').value;
+   const date = dataSelezionata.toISOString().split('T')[0];
     const time = document.getElementById('input-time').value;
     const displayVal = document.getElementById('w_out');
     const displayLabel = document.getElementById('unit-label');
