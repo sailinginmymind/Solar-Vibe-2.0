@@ -74,34 +74,26 @@ if (cityInput) {
     document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
 }
-// 1. IL "POST-IT": Questa variabile tiene a mente che giorno stiamo guardando.
-let dataSelezionata = new Date();
-
 function generaBottoniGiorni() {
     const container = document.getElementById('days-selector');
     if (!container) return;
 
-    // 1. Puliamo il contenitore dai vecchi bottoni di ieri
     container.innerHTML = ""; 
 
-    // 2. Usiamo SEMPRE la data attuale come punto di partenza
     const oggi = new Date();
 
     for (let i = 0; i < 7; i++) {
         const dataBottone = new Date(oggi);
-        // Calcola il giorno corretto aggiungendo i giorni al momento attuale
         dataBottone.setDate(oggi.getDate() + i); 
 
         const btn = document.createElement('div');
         btn.className = 'day-btn';
         
-        // Verifica se questo bottone è quello selezionato dall'utente
+        // Controlla se è il giorno attivo per evidenziarlo
         if (dataBottone.toDateString() === dataSelezionata.toDateString()) {
             btn.classList.add('active');
         }
 
-        // 3. CALCOLO AUTOMATICO DELL'INIZIALE
-        // Prende il nome del giorno (es. "venerdì"), estrae la prima lettera e la fa maiuscola
         const giornoSettimana = dataBottone.toLocaleDateString('it-IT', { weekday: 'short' })
                                            .charAt(0)
                                            .toUpperCase();
@@ -110,17 +102,15 @@ function generaBottoniGiorni() {
 
         btn.innerHTML = `<span>${giornoSettimana}</span><b>${numeroGiorno}</b>`;
         
-        // ... resto del codice per il click ...
-
+        // --- CORREZIONE QUI SOTTO ---
         btn.onclick = function() {
-            // Estetica: cambia classe active
-            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-
-            // Aggiorna la data globale
-            dataSelezionata = new Date(dataTasto);
+            // 1. Aggiorna la data globale usando dataBottone (non dataTasto!)
+            dataSelezionata = new Date(dataBottone);
             
-            // Chiama la funzione di aggiornamento
+            // 2. Ridisegna i bottoni per spostare la classe 'active'
+            generaBottoniGiorni();
+            
+            // 3. Aggiorna i grafici e il titolo
             aggiornaTuttaInterfaccia();
         };
 
