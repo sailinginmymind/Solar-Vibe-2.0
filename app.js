@@ -387,24 +387,29 @@ function resetDetailDisplay() {
  * @param {number} lng - Longitudine
  */
 async function updateCityName(lat, lng) {
-    // 1. Cambiamo l'ID in 'city-input' (quello che abbiamo messo nell'HTML)
     const cityInput = document.getElementById('city-input');
-    
-    // 2. Controllo fondamentale: se l'utente sta scrivendo nella casella, non sovrascrivere!
     if (!cityInput || document.activeElement === cityInput) return;
 
+    // Puliamo i valori da eventuali spazi bianchi
+    const cleanLat = String(lat).trim();
+    const cleanLng = String(lng).trim();
+
     try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat, lng}&lon=${lng}`);
+        // CORREZIONE: Abbiamo rimosso la virgola di troppo e pulito la stringa
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${cleanLat}&lon=${cleanLng}`;
+        
+        const response = await fetch(url);
         const data = await response.json();
         
-        // Estraiamo la città o il comune
-        const city = data.address.city || data.address.town || data.address.village || data.address.municipality || "POSIZIONE IGNOTA";
-        
-        // 3. USIAMO .value (per i campi input) invece di .innerText (per i testi fissi)
-        cityInput.value = city.toUpperCase(); 
-        
+        // Logica per estrarre il nome corretto
+        const city = data.address.city || data.address.town || data.address.village || data.address.suburb || "POSIZIONE IGNOTA";
+        const country = data.address.country || "";
+
+        cityInput.value = country ? `${city}, ${country}`.toUpperCase() : city.toUpperCase();
+        cityInput.style.color = "#38bdf8"; 
+
     } catch (error) {
-        console.error("Errore recupero città:", error);
+        console.error("Errore Geocoding:", error);
         cityInput.value = "LOCALITÀ NON TROVATA";
     }
 }
