@@ -164,6 +164,13 @@ h2 {
     padding: 0 45px; 
     box-sizing: border-box; /* Assicura che il padding non sballi la larghezza */
 }
+/* --- OTTIMIZZAZIONE SOLO PER TELEFONO --- */
+@media (max-width: 768px) {
+    .horizon-data { 
+        padding: 0 25px !important; /* Più esterni su schermi piccoli */
+    }
+    /* ... il resto del tuo codice media query ... */
+}
 
 /* --- ORIZZONTE (ALBA E TRAMONTO) --- */
 .h-label { 
@@ -185,6 +192,24 @@ h2 {
     margin-top: 5px;
     /* Aggiunge un bagliore del colore del tema all'orario */
     text-shadow: 0 0 10px var(--accento); 
+}
+/* --- OTTIMIZZAZIONE SOLO PER TELEFONO --- */
+@media (max-width: 768px) {
+    /* Spostiamo le scritte verso l'esterno riducendo il padding laterale */
+    .horizon-data { 
+        padding: 0 25px !important; 
+    }
+
+    /* Rimpiccioliamo leggermente le etichette (ALBA/TRAMONTO) */
+    .h-label { 
+        font-size: 12px !important; 
+    }
+
+    /* Rimpiccioliamo leggermente l'orario effettivo */
+    #sunrise-txt, #sunset-txt { 
+        font-size: 20px !important; 
+        margin-top: 2px;
+    }
 }
 /* --- DISPLAY CENTRALE (NUBI E ORA) --- */
 .core-display { 
