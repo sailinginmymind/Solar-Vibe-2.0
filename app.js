@@ -74,47 +74,71 @@ if (cityInput) {
     document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
 }
+// 1. Variabile globale: all'inizio è "oggi"
+let dataVisualizzata = new Date();
+
 function generaBottoniGiorni() {
     const container = document.getElementById('days-selector');
-    if (!container) return; // Evita errori se il container non viene trovato
+    if (!container) return;
 
-    // Iniziali brevi come richiesto
     const iniziali = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
     const oggi = new Date();
 
-    container.innerHTML = ''; // Pulisce il contenitore
+    container.innerHTML = '';
 
     for (let i = 0; i < 7; i++) {
         const dataTarget = new Date();
         dataTarget.setDate(oggi.getDate() + i);
 
-        const giornoSettimana = iniziali[dataTarget.getDay()];
-        const numeroGiorno = dataTarget.getDate();
-
-        // Creazione dell'elemento bottone
         const btn = document.createElement('div');
+        // Se i è 0, è oggi, quindi è attivo
         btn.className = i === 0 ? 'day-btn active' : 'day-btn';
         
         btn.innerHTML = `
-            <span class="day-name">${giornoSettimana}</span>
-            <span class="day-num">${numeroGiorno}</span>
+            <span class="day-name">${iniziali[dataTarget.getDay()]}</span>
+            <span class="day-num">${dataTarget.getDate()}</span>
         `;
 
-        // Gestione del click
         btn.onclick = function() {
-            // Rimuove la classe active da tutti e la assegna a quello cliccato
+            // Estetica dei tasti
             document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
 
-            // Qui chiamerai la funzione che aggiorna il grafico
-            // Esempio: caricaDatiGiorno(i); 
-            console.log("Giorno selezionato: +" + i + " giorni da oggi");
+            // AGGIORNAMENTO DATA GLOBALE
+            dataVisualizzata = new Date(dataTarget);
+            
+            // Chiamiamo la funzione che aggiorna TUTTA l'app
+            sincronizzaInteraApp();
         };
 
         container.appendChild(btn);
     }
 }
 
+function sincronizzaInteraApp() {
+    console.log("Sincronizzo l'app sulla data:", dataVisualizzata.toLocaleDateString());
+
+    // A. Aggiorna la Dashboard (il sole, l'alba, il tramonto)
+    // Passiamo la dataVisualizzata alle tue funzioni esistenti
+    if (typeof updateSolarSystem === "function") {
+        updateSolarSystem(dataVisualizzata); 
+    }
+
+    // B. Aggiorna il Report (il grafico a barre)
+    if (typeof renderizzaGrafico === "function") {
+        renderizzaGrafico(dataVisualizzata);
+    }
+
+    // C. Feedback visivo: cambiamo il titolo per far capire che siamo nel futuro
+    const titolocamping = document.getElementById('camper-name-display');
+    const oggi = new Date().toDateString();
+    
+    if (dataVisualizzata.toDateString() === oggi) {
+        titolocamping.style.color = "white"; // Colore normale per oggi
+    } else {
+        titolocamping.style.color = "var(--accento)"; // Colore tema per il futuro
+    }
+}
 // Ricordati di chiamarla all'avvio dell'app!
 generaBottoniGiorni();
 /**
