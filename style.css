@@ -1,3 +1,30 @@
+/* Definizione dei Temi (Variabili) */
+:root {
+    --bg-puro: #0f172a;        /* Blu Notte Originale */
+    --accento: #38bdf8;        /* Azzurro dei bordi e icone */
+    --bg-card: rgba(30, 41, 59, 0.7); /* Sfondo semitrasparente card */
+}
+
+/* Variante Tema VERDE */
+body.tema-verde {
+    --bg-puro: #062c1f;
+    --accento: #10b981;
+    --bg-card: rgba(6, 44, 31, 0.8);
+}
+
+/* Variante Tema ROSSO */
+body.tema-rosso {
+    --bg-puro: #2d0a1a;
+    --accento: #f43f5e;
+    --bg-card: rgba(45, 10, 26, 0.8);
+}
+
+/* Variante Tema GRIGIO */
+body.tema-grigio {
+    --bg-puro: #1a1a1a;
+    --accento: #94a3b8;
+    --bg-card: rgba(35, 35, 35, 0.8);
+}
 /* --- RESET & BASE --- */
 * { 
     box-sizing: border-box; 
@@ -6,13 +33,14 @@
 
 body { 
     margin: 0; 
-    background-color: #0f172a; 
+    background-color: var(--bg-puro); /* Ora usa la variabile! */
     color: white; 
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
     display: flex; 
     justify-content: center; 
     min-height: 100vh; 
     padding-bottom: 140px; 
+    transition: background-color 0.4s ease; /* Rende il cambio fluido */
 }
 
 .app-container { 
@@ -55,10 +83,10 @@ h2 {
 }
 
 .card { 
-    background: #1e293b; 
+    background: var(--bg-card) !important; /* <--- Cambia questa */
     border-radius: 28px; 
     padding: 25px; 
-    border: 1px solid #334155; 
+    border: 1px solid var(--accento) !important; /* <--- Cambia questa */
     margin-bottom: 20px; 
     box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); 
     position: relative; 
@@ -472,14 +500,15 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 
 .nav-item { 
     flex: 1; 
-    color: #94a3b8; 
+    color: var(--accento) !important;
     font-size: 9px; 
     font-weight: 900; 
     text-align: center; 
     display: flex; 
     flex-direction: column; 
     justify-content: center; 
-    cursor: pointer; 
+    cursor: pointer;
+    border-bottom: 2px solid var(--accento) !important;
 }
 
 .nav-item span { font-size: 32px; display: block; margin-bottom: 4px; }
