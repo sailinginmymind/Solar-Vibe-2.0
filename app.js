@@ -446,31 +446,34 @@ async function searchCityCoords(cityName) {
     const cityInput = document.getElementById('city-input');
 
     try {
-        cityInput.style.color = "#fbbf24"; // Diventa giallo mentre cerca
+        cityInput.style.color = "#fbbf24"; 
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
         const data = await response.json();
 
         if (data && data.length > 0) {
-            // 1. Prende le coordinate trovate
             const newLat = parseFloat(data[0].lat).toFixed(4);
             const newLng = parseFloat(data[0].lon).toFixed(4);
 
-            // 2. Aggiorna i quadratini Lat e Lng nella Dashboard
             document.getElementById('input-lat').value = newLat;
             document.getElementById('input-lng').value = newLng;
-
-            // 3. Formatta il nome della città trovato (es. "Pisa, Toscana")
             cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
-            cityInput.style.color = "#38bdf8"; // Torna azzurro
 
-            // 4. SCATENA L'AGGIORNAMENTO DI TUTTO (Meteo, Sole, Watt)
-            updateAll(); 
-        } else {
-            alert("Città non trovata!");
-            cityInput.style.color = "#ef4444"; // Rosso errore
+            // --- NUOVA LOGICA FUSO ORARIO ---
+            // Chiediamo al meteo che ore sono in quelle coordinate
+            const tzResp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${newLat}&longitude=${newLng}&current=time&timezone=auto`);
+            const tzData = await tzResp.json();
+            
+            if (tzData.current && tzData.current.time) {
+                // Estraiamo solo l'ora (HH:mm) dal formato ISO
+                const localTime = tzData.current.time.split('T')[1].substring(0, 5);
+                document.getElementById('input-time').value = localTime;
+            }
+            // --------------------------------
+
+            cityInput.style.color = "#38bdf8";
+            updateAll(); // Ora aggiornerà anche il sole e il meteo con l'ora corretta!
         }
     } catch (error) {
         console.error("Errore ricerca:", error);
-        cityInput.style.color = "#ef4444";
     }
 }
