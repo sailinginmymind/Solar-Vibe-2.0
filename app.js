@@ -122,29 +122,26 @@ function generaBottoniGiorni() {
 function aggiornaTuttaInterfaccia() {
     console.log("Sincronizzo l'app sulla data:", dataSelezionata.toLocaleDateString());
 
-    // 1. Dice alla Dashboard (Sole/Alba/Tramonto) di mostrare i dati di 'dataSelezionata'
-    if (typeof updateSolarSystem === "function") {
-        updateSolarSystem(dataSelezionata); 
+    // 1. Aggiorniamo la data nel quadratino dell'input così l'API sa cosa scaricare
+    const inputDate = document.getElementById('input-date');
+    if (inputDate) {
+        inputDate.value = dataSelezionata.toISOString().split('T')[0];
     }
 
-    // 2. Dice al Grafico a barre di ridisegnare tutto usando 'dataSelezionata'
-    if (typeof renderizzaGrafico === "function") {
-        renderizzaGrafico(dataSelezionata);
-    }
+    // 2. Chiamiamo updateAll() che è il tuo "motore" principale
+    // Questa funzione scaricherà il meteo del giorno scelto e aggiornerà tutto
+    updateAll();
 
-    // 3. Cambia il colore del titolo "IL MIO CAMPER" se siamo nel futuro
+    // 3. Feedback visivo sul titolo
     const titolo = document.getElementById('camper-name-display');
     const oggi = new Date().toDateString();
     
     if (dataSelezionata.toDateString() === oggi) {
-        titolo.style.color = "white"; // Bianco se è oggi
+        titolo.style.color = "white"; 
     } else {
-        titolo.style.color = "var(--accento)"; // Colore del tema se è futuro
+        titolo.style.color = "var(--accento)"; 
     }
 }
-
-// AVVIO: Crea i bottoni appena carichi l'app
-generaBottoniGiorni();
 /**
  * Funzione: handleGpsSync
  * Spiegazione: Ottiene la posizione GPS, aggiorna i dati e mostra 
