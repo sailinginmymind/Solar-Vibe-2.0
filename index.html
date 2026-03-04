@@ -83,7 +83,7 @@
         </div>
     </div>
 
-  <div id="view-garage" class="view">
+ <div id="view-garage" class="view">
     <div class="card">
         <h3 class="section-title">GARAGE</h3>
         
@@ -96,11 +96,24 @@
             <span>🔋 Batteria: <b><span id="batt_val">100</span> Ah</b></span>
             <button id="edit-batt-btn" class="mini-btn">EDIT</button>
         </div>
+        
         <div class="garage-row">
             <span>☀️ Pannelli: <b><span id="panel_val">100</span> W</b></span>
             <button id="edit-pan-btn" class="mini-btn">EDIT</button>
         </div>
-    </div>
+
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+            <span style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">🎨 COLORE INTERNI</span>
+            <div style="display: flex; gap: 10px;">
+                <div onclick="changeBg('#0f172a')" style="width: 24px; height: 24px; border-radius: 50%; background: #0f172a; border: 1px solid #38bdf8; cursor: pointer;"></div>
+                <div onclick="changeBg('#1a1a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; border: 1px solid #64748b; cursor: pointer;"></div>
+                <div onclick="changeBg('#062c1f')" style="width: 24px; height: 24px; border-radius: 50%; background: #062c1f; border: 1px solid #10b981; cursor: pointer;"></div>
+                <div onclick="changeBg('#2d0a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #2d0a1a; border: 1px solid #f43f5e; cursor: pointer;"></div>
+            </div>
+        </div>
+        </div>
 </div>
 
     <div class="navbar-wrapper">
