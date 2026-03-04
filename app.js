@@ -436,3 +436,18 @@ async function searchCityCoords(cityName) {
         console.error("Errore ricerca città:", error);
     }
 }
+/**
+ * Funzione: changeBg
+ * Spiegazione: Cambia il colore di sfondo del body e lo salva nel browser.
+ * Riceve il colore in formato esadecimale (es. #1a1a1a).
+ */
+function changeBg(color) {
+    // Applica il colore allo sfondo della pagina
+    document.body.style.backgroundColor = color;
+    
+    // Rimuove eventuali gradienti che potrebbero coprire il colore pieno
+    document.body.style.backgroundImage = "none";
+    
+    // Salva la scelta così al prossimo avvio l'app si ricorda il colore
+    localStorage.setItem('vibe_bg_color', color);
+}
