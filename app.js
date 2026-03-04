@@ -24,13 +24,26 @@ function initEventListeners() {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
 
+    // 1. TASTO GPS (Già presente)
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
+    // 2. AGGIUNGI QUESTO QUI: Gestione Ricerca Città con tasto Invio
+    const cityInput = document.getElementById('city-input');
+    if (cityInput) {
+        cityInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                searchCityCoords(this.value); // Chiama la ricerca quando premi invio
+            }
+        });
+    }
+
+    // 3. CAMPI INPUT (Già presente)
     ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
 
+    // 4. SLIDER BATTERIA (Già presente)
     const socSlider = document.getElementById('soc-slider');
     if (socSlider) {
         socSlider.addEventListener('input', (e) => {
@@ -40,6 +53,7 @@ function initEventListeners() {
         });
     }
 
+    // 5. TASTI GARAGE E MODIFICHE (Già presente)
     document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
     document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
