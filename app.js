@@ -98,8 +98,16 @@ async function updateAll() {
 
     if (!lat || !lng || !displayVal) return;
 
-    displayVal.style.color = state.isWh ? "#fbbf24" : "#38bdf8";
-    if (displayLabel) displayLabel.innerText = state.isWh ? "Clicca per i Watt" : "Clicca per i Wattora";
+    /**
+     * MODIFICA ESTETICA:
+     * Fissiamo il colore azzurro (#38bdf8) tipico dei Watt e aggiorniamo l'etichetta.
+     * Rimuoviamo il cursore a "manina" per far capire che non è più cliccabile.
+     */
+    displayVal.style.color = "#38bdf8"; 
+    if (displayLabel) {
+        displayLabel.innerText = "POTENZA ISTANTANEA";
+        displayLabel.style.cursor = "default";
+    }
 
     try {
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
@@ -112,6 +120,7 @@ async function updateAll() {
 
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
+        
         document.getElementById('sunrise-txt').innerText = sunrise;
         document.getElementById('sunset-txt').innerText = sunset;
         document.getElementById('display-hour-center').innerText = time;
@@ -123,14 +132,28 @@ async function updateAll() {
 
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
+        
+        /**
+         * CALCOLO POTENZA:
+         * Calcoliamo i Watt attuali usando la formula nel SolarEngine.
+         */
         const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         
-        displayVal.innerText = Math.round(state.isWh ? power * 0.9 : power) + (state.isWh ? " Wh" : " W");
+        /**
+         * MODIFICA DISPLAY:
+         * Mostriamo solo il valore arrotondato dei Watt seguita dalla "W".
+         * Abbiamo rimosso il controllo 'state.isWh'.
+         */
+        displayVal.innerText = Math.round(power) + " W";
 
         if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
+        
+        // Passiamo comunque i dati al Report per il calcolo del grafico a barre
         updateReportUI(power, sunH, setH);
 
-    } catch (e) { console.error("Errore updateAll:", e); }
+    } catch (e) { 
+        console.error("Errore updateAll:", e); 
+    }
 }
 
 function updateReportUI(currentPower, sunH, setH) {
