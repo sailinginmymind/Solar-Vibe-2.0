@@ -161,35 +161,33 @@ async function handleGpsSync() {
     const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
     const originalBg = btn.style.background;
 
-    // Disabilitiamo il tasto per evitare click multipli, ma non cambiamo il testo subito
     btn.disabled = true;
 
     try {
-        // 1. Recupero Coordinate (dal file WeatherAPI.js)
         const coords = await WeatherAPI.getUserLocation();
         const now = new Date();
         
-        // 2. Aggiornamento Campi Input
         document.getElementById('input-lat').value = coords.latitude.toFixed(4);
         document.getElementById('input-lng').value = coords.longitude.toFixed(4);
         document.getElementById('input-date').value = now.toISOString().split('T')[0];
         document.getElementById('input-time').value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         
-        // 3. Aggiornamento di tutta l'interfaccia (Watt, Sole, Meteo)
+        // --- NUOVA LOGICA DI RESET ---
+        // 2.b Riportiamo il "Post-it" a oggi e rigeneriamo i bottoni per togliere l'active dal giorno futuro
+        dataSelezionata = new Date();
+        generaBottoniGiorni(); 
+        
         await updateAll();
 
-        // 4. RISULTATO DIRETTO: Animazione Verde e Messaggio di Successo
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
-        btn.style.background = "#22c55e"; // Verde smeraldo
-        btn.style.boxShadow = "0 0 15px #22c55e"; // Effetto bagliore
+        btn.style.background = "#22c55e"; 
+        btn.style.boxShadow = "0 0 15px #22c55e";
 
     } catch (err) {
-        // In caso di errore (GPS negato o segnale assente)
         btn.innerText = "❌ ERRORE GPS";
-        btn.style.background = "#ef4444"; // Rosso
+        btn.style.background = "#ef4444"; 
     } finally {
         btn.disabled = false;
-        // Torna allo stato originale dopo 3 secondi
         setTimeout(() => { 
             btn.innerText = originalText; 
             btn.style.background = originalBg;
