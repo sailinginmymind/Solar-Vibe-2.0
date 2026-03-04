@@ -487,26 +487,29 @@ function resetDetailDisplay() {
  * Correzione: Ora punta a 'city-input' e usa .value per i campi di testo.
  */
 async function updateCityName(lat, lng) {
-    // Usiamo 'city-input' che è l'ID del tuo riquadro in alto
     const cityElement = document.getElementById('city-input'); 
     if (!cityElement) return;
 
     try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+        // Usiamo un servizio di fallback se il primo fallisce
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`, {
+            headers: { 'User-Agent': 'VibeSolarApp' }
+        });
         const data = await response.json();
         
-        // Estraiamo il nome della località
-        const city = data.address.city || data.address.town || data.address.village || data.address.municipality || "POSIZIONE IGNOTA";
+        const city = data.address.city || data.address.town || data.address.village || data.address.municipality;
         
-        // AGGIORNAMENTO: Usiamo .value perché è un campo di input, e mettiamo tutto in MAIUSCOLO per stile
-        cityElement.value = city.toUpperCase();
-
+        if (city) {
+            cityElement.value = city.toUpperCase();
+        } else {
+            cityElement.value = "POSIZIONE GPS";
+        }
     } catch (error) {
         console.error("Errore recupero città:", error);
-        cityElement.value = "LOCALITÀ NON TROVATA";
+        // Se non trova il nome, almeno scriviamo le coordinate o un testo generico
+        cityElement.value = "POSIZIONE RILEVATA";
     }
 }
-
 /**
  * Funzione: searchCityCoords
  * Cerca le coordinate di una città e aggiorna l'app.
