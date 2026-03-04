@@ -74,8 +74,9 @@ if (cityInput) {
     document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
 }
-// 1. Variabile globale: all'inizio è "oggi"
-let dataVisualizzata = new Date();
+// 1. IL "POST-IT": Questa variabile tiene a mente che giorno stiamo guardando.
+// All'inizio è impostata su "adesso" (new Date()).
+let dataSelezionata = new Date();
 
 function generaBottoniGiorni() {
     const container = document.getElementById('days-selector');
@@ -84,62 +85,65 @@ function generaBottoniGiorni() {
     const iniziali = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
     const oggi = new Date();
 
-    container.innerHTML = '';
+    container.innerHTML = ''; // Puliamo il contenitore prima di creare i tasti
 
     for (let i = 0; i < 7; i++) {
-        const dataTarget = new Date();
-        dataTarget.setDate(oggi.getDate() + i);
+        // Creiamo la data per il tasto specifico (oggi + i giorni)
+        const dataTasto = new Date();
+        dataTasto.setDate(oggi.getDate() + i);
 
+        // Creiamo l'elemento HTML del bottone
         const btn = document.createElement('div');
-        // Se i è 0, è oggi, quindi è attivo
         btn.className = i === 0 ? 'day-btn active' : 'day-btn';
         
         btn.innerHTML = `
-            <span class="day-name">${iniziali[dataTarget.getDay()]}</span>
-            <span class="day-num">${dataTarget.getDate()}</span>
+            <span class="day-name">${iniziali[dataTasto.getDay()]}</span>
+            <span class="day-num">${dataTasto.getDate()}</span>
         `;
 
+        // COSA SUCCEDE QUANDO TOCCHI UN GIORNO
         btn.onclick = function() {
-            // Estetica dei tasti
+            // A. Cambia l'aspetto grafico: toglie il "luccichio" agli altri e lo dà a questo
             document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
 
-            // AGGIORNAMENTO DATA GLOBALE
-            dataVisualizzata = new Date(dataTarget);
+            // B. AGGIORNA IL "POST-IT": La variabile globale diventa la data del tasto
+            dataSelezionata = new Date(dataTasto);
             
-            // Chiamiamo la funzione che aggiorna TUTTA l'app
-            sincronizzaInteraApp();
+            // C. COMANDA IL CAMBIO: Chiama la funzione che aggiorna tutta l'app
+            aggiornaTuttaInterfaccia();
         };
 
         container.appendChild(btn);
     }
 }
 
-function sincronizzaInteraApp() {
-    console.log("Sincronizzo l'app sulla data:", dataVisualizzata.toLocaleDateString());
+// IL REGISTA: Questa funzione dice a tutti i pezzi dell'app di cambiare i dati
+function aggiornaTuttaInterfaccia() {
+    console.log("Sincronizzo l'app sulla data:", dataSelezionata.toLocaleDateString());
 
-    // A. Aggiorna la Dashboard (il sole, l'alba, il tramonto)
-    // Passiamo la dataVisualizzata alle tue funzioni esistenti
+    // 1. Dice alla Dashboard (Sole/Alba/Tramonto) di mostrare i dati di 'dataSelezionata'
     if (typeof updateSolarSystem === "function") {
-        updateSolarSystem(dataVisualizzata); 
+        updateSolarSystem(dataSelezionata); 
     }
 
-    // B. Aggiorna il Report (il grafico a barre)
+    // 2. Dice al Grafico a barre di ridisegnare tutto usando 'dataSelezionata'
     if (typeof renderizzaGrafico === "function") {
-        renderizzaGrafico(dataVisualizzata);
+        renderizzaGrafico(dataSelezionata);
     }
 
-    // C. Feedback visivo: cambiamo il titolo per far capire che siamo nel futuro
-    const titolocamping = document.getElementById('camper-name-display');
+    // 3. Cambia il colore del titolo "IL MIO CAMPER" se siamo nel futuro
+    const titolo = document.getElementById('camper-name-display');
     const oggi = new Date().toDateString();
     
-    if (dataVisualizzata.toDateString() === oggi) {
-        titolocamping.style.color = "white"; // Colore normale per oggi
+    if (dataSelezionata.toDateString() === oggi) {
+        titolo.style.color = "white"; // Bianco se è oggi
     } else {
-        titolocamping.style.color = "var(--accento)"; // Colore tema per il futuro
+        titolo.style.color = "var(--accento)"; // Colore del tema se è futuro
     }
 }
-// Ricordati di chiamarla all'avvio dell'app!
+
+// AVVIO: Crea i bottoni appena carichi l'app
 generaBottoniGiorni();
 /**
  * Funzione: handleGpsSync
