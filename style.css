@@ -851,61 +851,30 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     display: none;
 }
 
-/* Unifichiamo i blocchi media per schermi sotto i 600px */
 @media (max-width: 600px) {
-    
-    /* 1. Gestione testo a capo nel Report */
-    .mobile-break {
-        display: block;
-        margin-bottom: 5px;
-    }
-
-    /* 2. Nav Bar: Eliminazione spazio nero inferiore */
     .nav-bar {
         position: fixed;
-        bottom: 0;         /* Incolla al bordo inferiore assoluto */
+        bottom: 0;
         left: 0;
         width: 100%;
-        margin: 0;         /* Rimuove eventuali margini di distanziamento */
         
-        padding: 0 15%;    /* Avvicina le icone al centro */
-        display: flex;
-        justify-content: space-around; 
-        align-items: center;
+        /* Forza l'altezza e toglie arrotondamenti che creano il vuoto */
+        height: 75px; 
+        border-radius: 0; 
         
-        /* Altezza totale della barra */
-        height: 85px;      
+        /* Padding laterale per riavvicinare le icone */
+        padding: 0 15%;
         
-        /* Questa è la chiave: espande il background sotto la barra delle gesture 
-           senza alzare le icone, riempiendo il vuoto nero */
+        /* Estende il colore di fondo per le "safe areas" (la riga nera) */
         padding-bottom: env(safe-area-inset-bottom);
         
-        /* Assicuriamoci che lo sfondo copra tutto */
         background: rgba(15, 23, 42, 0.98); 
-    }
-
-    /* 3. Elementi interni (Icone e Testo) */
-    .nav-item {
-        flex: 1;
+        border-top: 1px solid rgba(56, 189, 248, 0.3);
+        
         display: flex;
-        flex-direction: column;
+        justify-content: space-around;
         align-items: center;
-        gap: 4px; /* Ridotto leggermente per stare nei 85px di altezza */
-    }
-    
-    .nav-item span {
-        font-size: 28px; /* Leggermente ridimensionate per non toccare i bordi */
-    }
-
-    .nav-item small {
-        font-size: 10px;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .nav-item.active span {
-        transform: scale(1.1);
-        filter: drop-shadow(0 0 10px #38bdf8);
+        z-index: 1000;
+        box-sizing: border-box; /* Importante per non farla uscire dai bordi */
     }
 }
