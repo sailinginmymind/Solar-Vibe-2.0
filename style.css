@@ -473,22 +473,25 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 .bar::after {
     display: none; 
 }
-/* Contenitore del dato evidenziato (lo mettiamo sopra il grafico) */
+/* Contenitore del dato evidenziato - VERSIONE BLOCCATA */
 #detail-display {
     text-align: center;
-    min-height: 40px;
-    margin-bottom: 10px;
+    height: 40px;         /* Cambia min-height in height fissa */
+    margin-bottom: 5px;   /* Riduciamo leggermente per compattare */
     display: flex;
     align-items: center;
     justify-content: center;
     
-    /* Stesso stile di "BATTERIA ATTUALE" */
     font-size: 11px;
     font-weight: 900;
-    color: #94a3b8;      /* Grigio di base */
+    color: #94a3b8;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    transition: all 0.3s ease;
+    
+    /* Impedisce al contenitore di cambiare dimensione */
+    overflow: hidden; 
+    box-sizing: border-box;
+    transition: color 0.3s ease, font-size 0.3s ease;
 }
 
 /* Classe speciale per evidenziare la parola "barra" */
