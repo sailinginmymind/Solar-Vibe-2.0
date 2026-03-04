@@ -23,29 +23,62 @@ window.onload = () => {
 };
 
 function initEventListeners() {
-    // Navigazione tra le schede
+    // 1. NAVIGAZIONE
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
 
-    // Tasto GPS con animazione
+    // 2. TASTO GPS (Sincronizzazione completa)
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    // Cambio manuale Lat/Lng (Sincronizza ora locale)
+    // 3. INSERIMENTO MANUALE COORDINATE (La tua richiesta)
+    // Appena cambi Lat o Lng, l'app "viaggia" in quel posto
     ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('change', async () => {
                 const lat = document.getElementById('input-lat').value;
                 const lng = document.getElementById('input-lng').value;
+                
                 if (lat && lng) {
+                    // Trova il nome del posto per la barra in basso
                     await updateCityName(lat, lng);
+                    // Cambia l'ora dei riquadri e del cerchio in base al fuso orario
                     await syncLocalTime(lat, lng); 
+                    // Ricalcola meteo, Watt e posizione del sole
                     updateAll(); 
                 }
             });
         }
     });
+
+    // 4. CAMBIO MANUALE ORA/DATA
+    ['input-time', 'input-date'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', updateAll);
+    });
+
+    // 5. RICERCA CITTÀ
+    const cityInput = document.getElementById('city-input');
+    if (cityInput) {
+        cityInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') searchCityCoords(this.value);
+        });
+    }
+
+    // 6. SLIDER E GARAGE
+    const socSlider = document.getElementById('soc-slider');
+    if (socSlider) {
+        socSlider.addEventListener('input', (e) => {
+            state.currentSOC = e.target.value;
+            document.getElementById('soc-val').innerText = state.currentSOC + "%";
+            updateAll();
+        });
+    }
+    document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
+    document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
+    document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
+}
 
     // Cambio manuale Ora/Data (Aggiorna il sole)
     ['input-time', 'input-date'].forEach(id => {
