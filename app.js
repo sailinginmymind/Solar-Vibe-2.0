@@ -1,5 +1,6 @@
 /**
- * APP.JS - Sincronizzazione Totale Unificata
+ * APP.JS - FIX DEFINITIVO FUSO ORARIO
+ * Forza l'app a usare l'ora calcolata per le coordinate, ignorando quella del PC.
  */
 
 let state = {
@@ -15,7 +16,7 @@ window.onload = () => {
     loadSavedData();
     setupStars();
     
-    // Al primo avvio, simula il click sul GPS per settare tutto
+    // Al caricamento cerchiamo subito la posizione reale
     setTimeout(() => {
         const btnGps = document.getElementById('btn-gps');
         if (btnGps) btnGps.click();
@@ -28,25 +29,22 @@ function initEventListeners() {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
 
-    // 2. TASTO GPS (Sincronizzazione Reale)
+    // 2. TASTO GPS
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    // 3. INSERIMENTO MANUALE COORDINATE (Ora potente come il GPS)
+    // 3. INSERIMENTO MANUALE COORDINATE (Refresh Totale)
     ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('change', async () => {
                 const lat = document.getElementById('input-lat').value;
                 const lng = document.getElementById('input-lng').value;
-                if (lat && lng) {
-                    // Esegue il "Refresh Totale" per questa posizione
-                    await triggerFullRefresh(lat, lng);
-                }
+                if (lat && lng) await triggerFullRefresh(lat, lng);
             });
         }
     });
 
-    // 4. RICERCA CITTÀ (Ora potente come il GPS)
+    // 4. RICERCA CITTÀ (Refresh Totale)
     const cityInput = document.getElementById('city-input');
     if (cityInput) {
         cityInput.addEventListener('keypress', function (e) {
@@ -54,13 +52,13 @@ function initEventListeners() {
         });
     }
 
-    // 5. CAMBIO MANUALE ORA/DATA (Per simulazioni specifiche)
+    // 5. CAMBIO MANUALE ORA/DATA
     ['input-time', 'input-date'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
 
-    // 6. GARAGE E SLIDER
+    // 6. GARAGE
     const socSlider = document.getElementById('soc-slider');
     if (socSlider) {
         socSlider.addEventListener('input', (e) => {
@@ -75,23 +73,19 @@ function initEventListeners() {
 }
 
 /**
- * FUNZIONE CORE: triggerFullRefresh
- * Questa funzione fa quello che chiedi: resetta TUTTO (ora, città, meteo, sole)
- * basandosi sulle coordinate fornite, esattamente come farebbe un refresh di pagina.
+ * TRIGGER FULL REFRESH
+ * Questa funzione è il comando "Reset Totale" che cercavi.
+ * Ordine: Coordinate -> Nome Posto -> Fuso Orario -> Meteo/Sole.
  */
 async function triggerFullRefresh(lat, lng) {
-    // 1. Trova e scrivi il nome della città
+    // 1. Trova nome città
     await updateCityName(lat, lng);
-    // 2. Sincronizza l'ora locale del fuso orario (fondamentale per Taipei, NY, ecc.)
+    // 2. Chiedi l'ora esatta di QUELLE coordinate (fondamentale per i fusi orari)
     await syncLocalTime(lat, lng);
-    // 3. Scarica meteo e ricalcola posizione del sole e Watt
+    // 3. Una volta che l'ora è scritta negli input, aggiorna tutto il resto
     await updateAll();
 }
 
-/**
- * Funzione: syncLocalTime
- * Chiede al server l'ora esatta del posto e la scrive negli input e nel display.
- */
 async function syncLocalTime(lat, lng) {
     try {
         const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=time&timezone=auto`);
@@ -101,12 +95,14 @@ async function syncLocalTime(lat, lng) {
             const localDate = parts[0];
             const localTime = parts[1].substring(0, 5);
 
+            // Scriviamo l'ora del fuso orario negli input
             document.getElementById('input-date').value = localDate;
             document.getElementById('input-time').value = localTime;
+            // E la mostriamo nel display centrale
             document.getElementById('display-hour-center').innerText = localTime;
             return true;
         }
-    } catch (e) { console.error("Errore fuso orario:", e); }
+    } catch (e) { console.error("Errore API Fuso Orario:", e); }
     return false;
 }
 
@@ -122,14 +118,13 @@ async function handleGpsSync() {
         document.getElementById('input-lat').value = lat;
         document.getElementById('input-lng').value = lng;
 
-        // Esegue il refresh totale basato sulla posizione GPS
+        // Se è il GPS, carichiamo prima l'ora del posto (così l'app sa se siamo a casa o all'estero)
         await triggerFullRefresh(lat, lng);
 
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e";
-        btn.style.boxShadow = "0 0 15px #22c55e";
         btn.disabled = false;
-        setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; btn.style.boxShadow = ""; }, 3000);
+        setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; }, 3000);
     }, (err) => {
         btn.innerText = "❌ ERRORE GPS";
         btn.style.background = "#ef4444";
@@ -141,7 +136,6 @@ async function handleGpsSync() {
 async function searchCityCoords(cityName) {
     const cityInput = document.getElementById('city-input');
     try {
-        cityInput.style.color = "#fbbf24";
         const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
         const data = await res.json();
         if (data && data.length > 0) {
@@ -150,14 +144,10 @@ async function searchCityCoords(cityName) {
             document.getElementById('input-lat').value = lat;
             document.getElementById('input-lng').value = lng;
             
-            // Esegue il refresh totale basato sulla città trovata
             await triggerFullRefresh(lat, lng);
-            cityInput.style.color = "#38bdf8";
         }
-    } catch (e) { cityInput.style.color = "#ef4444"; }
+    } catch (e) { console.error(e); }
 }
-
-// --- RESTO DELLE FUNZIONI INVARIARE MA NECESSARIE ---
 
 async function updateCityName(lat, lng) {
     try {
@@ -168,12 +158,17 @@ async function updateCityName(lat, lng) {
     } catch (e) { console.error(e); }
 }
 
+/**
+ * UPDATE ALL
+ * Fondamentale: legge l'ora SOLO dall'input, non dal PC.
+ */
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
     const date = document.getElementById('input-date').value;
-    const time = document.getElementById('input-time').value;
-    if (!lat || !lng) return;
+    const time = document.getElementById('input-time').value; // <--- Legge l'ora scritta (es. quella di Taipei)
+    
+    if (!lat || !lng || !time) return;
 
     try {
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
@@ -184,61 +179,30 @@ async function updateAll() {
         const daily = state.weatherData.daily;
         const hourly = state.weatherData.hourly;
 
-        document.getElementById('sunrise-txt').innerText = daily.sunrise[0].split('T')[1].substring(0, 5);
-        document.getElementById('sunset-txt').innerText = daily.sunset[0].split('T')[1].substring(0, 5);
+        // Aggiorna Alba/Tramonto del posto
+        const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
+        const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
+        document.getElementById('sunrise-txt').innerText = sunrise;
+        document.getElementById('sunset-txt').innerText = sunset;
+        
+        // Aggiorna l'orologio centrale con l'ora dell'input
         document.getElementById('display-hour-center').innerText = time;
 
-        const sunH = SolarEngine.timeToDecimal(document.getElementById('sunrise-txt').innerText);
-        const setH = SolarEngine.timeToDecimal(document.getElementById('sunset-txt').innerText);
-        
-        // Aggiorna Dati Meteo
+        // Meteo
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
 
-        // Calcola Watt
+        // Sole e Watt
+        const sunH = SolarEngine.timeToDecimal(sunrise);
+        const setH = SolarEngine.timeToDecimal(sunset);
         const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         document.getElementById('w_out').innerText = Math.round(power) + " W";
 
         updateSunUI(hDec, sunH, setH);
         updateReportUI(power, sunH, setH);
     } catch (e) { console.error(e); }
-}
-
-function updateReportUI(currentPower, sunH, setH) {
-    const chart = document.getElementById('hourly-chart');
-    if (!chart || !state.weatherData) return;
-    document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, state.battAh);
-    document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, state.battAh);
-    document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, state.battAh);
-    chart.innerHTML = "";
-    let total = 0;
-    for (let h = Math.floor(sunH); h <= Math.ceil(setH); h++) {
-        const p = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, state.weatherData.hourly.cloud_cover[h] || 0);
-        total += p;
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        bar.style.height = (p / state.panelWp * 100) + "%";
-        chart.appendChild(bar);
-    }
-    document.getElementById('total-wh-day').innerText = Math.round(total) + " Wh";
-}
-
-function updateSunUI(hDec, sunH, setH) {
-    const sun = document.getElementById('sun-body');
-    const sky = document.getElementById('sky-box');
-    if (!sun || !sky) return;
-    if (hDec < sunH || hDec > setH) {
-        sun.style.display = "none";
-        sky.style.background = "linear-gradient(to bottom, #0f172a, #1e293b)";
-    } else {
-        sun.style.display = "block";
-        const progress = (hDec - sunH) / (setH - sunH);
-        sun.style.left = `${15 + (progress * 70)}%`;
-        sun.style.bottom = `${(Math.sin(progress * Math.PI) * 35) + 10}%`;
-        sky.style.background = (progress < 0.2 || progress > 0.8) ? "linear-gradient(to bottom, #f59e0b, #7c2d12)" : "linear-gradient(to bottom, #38bdf8, #1d4ed8)";
-    }
 }
 
 function switchView(vId, el) {
