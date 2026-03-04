@@ -75,31 +75,42 @@ if (cityInput) {
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
 }
 // 1. IL "POST-IT": Questa variabile tiene a mente che giorno stiamo guardando.
-// All'inizio è impostata su "adesso" (new Date()).
-// 1. IL "POST-IT" GLOBALE
 let dataSelezionata = new Date();
 
 function generaBottoniGiorni() {
     const container = document.getElementById('days-selector');
     if (!container) return;
 
-    const iniziali = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
+    // 1. Puliamo il contenitore dai vecchi bottoni di ieri
+    container.innerHTML = ""; 
+
+    // 2. Usiamo SEMPRE la data attuale come punto di partenza
     const oggi = new Date();
 
-    container.innerHTML = ''; 
-
     for (let i = 0; i < 7; i++) {
-        const dataTasto = new Date();
-        dataTasto.setDate(oggi.getDate() + i);
+        const dataBottone = new Date(oggi);
+        // Calcola il giorno corretto aggiungendo i giorni al momento attuale
+        dataBottone.setDate(oggi.getDate() + i); 
 
         const btn = document.createElement('div');
-        // Il primo tasto (oggi) è attivo all'avvio
-        btn.className = i === 0 ? 'day-btn active' : 'day-btn';
+        btn.className = 'day-btn';
         
-        btn.innerHTML = `
-            <span class="day-name">${iniziali[dataTasto.getDay()]}</span>
-            <span class="day-num">${dataTasto.getDate()}</span>
-        `;
+        // Verifica se questo bottone è quello selezionato dall'utente
+        if (dataBottone.toDateString() === dataSelezionata.toDateString()) {
+            btn.classList.add('active');
+        }
+
+        // 3. CALCOLO AUTOMATICO DELL'INIZIALE
+        // Prende il nome del giorno (es. "venerdì"), estrae la prima lettera e la fa maiuscola
+        const giornoSettimana = dataBottone.toLocaleDateString('it-IT', { weekday: 'short' })
+                                           .charAt(0)
+                                           .toUpperCase();
+        
+        const numeroGiorno = dataBottone.getDate();
+
+        btn.innerHTML = `<span>${giornoSettimana}</span><b>${numeroGiorno}</b>`;
+        
+        // ... resto del codice per il click ...
 
         btn.onclick = function() {
             // Estetica: cambia classe active
