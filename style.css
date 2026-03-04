@@ -841,3 +841,16 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     margin-top: 5px;
     width: 100%;
 }
+
+/* Nasconde il salto riga su PC */
+.mobile-break {
+    display: none;
+}
+
+/* Lo attiva solo su schermi sotto i 600px (Mobile) */
+@media (max-width: 600px) {
+    .mobile-break {
+        display: block;
+        margin-bottom: 5px; /* Un pizzico di spazio tra le due righe */
+    }
+}
