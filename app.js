@@ -1,5 +1,5 @@
 /**
- * APP.JS - Sincronizzazione Totale (GPS, Ricerca e Manuale)
+ * APP.JS - Sincronizzazione Totale Unificata
  */
 
 let state = {
@@ -15,7 +15,7 @@ window.onload = () => {
     loadSavedData();
     setupStars();
     
-    // Avvio automatico sincronizzato
+    // Al primo avvio, simula il click sul GPS per settare tutto
     setTimeout(() => {
         const btnGps = document.getElementById('btn-gps');
         if (btnGps) btnGps.click();
@@ -28,11 +28,10 @@ function initEventListeners() {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
 
-    // 2. TASTO GPS
-    const btnGps = document.getElementById('btn-gps');
-    if (btnGps) btnGps.addEventListener('click', handleGpsSync);
+    // 2. TASTO GPS (Sincronizzazione Reale)
+    document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    // 3. INSERIMENTO MANUALE LAT/LNG (Fixato: ora aggiorna ora e sole)
+    // 3. INSERIMENTO MANUALE COORDINATE (Ora potente come il GPS)
     ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -40,27 +39,26 @@ function initEventListeners() {
                 const lat = document.getElementById('input-lat').value;
                 const lng = document.getElementById('input-lng').value;
                 if (lat && lng) {
-                    await updateCityName(lat, lng);
-                    await syncLocalTime(lat, lng); // <-- Fondamentale per cambiare l'ora
-                    updateAll(); // <-- Fondamentale per spostare il sole
+                    // Esegue il "Refresh Totale" per questa posizione
+                    await triggerFullRefresh(lat, lng);
                 }
             });
         }
     });
 
-    // 4. CAMBIO MANUALE ORA/DATA (Aggiorna solo il sole)
-    ['input-time', 'input-date'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', updateAll);
-    });
-
-    // 5. RICERCA CITTÀ (Fixato: ora aggiorna ora e sole)
+    // 4. RICERCA CITTÀ (Ora potente come il GPS)
     const cityInput = document.getElementById('city-input');
     if (cityInput) {
         cityInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') searchCityCoords(this.value);
         });
     }
+
+    // 5. CAMBIO MANUALE ORA/DATA (Per simulazioni specifiche)
+    ['input-time', 'input-date'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', updateAll);
+    });
 
     // 6. GARAGE E SLIDER
     const socSlider = document.getElementById('soc-slider');
@@ -77,9 +75,22 @@ function initEventListeners() {
 }
 
 /**
+ * FUNZIONE CORE: triggerFullRefresh
+ * Questa funzione fa quello che chiedi: resetta TUTTO (ora, città, meteo, sole)
+ * basandosi sulle coordinate fornite, esattamente come farebbe un refresh di pagina.
+ */
+async function triggerFullRefresh(lat, lng) {
+    // 1. Trova e scrivi il nome della città
+    await updateCityName(lat, lng);
+    // 2. Sincronizza l'ora locale del fuso orario (fondamentale per Taipei, NY, ecc.)
+    await syncLocalTime(lat, lng);
+    // 3. Scarica meteo e ricalcola posizione del sole e Watt
+    await updateAll();
+}
+
+/**
  * Funzione: syncLocalTime
- * Spiegazione: Recupera l'ora locale basata sulle coordinate.
- * Aggiorna i campi input e il display centrale.
+ * Chiede al server l'ora esatta del posto e la scrive negli input e nel display.
  */
 async function syncLocalTime(lat, lng) {
     try {
@@ -95,41 +106,13 @@ async function syncLocalTime(lat, lng) {
             document.getElementById('display-hour-center').innerText = localTime;
             return true;
         }
-    } catch (e) { console.error("Errore fuso:", e); }
+    } catch (e) { console.error("Errore fuso orario:", e); }
     return false;
-}
-
-/**
- * Funzione: searchCityCoords
- * Spiegazione: Cerca la città, imposta l'ora locale e aggiorna il sole.
- */
-async function searchCityCoords(cityName) {
-    const cityInput = document.getElementById('city-input');
-    if (!cityInput) return;
-    try {
-        cityInput.style.color = "#fbbf24";
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
-        const data = await res.json();
-        if (data && data.length > 0) {
-            const lat = parseFloat(data[0].lat).toFixed(4);
-            const lng = parseFloat(data[0].lon).toFixed(4);
-            document.getElementById('input-lat').value = lat;
-            document.getElementById('input-lng').value = lng;
-            cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
-            
-            // Sequenza corretta: Coordinate -> Ora -> Meteo/Sole
-            await syncLocalTime(lat, lng); 
-            updateAll(); 
-            
-            cityInput.style.color = "#38bdf8";
-        }
-    } catch (e) { cityInput.style.color = "#ef4444"; }
 }
 
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
     const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
-    const originalBg = btn.style.background;
     btn.innerText = "🛰️ SINCRONIZZAZIONE...";
     btn.disabled = true;
     
@@ -139,27 +122,42 @@ async function handleGpsSync() {
         document.getElementById('input-lat').value = lat;
         document.getElementById('input-lng').value = lng;
 
-        const now = new Date();
-        const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        document.getElementById('input-date').value = now.toISOString().split('T')[0];
-        document.getElementById('input-time').value = timeStr;
-        document.getElementById('display-hour-center').innerText = timeStr;
-
-        await updateCityName(lat, lng);
-        await updateAll();
+        // Esegue il refresh totale basato sulla posizione GPS
+        await triggerFullRefresh(lat, lng);
 
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e";
         btn.style.boxShadow = "0 0 15px #22c55e";
         btn.disabled = false;
-        setTimeout(() => { btn.innerText = originalText; btn.style.background = originalBg; btn.style.boxShadow = ""; }, 3000);
+        setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; btn.style.boxShadow = ""; }, 3000);
     }, (err) => {
         btn.innerText = "❌ ERRORE GPS";
         btn.style.background = "#ef4444";
         btn.disabled = false;
-        setTimeout(() => { btn.innerText = originalText; btn.style.background = originalBg; }, 3000);
+        setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; }, 3000);
     });
 }
+
+async function searchCityCoords(cityName) {
+    const cityInput = document.getElementById('city-input');
+    try {
+        cityInput.style.color = "#fbbf24";
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat).toFixed(4);
+            const lng = parseFloat(data[0].lon).toFixed(4);
+            document.getElementById('input-lat').value = lat;
+            document.getElementById('input-lng').value = lng;
+            
+            // Esegue il refresh totale basato sulla città trovata
+            await triggerFullRefresh(lat, lng);
+            cityInput.style.color = "#38bdf8";
+        }
+    } catch (e) { cityInput.style.color = "#ef4444"; }
+}
+
+// --- RESTO DELLE FUNZIONI INVARIARE MA NECESSARIE ---
 
 async function updateCityName(lat, lng) {
     try {
@@ -190,17 +188,20 @@ async function updateAll() {
         document.getElementById('sunset-txt').innerText = daily.sunset[0].split('T')[1].substring(0, 5);
         document.getElementById('display-hour-center').innerText = time;
 
+        const sunH = SolarEngine.timeToDecimal(document.getElementById('sunrise-txt').innerText);
+        const setH = SolarEngine.timeToDecimal(document.getElementById('sunset-txt').innerText);
+        
+        // Aggiorna Dati Meteo
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
 
-        const sunH = SolarEngine.timeToDecimal(document.getElementById('sunrise-txt').innerText);
-        const setH = SolarEngine.timeToDecimal(document.getElementById('sunset-txt').innerText);
+        // Calcola Watt
         const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         document.getElementById('w_out').innerText = Math.round(power) + " W";
 
-        if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
+        updateSunUI(hDec, sunH, setH);
         updateReportUI(power, sunH, setH);
     } catch (e) { console.error(e); }
 }
