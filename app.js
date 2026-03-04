@@ -76,6 +76,7 @@ if (cityInput) {
 }
 // 1. IL "POST-IT": Questa variabile tiene a mente che giorno stiamo guardando.
 // All'inizio è impostata su "adesso" (new Date()).
+// 1. IL "POST-IT" GLOBALE
 let dataSelezionata = new Date();
 
 function generaBottoniGiorni() {
@@ -85,15 +86,14 @@ function generaBottoniGiorni() {
     const iniziali = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
     const oggi = new Date();
 
-    container.innerHTML = ''; // Puliamo il contenitore prima di creare i tasti
+    container.innerHTML = ''; 
 
     for (let i = 0; i < 7; i++) {
-        // Creiamo la data per il tasto specifico (oggi + i giorni)
         const dataTasto = new Date();
         dataTasto.setDate(oggi.getDate() + i);
 
-        // Creiamo l'elemento HTML del bottone
         const btn = document.createElement('div');
+        // Il primo tasto (oggi) è attivo all'avvio
         btn.className = i === 0 ? 'day-btn active' : 'day-btn';
         
         btn.innerHTML = `
@@ -101,16 +101,15 @@ function generaBottoniGiorni() {
             <span class="day-num">${dataTasto.getDate()}</span>
         `;
 
-        // COSA SUCCEDE QUANDO TOCCHI UN GIORNO
         btn.onclick = function() {
-            // A. Cambia l'aspetto grafico: toglie il "luccichio" agli altri e lo dà a questo
+            // Estetica: cambia classe active
             document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
 
-            // B. AGGIORNA IL "POST-IT": La variabile globale diventa la data del tasto
+            // Aggiorna la data globale
             dataSelezionata = new Date(dataTasto);
             
-            // C. COMANDA IL CAMBIO: Chiama la funzione che aggiorna tutta l'app
+            // Chiama la funzione di aggiornamento
             aggiornaTuttaInterfaccia();
         };
 
@@ -118,30 +117,35 @@ function generaBottoniGiorni() {
     }
 }
 
-// IL REGISTA: Questa funzione dice a tutti i pezzi dell'app di cambiare i dati
+// IL REGISTA: Sincronizza tutta l'app
 function aggiornaTuttaInterfaccia() {
-    console.log("Sincronizzo l'app sulla data:", dataSelezionata.toLocaleDateString());
+    console.log("Cambio data: ", dataSelezionata.toLocaleDateString());
 
-    // 1. Aggiorniamo la data nel quadratino dell'input così l'API sa cosa scaricare
+    // 1. Sincronizziamo il campo input date (quello nascosto o nelle impostazioni)
     const inputDate = document.getElementById('input-date');
     if (inputDate) {
         inputDate.value = dataSelezionata.toISOString().split('T')[0];
     }
 
-    // 2. Chiamiamo updateAll() che è il tuo "motore" principale
-    // Questa funzione scaricherà il meteo del giorno scelto e aggiornerà tutto
+    // 2. Chiamiamo la tua funzione principale che ricalcola tutto
     updateAll();
 
-    // 3. Feedback visivo sul titolo
+    // 3. Feedback estetico sul titolo
     const titolo = document.getElementById('camper-name-display');
-    const oggi = new Date().toDateString();
-    
-    if (dataSelezionata.toDateString() === oggi) {
-        titolo.style.color = "white"; 
-    } else {
-        titolo.style.color = "var(--accento)"; 
+    if (titolo) {
+        const oggi = new Date().toDateString();
+        if (dataSelezionata.toDateString() === oggi) {
+            titolo.style.color = "white";
+            titolo.style.textShadow = "none";
+        } else {
+            titolo.style.color = "var(--accento)";
+            titolo.style.textShadow = "0 0 10px var(--accento)";
+        }
     }
 }
+
+// AVVIAMO LA CREAZIONE DEI GIORNI
+generaBottoniGiorni();
 /**
  * Funzione: handleGpsSync
  * Spiegazione: Ottiene la posizione GPS, aggiorna i dati e mostra 
