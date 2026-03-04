@@ -1,5 +1,5 @@
 /**
- * APP.JS - Versione Multiuso (Fusi Orari Mondiali)
+ * APP.JS - Sincronizzazione Totale (GPS, Ricerca e Manuale)
  */
 
 let state = {
@@ -15,7 +15,7 @@ window.onload = () => {
     loadSavedData();
     setupStars();
     
-    // Al caricamento, sincronizza sulla posizione attuale (Pisa)
+    // Avvio automatico sincronizzato
     setTimeout(() => {
         const btnGps = document.getElementById('btn-gps');
         if (btnGps) btnGps.click();
@@ -23,16 +23,16 @@ window.onload = () => {
 };
 
 function initEventListeners() {
-    // Navigazione
+    // 1. NAVIGAZIONE
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
 
-    // Tasto GPS (Usa l'ora locale del browser)
+    // 2. TASTO GPS
     const btnGps = document.getElementById('btn-gps');
     if (btnGps) btnGps.addEventListener('click', handleGpsSync);
 
-    // --- LOGICA UNIVERSALE PER COORDINATE MANUALI ---
+    // 3. INSERIMENTO MANUALE LAT/LNG (Fixato: ora aggiorna ora e sole)
     ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -41,21 +41,20 @@ function initEventListeners() {
                 const lng = document.getElementById('input-lng').value;
                 if (lat && lng) {
                     await updateCityName(lat, lng);
-                    // Questa funzione ora calcola il fuso orario corretto ovunque nel mondo
-                    await syncLocalTime(lat, lng); 
-                    updateAll(); 
+                    await syncLocalTime(lat, lng); // <-- Fondamentale per cambiare l'ora
+                    updateAll(); // <-- Fondamentale per spostare il sole
                 }
             });
         }
     });
 
-    // Cambio manuale Ora/Data (Permette di simulare ore diverse nello stesso posto)
+    // 4. CAMBIO MANUALE ORA/DATA (Aggiorna solo il sole)
     ['input-time', 'input-date'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
 
-    // RICERCA CITTÀ MONDIALE
+    // 5. RICERCA CITTÀ (Fixato: ora aggiorna ora e sole)
     const cityInput = document.getElementById('city-input');
     if (cityInput) {
         cityInput.addEventListener('keypress', function (e) {
@@ -63,7 +62,7 @@ function initEventListeners() {
         });
     }
 
-    // Garage e Batteria
+    // 6. GARAGE E SLIDER
     const socSlider = document.getElementById('soc-slider');
     if (socSlider) {
         socSlider.addEventListener('input', (e) => {
@@ -79,35 +78,30 @@ function initEventListeners() {
 
 /**
  * Funzione: syncLocalTime
- * Spiegazione: È il "motore temporale". Invia Lat/Lng a Open-Meteo 
- * chiedendo l'ora specifica di quella zona (timezone=auto).
+ * Spiegazione: Recupera l'ora locale basata sulle coordinate.
+ * Aggiorna i campi input e il display centrale.
  */
 async function syncLocalTime(lat, lng) {
     try {
-        // L'API riconosce il fuso orario in base alla posizione geografica
         const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=time&timezone=auto`);
         const data = await resp.json();
-        
         if (data.current) {
-            const parts = data.current.time.split('T'); // Divide "2026-03-04" da "14:30"
+            const parts = data.current.time.split('T');
             const localDate = parts[0];
             const localTime = parts[1].substring(0, 5);
 
-            // Aggiorna i campi input (usati per i calcoli solari)
             document.getElementById('input-date').value = localDate;
             document.getElementById('input-time').value = localTime;
-            
-            // Aggiorna il display grande in alto
             document.getElementById('display-hour-center').innerText = localTime;
             return true;
         }
-    } catch (e) { console.error("Errore sincronizzazione oraria mondiale:", e); }
+    } catch (e) { console.error("Errore fuso:", e); }
     return false;
 }
 
 /**
  * Funzione: searchCityCoords
- * Spiegazione: Converte il nome (es. "New York") in numeri, poi chiama il fuso orario.
+ * Spiegazione: Cerca la città, imposta l'ora locale e aggiorna il sole.
  */
 async function searchCityCoords(cityName) {
     const cityInput = document.getElementById('city-input');
@@ -119,12 +113,11 @@ async function searchCityCoords(cityName) {
         if (data && data.length > 0) {
             const lat = parseFloat(data[0].lat).toFixed(4);
             const lng = parseFloat(data[0].lon).toFixed(4);
-            
             document.getElementById('input-lat').value = lat;
             document.getElementById('input-lng').value = lng;
             cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
             
-            // Applica il fuso orario della città trovata
+            // Sequenza corretta: Coordinate -> Ora -> Meteo/Sole
             await syncLocalTime(lat, lng); 
             updateAll(); 
             
@@ -146,7 +139,6 @@ async function handleGpsSync() {
         document.getElementById('input-lat').value = lat;
         document.getElementById('input-lng').value = lng;
 
-        // Per la posizione GPS reale usiamo l'ora locale del dispositivo
         const now = new Date();
         const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         document.getElementById('input-date').value = now.toISOString().split('T')[0];
