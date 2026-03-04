@@ -362,3 +362,28 @@ function resetDetailDisplay() {
     display.style.letterSpacing = "1.5px";
     display.style.textTransform = "uppercase";
 }
+/**
+ * Funzione: updateCityName
+ * Cosa fa: Prende Lat e Lng e chiede a un servizio esterno il nome della città.
+ * @param {number} lat - Latitudine
+ * @param {number} lng - Longitudine
+ */
+async function updateCityName(lat, lng) {
+    const cityElement = document.getElementById('city-name');
+    if (!cityElement) return;
+
+    try {
+        // Interroghiamo Nominatim (OpenStreetMap)
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+        const data = await response.json();
+        
+        // Estraiamo la città, il comune o la frazione
+        const city = data.address.city || data.address.town || data.address.village || data.address.municipality || "Posizione ignota";
+        const country = data.address.country;
+
+        cityElement.innerText = `${city}, ${country}`;
+    } catch (error) {
+        console.error("Errore recupero città:", error);
+        cityElement.innerText = "Località non trovata";
+    }
+}
