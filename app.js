@@ -443,16 +443,23 @@ async function searchCityCoords(cityName) {
 }
 /**
  * Funzione: changeBg
- * Spiegazione: Cambia il colore di sfondo del body e lo salva nel browser.
- * Riceve il colore in formato esadecimale (es. #1a1a1a).
+ * Spiegazione: Gestisce il cambio totale del tema applicando una classe al body.
  */
-function changeBg(color) {
-    // Applica il colore allo sfondo della pagina
-    document.body.style.backgroundColor = color;
+function changeBg(tema) {
+    // 1. Rimuove le classi dei temi precedenti
+    document.body.classList.remove('tema-verde', 'tema-rosso', 'tema-grigio');
     
-    // Rimuove eventuali gradienti che potrebbero coprire il colore pieno
-    document.body.style.backgroundImage = "none";
-    
-    // Salva la scelta così al prossimo avvio l'app si ricorda il colore
-    localStorage.setItem('vibe_bg_color', color);
+    // 2. Aggiunge la classe corretta in base al colore scelto
+    if (tema === '#062c1f') {
+        document.body.classList.add('tema-verde');
+    } else if (tema === '#2d0a1a') {
+        document.body.classList.add('tema-rosso');
+    } else if (tema === '#1a1a1a') {
+        document.body.classList.add('tema-grigio');
+    }
+    // Nota: Se il tema è quello originale (#0f172a), non aggiungiamo classi e resta Blu.
+
+    // 3. Applica il colore di sfondo e salva la preferenza
+    document.body.style.backgroundColor = tema;
+    localStorage.setItem('vibe_bg_color', tema);
 }
