@@ -562,7 +562,8 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     transform: translateX(-50%);
     width: 95%; 
     max-width: 550px; 
-    
+    /* Alziamo l'altezza: da quella standard a 85px */
+    height: 85px;
     /* CAMBIO: Ora lo sfondo segue la sfumatura del tema selezionato */
     background: var(--bg-badge) !important; 
     
@@ -580,6 +581,9 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     z-index: 1000;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     transition: all 0.3s ease;
+    /* Spingiamo leggermente tutto il contenuto verso l'alto per centrarlo visivamente */
+    padding-bottom: env(safe-area-inset-bottom); 
+    z-index: 1000;
 }
 
 /* Il singolo bottone */
