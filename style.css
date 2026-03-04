@@ -160,26 +160,31 @@ h2 {
     display: flex; 
     justify-content: space-between; 
     z-index: 6; 
-    padding: 0 20px; 
+    /* CAMBIO: Aumentato da 20px a 45px per portarli più verso il centro */
+    padding: 0 45px; 
+    box-sizing: border-box; /* Assicura che il padding non sballi la larghezza */
 }
 
 /* --- ORIZZONTE (ALBA E TRAMONTO) --- */
 .h-label { 
-    font-size: 12px !important;  
-    color: #fbbf24 !important; 
+    font-size: 11px !important;  
+    /* CAMBIO: Usa var(--accento) se vuoi che cambi col tema, 
+       oppure lascia #fbbf24 se preferisci che l'alba resti sempre gialla */
+    color: var(--accento) !important; 
     font-weight: 900;  
     text-transform: uppercase;
     text-align: center;
 }
 
 #sunrise-txt, #sunset-txt { 
-    color: #fbbf24 !important;  
-    font-size: 20px !important;  
+    color: #fff !important; /* Testo dell'ora in bianco per massima leggibilità */
+    font-size: 18px !important; /* Ridotto leggermente per un look più pulito */
     font-weight: 900;
     display: block;
-    margin-top: 5px;
+    margin-top: 3px;
+    /* Aggiunge un bagliore del colore del tema all'orario */
+    text-shadow: 0 0 10px var(--accento); 
 }
-
 /* --- DISPLAY CENTRALE (NUBI E ORA) --- */
 .core-display { 
     position: absolute; 
