@@ -27,15 +27,20 @@ function initEventListeners() {
     // 1. TASTO GPS (Già presente)
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    // 2. AGGIUNGI QUESTO QUI: Gestione Ricerca Città con tasto Invio
-    const cityInput = document.getElementById('city-input');
-    if (cityInput) {
-        cityInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                searchCityCoords(this.value); // Chiama la ricerca quando premi invio
-            }
-        });
-    }
+   // 2. Gestione Ricerca Città ISTANTANEA (Sostituisce la vecchia versione con Invio)
+const cityInput = document.getElementById('city-input');
+if (cityInput) {
+    cityInput.addEventListener('input', function (e) {
+        const query = e.target.value.trim();
+        
+        // Facciamo partire la ricerca solo se l'utente ha scritto almeno 3 lettere
+        // per evitare di sovraccaricare le API con ricerche troppo brevi (es. "p", "pi")
+        if (query.length >= 3) {
+            searchCityCoords(query); 
+            console.log("Ricerca istantanea avviata per:", query);
+        }
+    });
+}
 
     // 3. CAMPI INPUT (Già presente)
     ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
