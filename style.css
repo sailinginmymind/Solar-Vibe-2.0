@@ -498,17 +498,29 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     border-radius: 30px; 
 }
 
-.nav-item { 
-    flex: 1; 
-    color: var(--accento) !important;
-    font-size: 9px; 
-    font-weight: 900; 
-    text-align: center; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: center; 
+/* Lo stato normale (non cliccato) dei bottoni */
+.nav-item {
+    color: #94a3b8; /* Grigio chiaro di base */
+    transition: all 0.3s ease;
     cursor: pointer;
-    border-bottom: 2px solid var(--accento) !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+}
+
+/* Lo stato ATTIVO (quando sei in quella pagina) */
+.nav-item.active {
+    /* Usa la variabile --accento che cambia con il tema! */
+    color: var(--accento) !important; 
+    border-bottom: 3px solid var(--accento) !important;
+    transform: translateY(-5px); /* Un leggero effetto sollevamento */
+}
+
+/* Se usi delle icone o emoji dentro, coloriamo anche quelle se possibile */
+.nav-item.active span, .nav-item.active i {
+    color: var(--accento) !important;
+    text-shadow: 0 0 10px var(--accento); /* Crea un leggero alone colorato */
 }
 
 .nav-item span { font-size: 32px; display: block; margin-bottom: 4px; }
