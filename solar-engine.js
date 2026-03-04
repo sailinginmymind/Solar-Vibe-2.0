@@ -13,7 +13,7 @@ const SolarEngine = {
         const arcHeight = Math.sin(progress * Math.PI);
         
         // Fattore meteo (conservativo: le nubi riducono ma non azzerano sempre tutto)
-        const weatherFactor = (100 - (cloudCover * 0.95)) / 100;
+        const weatherFactor = (100 - (cloudCover * 0.8)) / 100;
         
         return arcHeight * panelWp * weatherFactor;
     },
