@@ -248,18 +248,20 @@ h2 {
 }
 
 .w-badge { 
-    /* Prende la sfumatura del tema (es. verde scuro se il tema è verde) */
-    background: var(--bg-card) !important; 
+    /* Aumentiamo l'opacità per renderlo meno trasparente */
+    background: rgba(30, 41, 59, 0.9) !important; 
     padding: 12px 5px; 
     border-radius: 20px; 
-    /* Il bordo segue il tema ma resta sottile */
-    border: 1px solid var(--bordo) !important; 
+    /* Rendiamo il bordo più marcato con il colore del tema */
+    border: 1.5px solid var(--accento) !important; 
     display: flex;
     flex-direction: column; 
     align-items: center;
     justify-content: center;
     min-height: 80px; 
     transition: all 0.3s ease;
+    /* Aggiungiamo un'ombra per farli risaltare sullo sfondo */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .w-label { 
@@ -292,17 +294,23 @@ h2 {
 
 /* Stilizzazione dei singoli campi di input (Ora, Data, Lat, Lng) */
 .manual-input {
-    background: rgba(15, 23, 42, 0.8);
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    /* Manteniamo la tua struttura */
     border-radius: 8px;
-    color: #fff;
-    padding: 12px 5px;         /* Spazio interno per rendere i tasti facili da cliccare */
+    padding: 12px 5px;
     font-size: 14px;
     text-align: center;
     width: 100%;               
-    box-sizing: border-box;    /* Impedisce al padding di allargare il quadratino all'esterno */
-}
+    box-sizing: border-box;
+    color: #fff;
 
+    /* MODIFICHE PER IL TEMA: */
+    /* Usiamo var(--bg-card) ma lo rendiamo un po' più opaco per vederlo bene */
+    background: var(--bg-card) !important; 
+    /* Il bordo ora brilla del colore del tema (Verde, Rosso, ecc.) */
+    border: 1px solid var(--accento) !important; 
+    
+    transition: all 0.3s ease;
+}
 /* --- FIX PER EVITARE CHE SI TOCCHINO SU MOBILE --- */
 @media (max-width: 480px) {
     .manual-controls {
