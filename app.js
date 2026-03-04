@@ -387,3 +387,28 @@ async function updateCityName(lat, lng) {
         cityElement.innerText = "Località non trovata";
     }
 }
+
+/**
+ * Funzione: searchCityCoords
+ * Cerca le coordinate di una città e aggiorna l'app.
+ */
+async function searchCityCoords(cityName) {
+    if (!cityName) return;
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
+        const data = await response.json();
+
+        if (data && data.length > 0) {
+            // Inserisce le coordinate trovate nei quadratini
+            document.getElementById('input-lat').value = parseFloat(data[0].lat).toFixed(4);
+            document.getElementById('input-lng').value = parseFloat(data[0].lon).toFixed(4);
+            
+            // Forza l'aggiornamento di tutti i dati meteo
+            updateAll();
+        } else {
+            alert("Città non trovata!");
+        }
+    } catch (error) {
+        console.error("Errore ricerca città:", error);
+    }
+}
