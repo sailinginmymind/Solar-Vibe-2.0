@@ -159,7 +159,6 @@ generaBottoniGiorni();
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
     const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
-    const originalBg = btn.style.background;
 
     btn.disabled = true;
 
@@ -167,21 +166,23 @@ async function handleGpsSync() {
         const coords = await WeatherAPI.getUserLocation();
         const now = new Date();
         
+        // 1. Aggiorna input fisici
         document.getElementById('input-lat').value = coords.latitude.toFixed(4);
         document.getElementById('input-lng').value = coords.longitude.toFixed(4);
         document.getElementById('input-date').value = now.toISOString().split('T')[0];
         document.getElementById('input-time').value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         
-        // --- NUOVA LOGICA DI RESET ---
-        // 2.b Riportiamo il "Post-it" a oggi e rigeneriamo i bottoni per togliere l'active dal giorno futuro
-        dataSelezionata = new Date();
-        generaBottoniGiorni(); 
+        // 2. RESET DATA: riporta il "post-it" globale a oggi
+        dataSelezionata = new Date(); 
         
+        // 3. Reset Grafico Bottoni: ricrea i bottoni per rimettere il "focus" su oggi
+        generaBottoniGiorni(); 
+
+        // 4. Aggiorna tutto il resto
         await updateAll();
 
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e"; 
-        btn.style.boxShadow = "0 0 15px #22c55e";
 
     } catch (err) {
         btn.innerText = "❌ ERRORE GPS";
@@ -190,7 +191,7 @@ async function handleGpsSync() {
         btn.disabled = false;
         setTimeout(() => { 
             btn.innerText = originalText; 
-            btn.style.background = originalBg;
+            btn.style.background = ""; // Torna al colore originale
             btn.style.boxShadow = "";
         }, 3000);
     }
