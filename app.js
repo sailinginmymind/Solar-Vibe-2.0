@@ -171,7 +171,7 @@ async function handleGpsSync() {
         const coords = await WeatherAPI.getUserLocation();
         const now = new Date();
         
-        // 1. Aggiorna input fisici
+        // 1. Aggiorna i quadratini con i numeri
         document.getElementById('input-lat').value = coords.latitude.toFixed(4);
         document.getElementById('input-lng').value = coords.longitude.toFixed(4);
         document.getElementById('input-date').value = now.toISOString().split('T')[0];
@@ -180,11 +180,12 @@ async function handleGpsSync() {
         // 2. RESET DATA: riporta il "post-it" globale a oggi
         dataSelezionata = new Date(); 
         
-        // 3. Reset Grafico Bottoni: ricrea i bottoni per rimettere il "focus" su oggi
+        // 3. RESET BOTTONI: toglie l'evidenziazione dai giorni futuri
         generaBottoniGiorni(); 
 
-        // 4. Aggiorna tutto il resto
-        await updateAll();
+        // 4. AGGIORNA TITOLO E DATI: questa è la riga che mancava!
+        // Questa funzione ora si occuperà di rimettere "PREVISIONE ODIERNA"
+        aggiornaTuttaInterfaccia();
 
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e"; 
@@ -196,7 +197,7 @@ async function handleGpsSync() {
         btn.disabled = false;
         setTimeout(() => { 
             btn.innerText = originalText; 
-            btn.style.background = ""; // Torna al colore originale
+            btn.style.background = ""; 
             btn.style.boxShadow = "";
         }, 3000);
     }
