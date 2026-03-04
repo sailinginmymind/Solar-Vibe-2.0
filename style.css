@@ -854,3 +854,32 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
         margin-bottom: 5px; /* Un pizzico di spazio tra le due righe */
     }
 }
+/* Ottimizzazione Nav Bar solo per Mobile */
+@media (max-width: 600px) {
+    .nav-bar {
+        /* Riduciamo lo spazio totale in cui le icone possono muoversi */
+        padding: 0 15%; 
+        
+        /* Se usi flexbox (molto probabile), questo le riavvicina */
+        display: flex;
+        justify-content: space-around; 
+        align-items: center;
+        
+        /* Assicuriamoci che l'altezza sia confortevole per il pollice */
+        height: 70px; 
+    }
+
+    .nav-item {
+        /* Riduciamo leggermente la dimensione dei testi per evitare collisioni */
+        font-size: 10px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .nav-item span {
+        font-size: 20px; /* Icone leggermente più compatte */
+    }
+}
