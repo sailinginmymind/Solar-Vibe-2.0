@@ -121,34 +121,41 @@ function generaBottoniGiorni() {
 function aggiornaTuttaInterfaccia() {
     console.log("Sincronizzo l'app sulla data:", dataSelezionata.toLocaleDateString());
 
-    // 1. Sincronizziamo il campo input date per l'API meteo
+    // 1. Sincronizziamo l'input della data per i calcoli
     const inputDate = document.getElementById('input-date');
     if (inputDate) {
         inputDate.value = dataSelezionata.toISOString().split('T')[0];
     }
 
-    // 2. Chiamiamo updateAll() per ricalcolare i dati (Watt, Sole, Grafico)
+    // 2. Chiamiamo updateAll() che ricalcola Watt e Grafico
     updateAll();
 
-    // 3. LOGICA DELLA SCRITTA DINAMICA
-    // Cerchiamo l'elemento che contiene "PREVISIONE ODIERNA"
-    const sottotitolo = document.querySelector('.view-title') || document.querySelector('.report-container h2'); 
+    // 3. LOGICA DELLA SCRITTA (CORRETTA)
+    // Cerchiamo l'elemento del titolo nel report. 
+    // Dallo screenshot, è l'elemento azzurro sotto "TOCCA UNA BARRA..."
+    const titoli = document.querySelectorAll('h2, .view-title, .report-container h2');
+    let sottotitolo = null;
+
+    // Cerchiamo tra i titoli quello che contiene la parola "PREVISIONE"
+    titoli.forEach(el => {
+        if (el.innerText.includes("PREVISIONE")) {
+            sottotitolo = el;
+        }
+    });
+
     const oggi = new Date().toDateString();
     
     if (sottotitolo) {
         if (dataSelezionata.toDateString() === oggi) {
-            // Se il giorno selezionato è OGGI
+            // Se torniamo a OGGI
             sottotitolo.innerText = "PREVISIONE ODIERNA";
-            sottotitolo.style.color = ""; // Torna al colore originale (azzurro)
+            sottotitolo.style.color = "#38bdf8"; // Il tuo azzurro originale
         } else {
-            // Se il giorno è DIVERSO da oggi
-            const giornoX = dataSelezionata.getDate(); // Estrae solo il numero (es. 5, 6, 7...)
-            
-            // Inseriamo esattamente la frase richiesta
+            // Se clicchiamo un giorno futuro
+            const giornoX = dataSelezionata.getDate(); 
+            // Usiamo esattamente la frase che hai chiesto
             sottotitolo.innerText = "PREVISIONE PER IL GIORNO " + giornoX;
-            
-            // Cambiamo colore per dare un segnale visivo che non siamo su "oggi"
-            sottotitolo.style.color = "var(--accento)"; 
+            sottotitolo.style.color = "var(--accento)"; // Giallo/Arancio
         }
     }
 }
