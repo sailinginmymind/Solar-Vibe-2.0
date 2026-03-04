@@ -1,5 +1,5 @@
 /**
- * APP.JS - Versione Finale: Taipei Fix + GPS Animato
+ * APP.JS - Versione Corretta (Senza errori di sintassi)
  */
 
 let state = {
@@ -10,7 +10,7 @@ let state = {
     weatherData: null
 };
 
-// 1. AVVIO AUTOMATICO: Clicca il GPS dopo mezzo secondo
+// 1. AVVIO AUTOMATICO
 window.onload = () => {
     initEventListeners();
     loadSavedData();
@@ -23,29 +23,25 @@ window.onload = () => {
 };
 
 function initEventListeners() {
-    // 1. NAVIGAZIONE
+    // 1. NAVIGAZIONE (Ricaricata e funzionante)
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
 
-    // 2. TASTO GPS (Sincronizzazione completa)
-    document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
+    // 2. TASTO GPS
+    const btnGps = document.getElementById('btn-gps');
+    if (btnGps) btnGps.addEventListener('click', handleGpsSync);
 
-    // 3. INSERIMENTO MANUALE COORDINATE (La tua richiesta)
-    // Appena cambi Lat o Lng, l'app "viaggia" in quel posto
+    // 3. INSERIMENTO MANUALE COORDINATE
     ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener('change', async () => {
                 const lat = document.getElementById('input-lat').value;
                 const lng = document.getElementById('input-lng').value;
-                
                 if (lat && lng) {
-                    // Trova il nome del posto per la barra in basso
                     await updateCityName(lat, lng);
-                    // Cambia l'ora dei riquadri e del cerchio in base al fuso orario
                     await syncLocalTime(lat, lng); 
-                    // Ricalcola meteo, Watt e posizione del sole
                     updateAll(); 
                 }
             });
@@ -75,45 +71,24 @@ function initEventListeners() {
             updateAll();
         });
     }
-    document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
-    document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
-    document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
-}
 
-    // Cambio manuale Ora/Data (Aggiorna il sole)
-    ['input-time', 'input-date'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', updateAll);
-    });
+    const saveNameBtn = document.getElementById('btn-save-name');
+    if (saveNameBtn) saveNameBtn.addEventListener('click', saveGarageName);
 
-    // Ricerca Città (TAIPEI)
-    const cityInput = document.getElementById('city-input');
-    if (cityInput) {
-        cityInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                searchCityCoords(this.value);
-            }
-        });
-    }
+    const editBattBtn = document.getElementById('edit-batt-btn');
+    if (editBattBtn) editBattBtn.addEventListener('click', () => editSpec('batt'));
 
-    // Controlli Garage e Batteria
-    const socSlider = document.getElementById('soc-slider');
-    if (socSlider) {
-        socSlider.addEventListener('input', (e) => {
-            state.currentSOC = e.target.value;
-            document.getElementById('soc-val').innerText = state.currentSOC + "%";
-            updateAll();
-        });
-    }
-    document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
-    document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
-    document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
-}
+    const editPanBtn = document.getElementById('edit-pan-btn');
+    if (editPanBtn) editPanBtn.addEventListener('click', () => editSpec('pan'));
+} // <--- Questa chiude CORRETTAMENTE initEventListeners
 
 /**
- * Funzione: syncLocalTime
- * Cosa fa: Chiede l'ora esatta alle coordinate scelte e aggiorna i riquadri e il cerchio centrale.
+ * SPIEGAZIONE FUNZIONI (Come richiesto):
+ * * syncLocalTime: Chiede alle API l'ora esatta di un punto (lat/lng) e la scrive ovunque.
+ * handleGpsSync: Attiva il GPS, anima il tasto in VERDE e aggiorna i dati.
+ * searchCityCoords: Cerca Taipei, sposta l'orologio e spegne il sole se è notte.
  */
+
 async function syncLocalTime(lat, lng) {
     try {
         const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=time&timezone=auto`);
@@ -132,15 +107,10 @@ async function syncLocalTime(lat, lng) {
     return false;
 }
 
-/**
- * Funzione: handleGpsSync
- * Cosa fa: Recupera la posizione e attiva l'ANIMAZIONE VERDE del tasto.
- */
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
     const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
     const originalBg = btn.style.background;
-
     btn.innerText = "🛰️ SINCRONIZZAZIONE...";
     btn.disabled = true;
     
@@ -149,27 +119,21 @@ async function handleGpsSync() {
         const lng = pos.coords.longitude.toFixed(4);
         document.getElementById('input-lat').value = lat;
         document.getElementById('input-lng').value = lng;
-
         const now = new Date();
         const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         document.getElementById('input-date').value = now.toISOString().split('T')[0];
         document.getElementById('input-time').value = timeStr;
-
         await updateCityName(lat, lng);
         await updateAll();
-
-        // --- ANIMAZIONE VERDE ---
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e";
         btn.style.boxShadow = "0 0 15px #22c55e";
         btn.disabled = false;
-
         setTimeout(() => {
             btn.innerText = originalText;
             btn.style.background = originalBg;
             btn.style.boxShadow = "";
         }, 3000);
-
     }, (err) => {
         btn.innerText = "❌ ERRORE GPS";
         btn.style.background = "#ef4444";
@@ -178,10 +142,6 @@ async function handleGpsSync() {
     });
 }
 
-/**
- * Funzione: searchCityCoords
- * Cosa fa: Cerca la città e forza l'aggiornamento dell'ora di Taipei.
- */
 async function searchCityCoords(cityName) {
     const cityInput = document.getElementById('city-input');
     if (!cityInput) return;
@@ -195,7 +155,6 @@ async function searchCityCoords(cityName) {
             document.getElementById('input-lat').value = lat;
             document.getElementById('input-lng').value = lng;
             cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
-            
             await syncLocalTime(lat, lng);
             updateAll();
             cityInput.style.color = "#38bdf8";
@@ -218,33 +177,24 @@ async function updateAll() {
     const date = document.getElementById('input-date').value;
     const time = document.getElementById('input-time').value;
     if (!lat || !lng) return;
-
     try {
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
         if (!state.weatherData) return;
-
         const hourIdx = parseInt(time.split(':')[0]);
         const hDec = SolarEngine.timeToDecimal(time);
         const daily = state.weatherData.daily;
         const hourly = state.weatherData.hourly;
-
-        const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
-        const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
-        
-        document.getElementById('sunrise-txt').innerText = sunrise;
-        document.getElementById('sunset-txt').innerText = sunset;
+        document.getElementById('sunrise-txt').innerText = daily.sunrise[0].split('T')[1].substring(0, 5);
+        document.getElementById('sunset-txt').innerText = daily.sunset[0].split('T')[1].substring(0, 5);
         document.getElementById('display-hour-center').innerText = time;
-
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
-
-        const sunH = SolarEngine.timeToDecimal(sunrise);
-        const setH = SolarEngine.timeToDecimal(sunset);
+        const sunH = SolarEngine.timeToDecimal(document.getElementById('sunrise-txt').innerText);
+        const setH = SolarEngine.timeToDecimal(document.getElementById('sunset-txt').innerText);
         const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         document.getElementById('w_out').innerText = Math.round(power) + " W";
-
         if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
         updateReportUI(power, sunH, setH);
     } catch (e) { console.error(e); }
@@ -288,7 +238,8 @@ function updateSunUI(hDec, sunH, setH) {
 function switchView(vId, el) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    document.getElementById('view-' + vId).classList.add('active');
+    const target = document.getElementById('view-' + vId);
+    if (target) target.classList.add('active');
     if (el) el.classList.add('active');
 }
 
