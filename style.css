@@ -280,17 +280,31 @@ h2 {
     }
 }
 
-/* --- ADATTABILITÀ MOBILE (IL TRUCCO PER IL TELEFONO) --- */
-@media (max-width: 480px) {
-    .manual-controls {
-        /* Su schermi piccoli diventano 2 colonne e 2 righe */
-        grid-template-columns: repeat(2, 1fr); 
-        gap: 8px;
+/* --- FIX LARGHEZZA RIQUADRI MOBILE --- */
+
+@media (max-width: 600px) {
+    /* Il contenitore che tiene Ora e Data */
+    .time-date-container {
+        display: flex;
+        flex-direction: row;      /* Forza la disposizione affiancata */
+        justify-content: center;  /* Centra la coppia di riquadri */
+        gap: 5px;                 /* Riduce lo spazio tra i due al minimo */
+        width: 100%;              /* Usa tutta la larghezza dello schermo */
+        padding: 0 10px;          /* Un po' di respiro ai bordi del telefono */
     }
-    
-    .manual-input {
-        font-size: 14px; /* Leggermente più grande per facilitare il tocco */
-        padding: 12px 8px;
+
+    /* I singoli riquadri (Ora e Data) */
+    .time-date-container > div {
+        flex: 1;                  /* Forza i riquadri a stringersi equamente */
+        min-width: 0;             /* Permette al riquadro di diventare più piccolo del contenuto */
+        padding: 8px 5px;         /* Riduce lo spazio interno (padding) laterale */
+    }
+
+    /* Gli input dentro i riquadri */
+    .time-date-container input {
+        width: 100%;              /* L'input occupa tutto il riquadro ristretto */
+        font-size: inherit;       /* Mantiene il font invariato come richiesto */
+        text-align: center;       /* Centra il testo per estetica */
     }
 }
 
