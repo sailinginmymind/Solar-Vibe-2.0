@@ -19,13 +19,6 @@ window.onload = () => {
 };
 
 function initEventListeners() {
-    const displayVal = document.getElementById('w_out');
-    if (displayVal) {
-        displayVal.addEventListener('click', () => {
-            state.isWh = !state.isWh;
-            updateAll();
-        });
-    }
 
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
