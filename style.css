@@ -3,6 +3,7 @@
     --bg-puro: #0f172a;        /* Blu Notte Originale */
     --accento: #38bdf8;        /* Azzurro dei bordi e icone */
     --bg-card: rgba(30, 41, 59, 0.7); /* Sfondo semitrasparente card */
+    --bg-badge: rgba(56, 189, 248, 0.15);
 }
 
 /* Variante Tema VERDE */
@@ -10,6 +11,8 @@ body.tema-verde {
     --bg-puro: #062c1f;
     --accento: #10b981;
     --bg-card: rgba(6, 44, 31, 0.8);
+    /* Sfumatura interna dei riquadri: un verde più chiaro e trasparente */
+    --bg-badge: rgba(16, 185, 129, 0.15);
 }
 
 /* Variante Tema ROSSO */
@@ -17,6 +20,7 @@ body.tema-rosso {
     --bg-puro: #2d0a1a;
     --accento: #f43f5e;
     --bg-card: rgba(45, 10, 26, 0.8);
+    --bg-badge: rgba(244, 63, 94, 0.15);
 }
 
 /* Variante Tema GRIGIO */
@@ -24,6 +28,9 @@ body.tema-grigio {
     --bg-puro: #1a1a1a;
     --accento: #94a3b8;
     --bg-card: rgba(35, 35, 35, 0.8);
+    /* Sfumatura interna: un bianco/grigio chiarissimo molto trasparente */
+    --bg-badge: rgba(255, 255, 255, 0.05); 
+}
 }
 /* --- RESET & BASE --- */
 * { 
@@ -292,23 +299,29 @@ h2 {
     padding: 0 10px;
 }
 
-/* Stilizzazione dei singoli campi di input (Ora, Data, Lat, Lng) */
+/* Riquadri Vento, Umidità, Temperatura e Report */
+.w-badge, .report-grid .w-badge { 
+    background: var(--bg-badge) !important; /* Usa la sfumatura dedicata */
+    border: 1px solid var(--accento) !important;
+    backdrop-filter: blur(4px) saturate(150%); /* Effetto vetro colorato */
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 0 10px rgba(255,255,255,0.05); /* Leggera luce interna */
+}
+
+/* Riquadri Input (Ora, Data, Coordinate) */
 .manual-input {
-    /* Manteniamo la tua struttura */
+    /* Mantieni i tuoi dati di struttura (width, padding, ecc.) */
+    background: var(--bg-badge) !important;
+    border: 1px solid var(--accento) !important;
+    backdrop-filter: blur(4px) saturate(150%);
+    color: #fff;
     border-radius: 8px;
     padding: 12px 5px;
     font-size: 14px;
     text-align: center;
     width: 100%;               
     box-sizing: border-box;
-    color: #fff;
-
-    /* MODIFICHE PER IL TEMA: */
-    /* Usiamo var(--bg-card) ma lo rendiamo un po' più opaco per vederlo bene */
-    background: var(--bg-card) !important; 
-    /* Il bordo ora brilla del colore del tema (Verde, Rosso, ecc.) */
-    border: 1px solid var(--accento) !important; 
-    
     transition: all 0.3s ease;
 }
 /* --- FIX PER EVITARE CHE SI TOCCHINO SU MOBILE --- */
