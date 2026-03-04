@@ -27,23 +27,33 @@ function initEventListeners() {
     // 2. TASTO GPS (Rimane uguale)
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    // 3. --- MODIFICA QUI PER SINCRONIZZARE CITTÀ E DATI ---
-    ['input-lat', 'input-lng'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('change', () => {
-                const lat = document.getElementById('input-lat').value;
-                const lng = document.getElementById('input-lng').value;
+  // Dentro function initEventListeners()
+['input-lat', 'input-lng'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener('change', async () => {
+            const lat = document.getElementById('input-lat').value;
+            const lng = document.getElementById('input-lng').value;
+            
+            if (lat && lng) {
+                // 1. Aggiorna il nome della città sotto
+                await updateCityName(lat, lng);
                 
-                if (lat && lng) {
-                    // Cerca il nome del posto basandosi sui numeri inseriti
-                    updateCityName(lat, lng);
+                // 2. RECUPERA L'ORA LOCALE per queste coordinate (fondamentale per Taipei!)
+                const tzResp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=time&timezone=auto`);
+                const tzData = await tzResp.json();
+                if (tzData.current) {
+                    const parts = tzData.current.time.split('T');
+                    document.getElementById('input-date').value = parts[0];
+                    document.getElementById('input-time').value = parts[1].substring(0, 5);
                 }
-                // Aggiorna Meteo, Sole e Report
-                updateAll();
-            });
-        }
-    });
+
+                // 3. Aggiorna tutto il resto (Meteo, Watt, Sole)
+                updateAll(); 
+            }
+        });
+    }
+});
 
     // Gestione separata per ora e data (non serve cercare la città se cambi solo l'ora)
     ['input-time', 'input-date'].forEach(id => {
@@ -445,14 +455,18 @@ async function updateCityName(lat, lng) {
  * Funzione: searchCityCoords
  * Cosa fa: Cerca le coordinate di una città e aggiorna AUTOMATICAMENTE l'ora locale e il meteo.
  */
+/**
+ * Funzione: searchCityCoords
+ * Cosa fa: Cerca le coordinate di una città e aggiorna AUTOMATICAMENTE l'ora locale del posto.
+ */
 async function searchCityCoords(cityName) {
     if (!cityName) return;
     const cityInput = document.getElementById('city-input');
 
     try {
-        cityInput.style.color = "#fbbf24"; // Giallo: ricerca in corso
+        cityInput.style.color = "#fbbf24"; // Giallo durante la ricerca
         
-        // 1. Cerchiamo le coordinate della città
+        // 1. Cerchiamo le coordinate (Lat/Lng)
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
         const data = await response.json();
 
@@ -460,27 +474,31 @@ async function searchCityCoords(cityName) {
             const newLat = parseFloat(data[0].lat).toFixed(4);
             const newLng = parseFloat(data[0].lon).toFixed(4);
 
-            // Aggiorniamo i campi visivi sulla Dashboard
             document.getElementById('input-lat').value = newLat;
             document.getElementById('input-lng').value = newLng;
             cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
 
-            // 2. RECUPERO ORA LOCALE (Fuso Orario)
-            // Usiamo Open-Meteo per sapere che ore sono ESATTAMENTE a Taipei in questo momento
+            // 2. RECUPERO ORA LOCALE E DATA (Fuso Orario)
+            // Usiamo Open-Meteo con timezone=auto per sapere l'ora esatta a Taipei o ovunque
             const tzUrl = `https://api.open-meteo.com/v1/forecast?latitude=${newLat}&longitude=${newLng}&current=time&timezone=auto`;
             const tzResp = await fetch(tzUrl);
             const tzData = await tzResp.json();
             
             if (tzData.current && tzData.current.time) {
-                // Trasformiamo "2026-03-04T21:15" in "21:15"
-                const localTime = tzData.current.time.split('T')[1].substring(0, 5);
+                // Esempio tzData.current.time: "2026-03-04T21:19"
+                const parts = tzData.current.time.split('T');
+                const localDate = parts[0]; // "2026-03-04"
+                const localTime = parts[1].substring(0, 5); // "21:19"
+
+                // Aggiorniamo i campi input della Dashboard
+                document.getElementById('input-date').value = localDate;
                 document.getElementById('input-time').value = localTime;
             }
 
-            cityInput.style.color = "#38bdf8"; // Torna azzurro: successo
+            cityInput.style.color = "#38bdf8"; // Torna azzurro
 
             // 3. AGGIORNAMENTO TOTALE
-            // Ora che abbiamo Lat, Lng e l'ORA DI TAIPEI, ricalcoliamo tutto
+            // Ora che abbiamo i numeri e l'ORA GIUSTA, updateAll calcolerà il sole corretto
             updateAll(); 
             
         } else {
