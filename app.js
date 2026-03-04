@@ -121,34 +121,37 @@ function generaBottoniGiorni() {
 function aggiornaTuttaInterfaccia() {
     console.log("Sincronizzo l'app sulla data:", dataSelezionata.toLocaleDateString());
 
-    // 1. Sincronizziamo il campo input date
+    // 1. Sincronizziamo il campo input date per l'API meteo
     const inputDate = document.getElementById('input-date');
     if (inputDate) {
         inputDate.value = dataSelezionata.toISOString().split('T')[0];
     }
 
-    // 2. Chiamiamo updateAll() per aggiornare i dati
+    // 2. Chiamiamo updateAll() per ricalcolare i dati (Watt, Sole, Grafico)
     updateAll();
 
-    // 3. AGGIORNAMENTO SCRITTA DINAMICA
+    // 3. LOGICA DELLA SCRITTA DINAMICA
     // Cerchiamo l'elemento che contiene "PREVISIONE ODIERNA"
     const sottotitolo = document.querySelector('.view-title') || document.querySelector('.report-container h2'); 
     const oggi = new Date().toDateString();
     
     if (sottotitolo) {
         if (dataSelezionata.toDateString() === oggi) {
+            // Se il giorno selezionato è OGGI
             sottotitolo.innerText = "PREVISIONE ODIERNA";
-            sottotitolo.style.color = ""; // Colore azzurro originale
+            sottotitolo.style.color = ""; // Torna al colore originale (azzurro)
         } else {
-            // Seleziona il numero del giorno (X)
-            const giornoX = dataSelezionata.getDate();
-            // Inserisce esattamente la scritta richiesta
-            sottotitolo.innerText = "PREVISIONE DEL GIORNO " + giornoX;
-            sottotitolo.style.color = "var(--accento)"; // Giallo per evidenziare il cambio
+            // Se il giorno è DIVERSO da oggi
+            const giornoX = dataSelezionata.getDate(); // Estrae solo il numero (es. 5, 6, 7...)
+            
+            // Inseriamo esattamente la frase richiesta
+            sottotitolo.innerText = "PREVISIONE PER IL GIORNO " + giornoX;
+            
+            // Cambiamo colore per dare un segnale visivo che non siamo su "oggi"
+            sottotitolo.style.color = "var(--accento)"; 
         }
     }
 }
-
 // AVVIAMO LA CREAZIONE DEI GIORNI
 generaBottoniGiorni();
 /**
