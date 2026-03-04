@@ -675,3 +675,30 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     pointer-events: none;      /* Rende l'elemento "trasparente" ai click */
     user-select: none;         /* Impedisce di evidenziare il testo per errore */
 }
+/* --- POSIZIONE E CITTA' (DINAMICA) --- */
+.location-box {
+    margin-top: 15px; 
+    text-align: center; 
+    font-size: 0.8rem; 
+    color: #94a3b8;
+}
+
+.location-box input {
+    background: transparent !important;
+    border: none !important;
+    /* La riga sotto la città ora segue il colore del tema scelto */
+    border-bottom: 2px solid var(--accento) !important; 
+    color: var(--accento) !important;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    outline: none;
+    width: 60%;
+    transition: all 0.3s ease;
+}
+
+/* Rende l'icona del pin 📍 leggermente luminosa col tema */
+.location-box::before {
+    content: '';
+    text-shadow: 0 0 10px var(--accento);
+}
