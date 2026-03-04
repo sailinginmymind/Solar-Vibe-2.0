@@ -1,5 +1,5 @@
 /**
- * APP.JS - Versione Corretta: Auto-Click + Teletrasporto Taipei
+ * APP.JS - Versione Finale: Taipei Fix + GPS Animato
  */
 
 let state = {
@@ -10,13 +10,12 @@ let state = {
     weatherData: null
 };
 
-// 1. AVVIO AUTOMATICO: Assicuriamoci che tutto sia caricato prima di cliccare
+// 1. AVVIO AUTOMATICO: Clicca il GPS dopo mezzo secondo
 window.onload = () => {
     initEventListeners();
     loadSavedData();
     setupStars();
     
-    // Piccolo ritardo per essere sicuri che il GPS possa partire
     setTimeout(() => {
         const btnGps = document.getElementById('btn-gps');
         if (btnGps) btnGps.click();
@@ -24,15 +23,15 @@ window.onload = () => {
 };
 
 function initEventListeners() {
-    // Navigazione
+    // Navigazione tra le schede
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
 
-    // Tasto GPS
+    // Tasto GPS con animazione
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    // Cambio manuale Lat/Lng
+    // Cambio manuale Lat/Lng (Sincronizza ora locale)
     ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -48,7 +47,7 @@ function initEventListeners() {
         }
     });
 
-    // Cambio manuale Ora/Data
+    // Cambio manuale Ora/Data (Aggiorna il sole)
     ['input-time', 'input-date'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
@@ -79,7 +78,8 @@ function initEventListeners() {
 }
 
 /**
- * FUNZIONE CHIAVE: Sincronizza l'ora dei riquadri e del cerchio centrale
+ * Funzione: syncLocalTime
+ * Cosa fa: Chiede l'ora esatta alle coordinate scelte e aggiorna i riquadri e il cerchio centrale.
  */
 async function syncLocalTime(lat, lng) {
     try {
@@ -90,51 +90,26 @@ async function syncLocalTime(lat, lng) {
             const localDate = parts[0];
             const localTime = parts[1].substring(0, 5);
 
-            // Scriviamo nei riquadri in basso
             document.getElementById('input-date').value = localDate;
             document.getElementById('input-time').value = localTime;
-            
-            // Scriviamo nel cerchio centrale
             document.getElementById('display-hour-center').innerText = localTime;
             return true;
         }
-    } catch (e) {
-        console.error("Errore fuso orario:", e);
-    }
+    } catch (e) { console.error("Errore fuso:", e); }
     return false;
 }
 
-async function searchCityCoords(cityName) {
-    const cityInput = document.getElementById('city-input');
-    if (!cityInput) return;
-    try {
-        cityInput.style.color = "#fbbf24";
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
-        const data = await res.json();
-        if (data && data.length > 0) {
-            const lat = parseFloat(data[0].lat).toFixed(4);
-            const lng = parseFloat(data[0].lon).toFixed(4);
-            
-            document.getElementById('input-lat').value = lat;
-            document.getElementById('input-lng').value = lng;
-            cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
-            
-            // FORZIAMO il cambio dell'ora prima di aggiornare il sole
-            await syncLocalTime(lat, lng);
-            
-            // Ora che l'ora è cambiata, ricalcoliamo tutto
-            updateAll();
-            
-            cityInput.style.color = "#38bdf8";
-        }
-    } catch (e) {
-        cityInput.style.color = "#ef4444";
-    }
-}
-
+/**
+ * Funzione: handleGpsSync
+ * Cosa fa: Recupera la posizione e attiva l'ANIMAZIONE VERDE del tasto.
+ */
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
-    btn.innerText = "SINCRONIZZAZIONE...";
+    const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
+    const originalBg = btn.style.background;
+
+    btn.innerText = "🛰️ SINCRONIZZAZIONE...";
+    btn.disabled = true;
     
     navigator.geolocation.getCurrentPosition(async (pos) => {
         const lat = pos.coords.latitude.toFixed(4);
@@ -146,19 +121,55 @@ async function handleGpsSync() {
         const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         document.getElementById('input-date').value = now.toISOString().split('T')[0];
         document.getElementById('input-time').value = timeStr;
-        document.getElementById('display-hour-center').innerText = timeStr;
 
         await updateCityName(lat, lng);
-        updateAll();
+        await updateAll();
 
-        btn.innerText = "✅ SINCRONIZZATO";
-        setTimeout(() => btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE", 2000);
+        // --- ANIMAZIONE VERDE ---
+        btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
+        btn.style.background = "#22c55e";
+        btn.style.boxShadow = "0 0 15px #22c55e";
+        btn.disabled = false;
+
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.style.background = originalBg;
+            btn.style.boxShadow = "";
+        }, 3000);
+
     }, (err) => {
         btn.innerText = "❌ ERRORE GPS";
+        btn.style.background = "#ef4444";
+        btn.disabled = false;
+        setTimeout(() => { btn.innerText = originalText; btn.style.background = originalBg; }, 3000);
     });
 }
 
-// --- FUNZIONE MANCANTE PER IL NOME CITTÀ ---
+/**
+ * Funzione: searchCityCoords
+ * Cosa fa: Cerca la città e forza l'aggiornamento dell'ora di Taipei.
+ */
+async function searchCityCoords(cityName) {
+    const cityInput = document.getElementById('city-input');
+    if (!cityInput) return;
+    try {
+        cityInput.style.color = "#fbbf24";
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat).toFixed(4);
+            const lng = parseFloat(data[0].lon).toFixed(4);
+            document.getElementById('input-lat').value = lat;
+            document.getElementById('input-lng').value = lng;
+            cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
+            
+            await syncLocalTime(lat, lng);
+            updateAll();
+            cityInput.style.color = "#38bdf8";
+        }
+    } catch (e) { cityInput.style.color = "#ef4444"; }
+}
+
 async function updateCityName(lat, lng) {
     try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
@@ -191,7 +202,6 @@ async function updateAll() {
         document.getElementById('sunset-txt').innerText = sunset;
         document.getElementById('display-hour-center').innerText = time;
 
-        // Meteo
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
@@ -199,7 +209,6 @@ async function updateAll() {
 
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
-        
         const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         document.getElementById('w_out').innerText = Math.round(power) + " W";
 
@@ -208,7 +217,6 @@ async function updateAll() {
     } catch (e) { console.error(e); }
 }
 
-// --- FUNZIONI GRAFICHE ---
 function updateReportUI(currentPower, sunH, setH) {
     const chart = document.getElementById('hourly-chart');
     if (!chart || !state.weatherData) return;
