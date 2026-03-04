@@ -1,6 +1,6 @@
 /**
- * APP.JS - VERSIONE UNIFICATA DEFINITIVA
- * Sincronizzazione totale: GPS = Ricerca Città = Inserimento Manuale
+ * APP.JS - VERSIONE FIX DASHBOARD VUOTA
+ * Risolve il problema dei dati mancanti e sincronizza l'ora mondiale.
  */
 
 let state = {
@@ -11,12 +11,12 @@ let state = {
     weatherData: null
 };
 
-// 1. AVVIO: Carica tutto e clicca il GPS per partire dalla posizione attuale
 window.onload = () => {
     initEventListeners();
     loadSavedData();
     setupStars();
     
+    // Al caricamento, forza una sincronizzazione iniziale
     setTimeout(() => {
         const btnGps = document.getElementById('btn-gps');
         if (btnGps) btnGps.click();
@@ -24,7 +24,7 @@ window.onload = () => {
 };
 
 function initEventListeners() {
-    // Navigazione tra le viste
+    // Navigazione
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
@@ -32,7 +32,7 @@ function initEventListeners() {
     // TASTO GPS
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    // INSERIMENTO MANUALE COORDINATE (Trigger Refresh Totale)
+    // COORDINATE MANUALI
     ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -44,7 +44,7 @@ function initEventListeners() {
         }
     });
 
-    // RICERCA CITTÀ (Trigger Refresh Totale)
+    // RICERCA CITTÀ
     const cityInput = document.getElementById('city-input');
     if (cityInput) {
         cityInput.addEventListener('keypress', function (e) {
@@ -52,13 +52,13 @@ function initEventListeners() {
         });
     }
 
-    // CAMBIO MANUALE ORA/DATA (Aggiorna solo il calcolo, non il fuso)
+    // ORA E DATA MANUALI
     ['input-time', 'input-date'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
 
-    // CONTROLLI GARAGE
+    // SLIDER E GARAGE
     const socSlider = document.getElementById('soc-slider');
     if (socSlider) {
         socSlider.addEventListener('input', (e) => {
@@ -72,18 +72,12 @@ function initEventListeners() {
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
 }
 
-/**
- * FUNZIONE CORE: triggerFullRefresh
- * Spiegazione: Fa tabula rasa e ricarica i dati del posto scelto.
- * Equivale a un "refresh di pagina" ma per una località specifica.
- */
 async function triggerFullRefresh(lat, lng) {
-    console.log("Inizio refresh totale per:", lat, lng);
-    // 1. Scrive il nome del posto nella barra
+    // 1. Nome Città
     await updateCityName(lat, lng);
-    // 2. Chiede l'ora esatta del fuso orario e la scrive negli input
+    // 2. Sincronizza Ora (Fondamentale per Taipei/Fusi orari)
     await syncLocalTime(lat, lng);
-    // 3. Con l'ora corretta, scarica il meteo e disegna il sole
+    // 3. Carica Meteo e Disegna tutto
     await updateAll();
 }
 
@@ -91,46 +85,35 @@ async function syncLocalTime(lat, lng) {
     try {
         const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=time&timezone=auto`);
         const data = await resp.json();
-        if (data.current) {
+        if (data && data.current) {
             const parts = data.current.time.split('T');
             document.getElementById('input-date').value = parts[0];
             document.getElementById('input-time').value = parts[1].substring(0, 5);
             document.getElementById('display-hour-center').innerText = parts[1].substring(0, 5);
-            return true;
         }
-    } catch (e) { console.error("Errore fuso orario:", e); }
-    return false;
+    } catch (e) { console.error("Errore sincronizzazione ora:", e); }
 }
 
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
-    btn.innerText = "🛰️ SINCRONIZZAZIONE...";
+    btn.innerText = "🛰️ IN CORSO...";
     
     navigator.geolocation.getCurrentPosition(async (pos) => {
         const lat = pos.coords.latitude.toFixed(4);
         const lng = pos.coords.longitude.toFixed(4);
         document.getElementById('input-lat').value = lat;
         document.getElementById('input-lng').value = lng;
-
         await triggerFullRefresh(lat, lng);
-
-        btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
-        btn.style.background = "#22c55e";
-        setTimeout(() => { 
-            btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️"; 
-            btn.style.background = ""; 
-        }, 3000);
+        btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
+        btn.style.background = "";
     }, (err) => {
         btn.innerText = "❌ ERRORE GPS";
-        btn.style.background = "#ef4444";
-        setTimeout(() => { btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️"; btn.style.background = ""; }, 3000);
+        setTimeout(() => { btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️"; }, 3000);
     });
 }
 
 async function searchCityCoords(cityName) {
-    const cityInput = document.getElementById('city-input');
     try {
-        cityInput.style.color = "#fbbf24";
         const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
         const data = await res.json();
         if (data && data.length > 0) {
@@ -138,26 +121,20 @@ async function searchCityCoords(cityName) {
             const lng = parseFloat(data[0].lon).toFixed(4);
             document.getElementById('input-lat').value = lat;
             document.getElementById('input-lng').value = lng;
-            
             await triggerFullRefresh(lat, lng);
-            cityInput.style.color = "#38bdf8";
         }
-    } catch (e) { cityInput.style.color = "#ef4444"; }
+    } catch (e) { console.error(e); }
 }
 
 async function updateCityName(lat, lng) {
     try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
         const data = await res.json();
-        const city = data.address.city || data.address.town || data.address.village || "POSIZIONE IGNOTA";
+        const city = data.address.city || data.address.town || data.address.village || "SCONOSCIUTO";
         document.getElementById('city-input').value = city.toUpperCase();
     } catch (e) { console.error(e); }
 }
 
-/**
- * Funzione: updateAll
- * Spiegazione: Legge i dati dagli input e aggiorna l'intera interfaccia.
- */
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
@@ -167,6 +144,7 @@ async function updateAll() {
     if (!lat || !lng || !date || !time) return;
 
     try {
+        // Forza il caricamento meteo
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
         if (!state.weatherData) return;
 
@@ -175,39 +153,38 @@ async function updateAll() {
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
-        // 1. Aggiorna Alba e Tramonto
-        const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
-        const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
-        document.getElementById('sunrise-txt').innerText = sunrise;
-        document.getElementById('sunset-txt').innerText = sunset;
-        
-        // 2. Aggiorna Orologio Centrale
+        // Alba e Tramonto
+        const sunriseStr = daily.sunrise[0].split('T')[1].substring(0, 5);
+        const sunsetStr = daily.sunset[0].split('T')[1].substring(0, 5);
+        document.getElementById('sunrise-txt').innerText = sunriseStr;
+        document.getElementById('sunset-txt').innerText = sunsetStr;
         document.getElementById('display-hour-center').innerText = time;
 
-        // 3. Aggiorna Dati Meteo (Riquadri)
+        // Dati Riquadri
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
+        document.getElementById('display-cloud-center').innerText = hourly.cloud_cover[hourIdx] + "%"; // AGGIUNTO PER FIX DASHBOARD
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
 
-        // 4. Calcola e mostra Watt
-        const sunH = SolarEngine.timeToDecimal(sunrise);
-        const setH = SolarEngine.timeToDecimal(sunset);
+        // Watt
+        const sunH = SolarEngine.timeToDecimal(sunriseStr);
+        const setH = SolarEngine.timeToDecimal(sunsetStr);
         const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         document.getElementById('w_out').innerText = Math.round(power) + " W";
 
-        // 5. Aggiorna Grafica Sole e Grafico Orario
-        updateSunUI(hDec, sunH, setH);
-        updateReportUI(power, sunH, setH);
+        // Grafica
+        if (window.updateSunUI) updateSunUI(hDec, sunH, setH);
+        if (window.updateReportUI) updateReportUI(power, sunH, setH);
 
-    } catch (e) { console.error("Errore aggiornamento interfaccia:", e); }
+    } catch (e) { console.error("Errore Dashboard:", e); }
 }
 
+// FUNZIONI GRAFICHE E UTILITY (Mantienile per far funzionare i grafici)
 function updateSunUI(hDec, sunH, setH) {
     const sun = document.getElementById('sun-body');
     const sky = document.getElementById('sky-box');
     if (!sun || !sky) return;
-
     if (hDec < sunH || hDec > setH) {
         sun.style.display = "none";
         sky.style.background = "linear-gradient(to bottom, #0f172a, #1e293b)";
@@ -223,11 +200,9 @@ function updateSunUI(hDec, sunH, setH) {
 function updateReportUI(currentPower, sunH, setH) {
     const chart = document.getElementById('hourly-chart');
     if (!chart || !state.weatherData) return;
-
     document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, state.battAh);
     document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, state.battAh);
     document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, state.battAh);
-    
     chart.innerHTML = "";
     let total = 0;
     for (let h = Math.floor(sunH); h <= Math.ceil(setH); h++) {
@@ -266,7 +241,6 @@ function saveGarageName() {
 
 function loadSavedData() {
     const name = localStorage.getItem('vibe_camper_name') || "";
-    document.getElementById('camper_name_input').value = name;
     document.getElementById('camper-name-display').innerText = (name || "IL MIO CAMPER").toUpperCase();
     document.getElementById('batt_val').innerText = state.battAh;
     document.getElementById('panel_val').innerText = state.panelWp;
