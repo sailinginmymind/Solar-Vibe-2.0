@@ -488,58 +488,61 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     z-index: 1000; 
 }
 
-.navbar { 
-    width: 100%; 
-    max-width: 570px; 
-    height: 90px; 
-    background: #1e293b; 
-    display: flex; 
-    border: 1px solid #475569; 
-    border-radius: 30px; 
+/* Il contenitore grigio scuro in basso */
+.nav-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    background: rgba(15, 23, 42, 0.9); /* Sfondo scuro semitrasparente */
+    backdrop-filter: blur(10px); /* Effetto vetro sfocato */
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 5px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
 }
 
-/* Lo stato normale (non cliccato) dei bottoni */
+/* Il singolo bottone */
 .nav-item {
-    color: #94a3b8; /* Grigio chiaro di base */
-    transition: all 0.3s ease;
-    cursor: pointer;
+    background: transparent !important; /* Rimuove il quadrato di sfondo */
+    border: none !important;
+    color: #94a3b8;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px;
-}
-
-/* Lo stato ATTIVO (quando sei in quella pagina) */
-.nav-item.active {
-    /* Usa la variabile --accento che cambia con il tema! */
-    color: var(--accento) !important; 
-    border-bottom: 3px solid var(--accento) !important;
-    transform: translateY(-5px); /* Un leggero effetto sollevamento */
-}
-
-/* Se usi delle icone o emoji dentro, coloriamo anche quelle se possibile */
-.nav-item.active span, .nav-item.active i {
-    color: var(--accento) !important;
-    text-shadow: 0 0 10px var(--accento); /* Crea un leggero alone colorato */
-}
-
-.nav-item span { font-size: 32px; display: block; margin-bottom: 4px; }
-/* L'icona e il testo diventano azzurri e più luminosi */
-.nav-item.active { 
-    color: #38bdf8; 
-    background: rgba(56, 189, 248, 0.1); /* Leggero sfondo azzurrato */
-    border-radius: 20px;
+    justify-content: center;
+    gap: 4px; /* Spazio tra icona e testo */
+    cursor: pointer;
+    flex: 1;
     transition: all 0.3s ease;
 }
 
-/* Aggiungiamo un pallino sotto l'icona attiva */
-.nav-item.active::after {
-    content: '•';
+/* Solo l'icona (emoji o immagine) */
+.nav-item img, .nav-item span {
     font-size: 20px;
-    line-height: 0;
-    margin-top: -5px;
+    transition: transform 0.3s ease;
 }
 
+/* Testo sotto l'icona */
+.nav-item small {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* STATO ATTIVO: Quando il tema è selezionato */
+.nav-item.active {
+    color: var(--accento) !important; /* Testo del colore del tema */
+}
+
+.nav-item.active img, .nav-item.active span {
+    transform: translateY(-5px); /* L'icona si alza leggermente */
+    filter: drop-shadow(0 0 8px var(--accento)); /* L'icona brilla del colore del tema */
+}
 /* --- GARAGE SPECIFIC (NUOVO) --- */
 .garage-input-group {
     display: flex;
