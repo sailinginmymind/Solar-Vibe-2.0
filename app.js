@@ -250,6 +250,12 @@ function loadSavedData() {
     document.getElementById('camper-name-display').innerText = (name || "IL MIO CAMPER").toUpperCase();
     document.getElementById('batt_val').innerText = state.battAh;
     document.getElementById('panel_val').innerText = state.panelWp;
+    
+    const savedColor = localStorage.getItem('vibe_bg_color');
+    if (savedColor) {
+        changeBg(savedColor); // Se c'è un colore salvato, lo applica subito
+    }
+}
 }
 
 function setupStars() {
