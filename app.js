@@ -146,24 +146,45 @@ async function updateCityName(lat, lng) {
     }
 }
 
+/**
+ * Funzione: searchCityCoords
+ * Cosa fa: Cerca la città, imposta Lat/Lng e CHIAMA IL TELETRASPORTO ORARIO.
+ */
 async function searchCityCoords(cityName) {
     const cityInput = document.getElementById('city-input');
+    if (!cityInput || !cityName) return;
+
     try {
-        cityInput.style.color = "#fbbf24";
+        cityInput.style.color = "#fbbf24"; // Giallo: sto cercando...
+        
         const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
         const data = await res.json();
-        if (data.length > 0) {
+
+        if (data && data.length > 0) {
             const lat = parseFloat(data[0].lat).toFixed(4);
             const lng = parseFloat(data[0].lon).toFixed(4);
+
+            // 1. Scrive le coordinate nei quadratini
             document.getElementById('input-lat').value = lat;
             document.getElementById('input-lng').value = lng;
-            cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
             
-            await syncLocalTime(lat, lng); // Questo cambia l'ora a Taipei o ovunque
+            // 2. Pulisce il nome della città (es: TAIPEI)
+            cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
+
+            // --- IL PASSAGGIO CHIAVE ---
+            // Chiamiamo la funzione che sposta l'orologio a Taipei
+            await syncLocalTime(lat, lng); 
+            
+            // Ora che l'ora è cambiata nei quadratini, aggiorniamo il sole e i Watt
             updateAll();
-            cityInput.style.color = "#38bdf8";
+            
+            cityInput.style.color = "#38bdf8"; // Torna azzurro
+        } else {
+            alert("Città non trovata!");
+            cityInput.style.color = "#ef4444";
         }
     } catch (e) {
+        console.error("Errore ricerca:", e);
         cityInput.style.color = "#ef4444";
     }
 }
