@@ -805,44 +805,8 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 .day-btn.active {
     border-color: var(--accento);
     background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 15px var(--accento);
+    box-shadow: 0 0 10px var(--accento);
 }
 
-.day-btn span:first-child { font-size: 10px; opacity: 0.7; text-transform: uppercase; }
-.day-btn span:last-child { font-size: 16px; font-weight: 900; }
-
-function generaBottoniGiorni() {
-    const container = document.getElementById('days-selector');
-    const giorniSettimana = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
-    const oggi = new Date();
-
-    container.innerHTML = ''; // Puliamo il contenitore
-
-    for (let i = 0; i < 7; i++) {
-        const dataTarget = new Date();
-        dataTarget.setDate(oggi.getDate() + i); // Aggiunge i giorni progressivamente
-
-        const nomeGiorno = giorniSettimana[dataTarget.getDay()];
-        const numeroGiorno = dataTarget.getDate();
-
-        // Creiamo il bottone
-        const btn = document.createElement('div');
-        btn.className = i === 0 ? 'day-btn active' : 'day-btn'; // Il primo è attivo di default
-        btn.innerHTML = `<span>${nomeGiorno}</span><span>${numeroGiorno}</span>`;
-
-        // Al click, aggiorniamo il grafico
-        btn.onclick = function() {
-            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Qui chiamerai la funzione che aggiorna il grafico con i nuovi dati
-            // Esempio: aggiornaGraficoPrevisioni(i); 
-            console.log("Caricamento dati per il giorno +", i);
-        };
-
-        container.appendChild(btn);
-    }
-}
-
-// Avviamo la funzione al caricamento
-generaBottoniGiorni();
+.day-name { font-size: 10px; opacity: 0.6; }
+.day-num { font-size: 16px; font-weight: 900; }
