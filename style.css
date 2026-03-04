@@ -572,11 +572,12 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     letter-spacing: 1px;
 }
 
-/* STATO ATTIVO: Quando il tema è selezionato */
 .nav-item.active {
-    color: var(--accento) !important; /* Testo del colore del tema */
+    /* Il colore del testo attivo diventa quello del tema */
+    color: var(--accento) !important; 
+    /* Aggiunge un bagliore neon per staccare dal vetro colorato */
+    text-shadow: 0 0 12px var(--accento); 
 }
-
 .nav-item.active img, .nav-item.active span {
     transform: translateY(-5px); /* L'icona si alza leggermente */
     filter: drop-shadow(0 0 8px var(--accento)); /* L'icona brilla del colore del tema */
