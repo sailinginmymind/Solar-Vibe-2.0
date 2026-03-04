@@ -1,5 +1,5 @@
 /**
- * APP.JS - Versione Integrata (Correzione Taipei + GPS)
+ * APP.JS - Versione Corretta: Auto-Click + Teletrasporto Taipei
  */
 
 let state = {
@@ -10,24 +10,29 @@ let state = {
     weatherData: null
 };
 
+// 1. AVVIO AUTOMATICO: Assicuriamoci che tutto sia caricato prima di cliccare
 window.onload = () => {
     initEventListeners();
     loadSavedData();
     setupStars();
-    // Primo avvio automatico
-    document.getElementById('btn-gps').click();
+    
+    // Piccolo ritardo per essere sicuri che il GPS possa partire
+    setTimeout(() => {
+        const btnGps = document.getElementById('btn-gps');
+        if (btnGps) btnGps.click();
+    }, 500);
 };
 
 function initEventListeners() {
-    // 1. NAVIGAZIONE
+    // Navigazione
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
 
-    // 2. TASTO GPS
+    // Tasto GPS
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    // 3. CAMBIO MANUALE LAT/LNG (Aggiorna anche ora locale del posto)
+    // Cambio manuale Lat/Lng
     ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -36,20 +41,20 @@ function initEventListeners() {
                 const lng = document.getElementById('input-lng').value;
                 if (lat && lng) {
                     await updateCityName(lat, lng);
-                    await syncLocalTime(lat, lng); // Sincronizza ora di Taipei/Pisa
+                    await syncLocalTime(lat, lng); 
                     updateAll(); 
                 }
             });
         }
     });
 
-    // 4. CAMBIO MANUALE ORA/DATA
+    // Cambio manuale Ora/Data
     ['input-time', 'input-date'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
 
-    // 5. RICERCA CITTÀ
+    // Ricerca Città (TAIPEI)
     const cityInput = document.getElementById('city-input');
     if (cityInput) {
         cityInput.addEventListener('keypress', function (e) {
@@ -59,7 +64,7 @@ function initEventListeners() {
         });
     }
 
-    // 6. CONTROLLI GARAGE & SLIDER
+    // Controlli Garage e Batteria
     const socSlider = document.getElementById('soc-slider');
     if (socSlider) {
         socSlider.addEventListener('input', (e) => {
@@ -74,8 +79,7 @@ function initEventListeners() {
 }
 
 /**
- * FUNZIONE CHIAVE: Sincronizza i quadratini Data/Ora e il cerchio centrale
- * con l'ora locale delle coordinate fornite.
+ * FUNZIONE CHIAVE: Sincronizza l'ora dei riquadri e del cerchio centrale
  */
 async function syncLocalTime(lat, lng) {
     try {
@@ -86,107 +90,82 @@ async function syncLocalTime(lat, lng) {
             const localDate = parts[0];
             const localTime = parts[1].substring(0, 5);
 
+            // Scriviamo nei riquadri in basso
             document.getElementById('input-date').value = localDate;
             document.getElementById('input-time').value = localTime;
+            
+            // Scriviamo nel cerchio centrale
             document.getElementById('display-hour-center').innerText = localTime;
+            return true;
         }
     } catch (e) {
-        console.error("Errore sincronizzazione ora:", e);
+        console.error("Errore fuso orario:", e);
+    }
+    return false;
+}
+
+async function searchCityCoords(cityName) {
+    const cityInput = document.getElementById('city-input');
+    if (!cityInput) return;
+    try {
+        cityInput.style.color = "#fbbf24";
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+            const lat = parseFloat(data[0].lat).toFixed(4);
+            const lng = parseFloat(data[0].lon).toFixed(4);
+            
+            document.getElementById('input-lat').value = lat;
+            document.getElementById('input-lng').value = lng;
+            cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
+            
+            // FORZIAMO il cambio dell'ora prima di aggiornare il sole
+            await syncLocalTime(lat, lng);
+            
+            // Ora che l'ora è cambiata, ricalcoliamo tutto
+            updateAll();
+            
+            cityInput.style.color = "#38bdf8";
+        }
+    } catch (e) {
+        cityInput.style.color = "#ef4444";
     }
 }
 
 async function handleGpsSync() {
     const btn = document.getElementById('btn-gps');
-    const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
-    btn.innerText = "SINCRONIZZAZIONE IN CORSO...";
-    btn.disabled = true;
-
-    if (!navigator.geolocation) {
-        alert("GPS non supportato");
-        btn.disabled = false;
-        return;
-    }
-
+    btn.innerText = "SINCRONIZZAZIONE...";
+    
     navigator.geolocation.getCurrentPosition(async (pos) => {
         const lat = pos.coords.latitude.toFixed(4);
         const lng = pos.coords.longitude.toFixed(4);
-        
         document.getElementById('input-lat').value = lat;
         document.getElementById('input-lng').value = lng;
 
         const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         document.getElementById('input-date').value = now.toISOString().split('T')[0];
-        document.getElementById('input-time').value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        document.getElementById('input-time').value = timeStr;
+        document.getElementById('display-hour-center').innerText = timeStr;
 
         await updateCityName(lat, lng);
-        await updateAll();
+        updateAll();
 
-        btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
-        btn.style.background = "#22c55e";
-        setTimeout(() => {
-            btn.innerText = originalText;
-            btn.style.background = "";
-            btn.disabled = false;
-        }, 2000);
+        btn.innerText = "✅ SINCRONIZZATO";
+        setTimeout(() => btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE", 2000);
     }, (err) => {
         btn.innerText = "❌ ERRORE GPS";
-        btn.disabled = false;
     });
 }
 
+// --- FUNZIONE MANCANTE PER IL NOME CITTÀ ---
 async function updateCityName(lat, lng) {
-    const cityInput = document.getElementById('city-input');
     try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
         const data = await res.json();
-        const city = data.address.city || data.address.town || data.address.village || "SCONOSCIUTO";
-        if (cityInput) cityInput.value = city.toUpperCase();
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-/**
- * Funzione: searchCityCoords
- * Cosa fa: Cerca la città, imposta Lat/Lng e CHIAMA IL TELETRASPORTO ORARIO.
- */
-async function searchCityCoords(cityName) {
-    const cityInput = document.getElementById('city-input');
-    if (!cityInput || !cityName) return;
-
-    try {
-        cityInput.style.color = "#fbbf24"; // Giallo: sto cercando...
-        
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
-        const data = await res.json();
-
-        if (data && data.length > 0) {
-            const lat = parseFloat(data[0].lat).toFixed(4);
-            const lng = parseFloat(data[0].lon).toFixed(4);
-
-            // 1. Scrive le coordinate nei quadratini
-            document.getElementById('input-lat').value = lat;
-            document.getElementById('input-lng').value = lng;
-            
-            // 2. Pulisce il nome della città (es: TAIPEI)
-            cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
-
-            // --- IL PASSAGGIO CHIAVE ---
-            // Chiamiamo la funzione che sposta l'orologio a Taipei
-            await syncLocalTime(lat, lng); 
-            
-            // Ora che l'ora è cambiata nei quadratini, aggiorniamo il sole e i Watt
-            updateAll();
-            
-            cityInput.style.color = "#38bdf8"; // Torna azzurro
-        } else {
-            alert("Città non trovata!");
-            cityInput.style.color = "#ef4444";
-        }
-    } catch (e) {
-        console.error("Errore ricerca:", e);
-        cityInput.style.color = "#ef4444";
-    }
+        const city = data.address.city || data.address.town || data.address.village || "POSIZIONE IGNOTA";
+        document.getElementById('city-input').value = city.toUpperCase();
+    } catch (e) { console.error(e); }
 }
 
 async function updateAll() {
@@ -194,9 +173,7 @@ async function updateAll() {
     const lng = document.getElementById('input-lng').value;
     const date = document.getElementById('input-date').value;
     const time = document.getElementById('input-time').value;
-    const displayVal = document.getElementById('w_out');
-
-    if (!lat || !lng || !displayVal) return;
+    if (!lat || !lng) return;
 
     try {
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
@@ -204,52 +181,67 @@ async function updateAll() {
 
         const hourIdx = parseInt(time.split(':')[0]);
         const hDec = SolarEngine.timeToDecimal(time);
-        const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
+        const hourly = state.weatherData.hourly;
 
-        document.getElementById('sunrise-txt').innerText = daily.sunrise[0].split('T')[1].substring(0, 5);
-        document.getElementById('sunset-txt').innerText = daily.sunset[0].split('T')[1].substring(0, 5);
+        const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
+        const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
+        
+        document.getElementById('sunrise-txt').innerText = sunrise;
+        document.getElementById('sunset-txt').innerText = sunset;
         document.getElementById('display-hour-center').innerText = time;
 
+        // Meteo
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
 
-        const sunH = SolarEngine.timeToDecimal(document.getElementById('sunrise-txt').innerText);
-        const setH = SolarEngine.timeToDecimal(document.getElementById('sunset-txt').innerText);
+        const sunH = SolarEngine.timeToDecimal(sunrise);
+        const setH = SolarEngine.timeToDecimal(sunset);
         
         const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
-        displayVal.innerText = Math.round(power) + " W";
+        document.getElementById('w_out').innerText = Math.round(power) + " W";
 
         if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
         updateReportUI(power, sunH, setH);
-
     } catch (e) { console.error(e); }
 }
 
-// --- MANTENGO LE TUE FUNZIONI DI SUPPORTO (Report, Garage, Stars, SunUI) ---
+// --- FUNZIONI GRAFICHE ---
 function updateReportUI(currentPower, sunH, setH) {
     const chart = document.getElementById('hourly-chart');
-    const totalDisplay = document.getElementById('total-wh-day');
     if (!chart || !state.weatherData) return;
-
     document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, state.battAh);
     document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, state.battAh);
     document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, state.battAh);
-
     chart.innerHTML = "";
-    let dailyTotal = 0;
+    let total = 0;
     for (let h = Math.floor(sunH); h <= Math.ceil(setH); h++) {
-        const cloud = state.weatherData.hourly.cloud_cover[h] || 0;
-        const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, cloud);
-        dailyTotal += hP;
+        const p = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, state.weatherData.hourly.cloud_cover[h] || 0);
+        total += p;
         const bar = document.createElement('div');
         bar.className = 'bar';
-        bar.style.height = Math.max(5, (hP / state.panelWp * 100)) + "%";
+        bar.style.height = (p / state.panelWp * 100) + "%";
         chart.appendChild(bar);
     }
-    if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
+    document.getElementById('total-wh-day').innerText = Math.round(total) + " Wh";
+}
+
+function updateSunUI(hDec, sunH, setH) {
+    const sun = document.getElementById('sun-body');
+    const sky = document.getElementById('sky-box');
+    if (!sun || !sky) return;
+    if (hDec < sunH || hDec > setH) {
+        sun.style.display = "none";
+        sky.style.background = "linear-gradient(to bottom, #0f172a, #1e293b)";
+    } else {
+        sun.style.display = "block";
+        const progress = (hDec - sunH) / (setH - sunH);
+        sun.style.left = `${15 + (progress * 70)}%`;
+        sun.style.bottom = `${(Math.sin(progress * Math.PI) * 35) + 10}%`;
+        sky.style.background = (progress < 0.2 || progress > 0.8) ? "linear-gradient(to bottom, #f59e0b, #7c2d12)" : "linear-gradient(to bottom, #38bdf8, #1d4ed8)";
+    }
 }
 
 function switchView(vId, el) {
@@ -260,17 +252,10 @@ function switchView(vId, el) {
 }
 
 function editSpec(type) {
-    let v = prompt(type === 'batt' ? "Ah Batteria:" : "Watt Pannelli (Wp):");
+    let v = prompt("Inserisci valore:");
     if (v && !isNaN(v)) {
-        if (type === 'batt') {
-            state.battAh = parseFloat(v);
-            localStorage.setItem('vibe_batt_ah', v);
-            document.getElementById('batt_val').innerText = v;
-        } else {
-            state.panelWp = parseFloat(v);
-            localStorage.setItem('vibe_panel_wp', v);
-            document.getElementById('panel_val').innerText = v;
-        }
+        if (type === 'batt') { state.battAh = v; localStorage.setItem('vibe_batt_ah', v); document.getElementById('batt_val').innerText = v; }
+        else { state.panelWp = v; localStorage.setItem('vibe_panel_wp', v); document.getElementById('panel_val').innerText = v; }
         updateAll();
     }
 }
@@ -294,30 +279,10 @@ function setupStars() {
     if (!container) return;
     container.innerHTML = "";
     for (let i = 0; i < 50; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 60 + '%';
-        star.appendChild(container); // Correzione sintassi
-        container.appendChild(star);
-    }
-}
-
-function updateSunUI(hDec, sunH, setH) {
-    const sun = document.getElementById('sun-body');
-    const sky = document.getElementById('sky-box');
-    if (!sun || !sky) return;
-
-    if (hDec < sunH || hDec > setH) {
-        sun.style.display = "none";
-        sky.style.background = "linear-gradient(to bottom, #0f172a, #1e293b)";
-    } else {
-        sun.style.display = "block";
-        const progress = (hDec - sunH) / (setH - sunH);
-        sun.style.left = `${15 + (progress * 70)}%`;
-        sun.style.bottom = `${(Math.sin(progress * Math.PI) * 35) + 10}%`;
-        sky.style.background = (progress < 0.2 || progress > 0.8) 
-            ? "linear-gradient(to bottom, #f59e0b, #7c2d12)" 
-            : "linear-gradient(to bottom, #38bdf8, #1d4ed8)";
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top = Math.random() * 60 + '%';
+        container.appendChild(s);
     }
 }
