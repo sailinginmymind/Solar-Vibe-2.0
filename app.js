@@ -19,26 +19,49 @@ window.onload = () => {
 };
 
 function initEventListeners() {
-
+    // 1. NAVIGAZIONE (Rimane uguale)
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
 
+    // 2. TASTO GPS (Rimane uguale)
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
+    // 3. --- MODIFICA QUI PER SINCRONIZZARE CITTÀ E DATI ---
+    ['input-lat', 'input-lng'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', () => {
+                const lat = document.getElementById('input-lat').value;
+                const lng = document.getElementById('input-lng').value;
+                
+                if (lat && lng) {
+                    // Cerca il nome del posto basandosi sui numeri inseriti
+                    updateCityName(lat, lng);
+                }
+                // Aggiorna Meteo, Sole e Report
+                updateAll();
+            });
+        }
+    });
+
+    // Gestione separata per ora e data (non serve cercare la città se cambi solo l'ora)
+    ['input-time', 'input-date'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
-// Cerca la città quando premi INVIO nella casella
-const cityInput = document.getElementById('city-input');
-if (cityInput) {
-    cityInput.addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            searchCityCoords(this.value);
-        }
-    });
-}
+
+    // 4. RICERCA CITTÀ (Rimane uguale)
+    const cityInput = document.getElementById('city-input');
+    if (cityInput) {
+        cityInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                searchCityCoords(this.value);
+            }
+        });
+    }
+
+    // 5. RESTO DEI CONTROLLI (Batteria e Garage - Rimangono uguali)
     const socSlider = document.getElementById('soc-slider');
     if (socSlider) {
         socSlider.addEventListener('input', (e) => {
