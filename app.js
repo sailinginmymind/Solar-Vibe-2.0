@@ -385,29 +385,30 @@ function resetDetailDisplay() {
     display.style.letterSpacing = "1.5px";
     display.style.textTransform = "uppercase";
 }
+
 /**
  * Funzione: updateCityName
- * Cosa fa: Prende Lat e Lng e chiede a un servizio esterno il nome della città.
- * @param {number} lat - Latitudine
- * @param {number} lng - Longitudine
+ * Cosa fa: Prende Lat e Lng e aggiorna il campo di testo della città.
+ * Correzione: Ora punta a 'city-input' e usa .value per i campi di testo.
  */
 async function updateCityName(lat, lng) {
-    const cityElement = document.getElementById('city-name');
+    // Usiamo 'city-input' che è l'ID del tuo riquadro in alto
+    const cityElement = document.getElementById('city-input'); 
     if (!cityElement) return;
 
     try {
-        // Interroghiamo Nominatim (OpenStreetMap)
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
         const data = await response.json();
         
-        // Estraiamo la città, il comune o la frazione
-        const city = data.address.city || data.address.town || data.address.village || data.address.municipality || "Posizione ignota";
-        const country = data.address.country;
+        // Estraiamo il nome della località
+        const city = data.address.city || data.address.town || data.address.village || data.address.municipality || "POSIZIONE IGNOTA";
+        
+        // AGGIORNAMENTO: Usiamo .value perché è un campo di input, e mettiamo tutto in MAIUSCOLO per stile
+        cityElement.value = city.toUpperCase();
 
-        cityElement.innerText = `${city}, ${country}`;
     } catch (error) {
         console.error("Errore recupero città:", error);
-        cityElement.innerText = "Località non trovata";
+        cityElement.value = "LOCALITÀ NON TROVATA";
     }
 }
 
