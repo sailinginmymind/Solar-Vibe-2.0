@@ -95,6 +95,11 @@ async function handleGpsSync() {
     }
 }
 
+/**
+ * Funzione: updateAll
+ * Spiegazione: È il "cuore" che aggiorna tutto. 
+ * Abbiamo aggiunto updateCityName per sincronizzare il testo della città.
+ */
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
@@ -105,11 +110,7 @@ async function updateAll() {
 
     if (!lat || !lng || !displayVal) return;
 
-    /**
-     * MODIFICA ESTETICA:
-     * Fissiamo il colore azzurro (#38bdf8) tipico dei Watt e aggiorniamo l'etichetta.
-     * Rimuoviamo il cursore a "manina" per far capire che non è più cliccabile.
-     */
+    // Impostazioni estetiche per i Watt (Azzurro)
     displayVal.style.color = "#38bdf8"; 
     if (displayLabel) {
         displayLabel.innerText = "POTENZA ISTANTANEA";
@@ -117,6 +118,10 @@ async function updateAll() {
     }
 
     try {
+        // --- AGGIUNTA QUI: Aggiorna il nome della città sotto il cerchio ---
+        updateCityName(lat, lng); 
+
+        // Recupero dati meteo tramite WeatherAPI
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
         if (!state.weatherData) return;
 
@@ -125,6 +130,7 @@ async function updateAll() {
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
+        // Aggiornamento testi Alba, Tramonto e Ora centrale
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         
@@ -132,30 +138,22 @@ async function updateAll() {
         document.getElementById('sunset-txt').innerText = sunset;
         document.getElementById('display-hour-center').innerText = time;
 
+        // Aggiornamento icone/testi meteo laterali
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
 
+        // Calcolo Potenza Watt tramite SolarEngine
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
-        
-        /**
-         * CALCOLO POTENZA:
-         * Calcoliamo i Watt attuali usando la formula nel SolarEngine.
-         */
         const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         
-        /**
-         * MODIFICA DISPLAY:
-         * Mostriamo solo il valore arrotondato dei Watt seguita dalla "W".
-         * Abbiamo rimosso il controllo 'state.isWh'.
-         */
+        // Mostra i Watt finali
         displayVal.innerText = Math.round(power) + " W";
 
+        // Aggiornamento grafico Sole e Report Barre
         if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
-        
-        // Passiamo comunque i dati al Report per il calcolo del grafico a barre
         updateReportUI(power, sunH, setH);
 
     } catch (e) { 
