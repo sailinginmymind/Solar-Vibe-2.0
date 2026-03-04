@@ -131,36 +131,35 @@ function aggiornaTuttaInterfaccia() {
     // 2. Chiamiamo updateAll() che ricalcola Watt e Grafico
     updateAll();
 
-    // 3. LOGICA DELLA SCRITTA DINAMICA - CORREZIONE DEFINITIVA
-    // Cerchiamo tutti i titoli h2 nella sezione report
-    const titoli = document.querySelectorAll('.report-container h2, .view h2');
-    let sottotitolo = null;
+    // 3. LOGICA DELLA SCRITTA DINAMICA (Puntando all'h3 corretto)
+    // Cerchiamo tutti gli h3 che hanno la classe 'section-title'
+    const titoli = document.querySelectorAll('h3.section-title');
+    let elementoTitolo = null;
 
-    // Cerchiamo il titolo che contiene "PREVISIONE" (ignorando maiuscole/minuscole)
+    // Troviamo quello che parla di "PREVISIONE" (è il primo h3 nel view-energy)
     titoli.forEach(el => {
-        if (el.innerText.toUpperCase().includes("PREVISIONE")) {
-            sottotitolo = el;
+        if (el.innerText.includes("PREVISIONE")) {
+            elementoTitolo = el;
         }
     });
 
     const oggi = new Date().toDateString();
     
-    if (sottotitolo) {
+    if (elementoTitolo) {
         if (dataSelezionata.toDateString() === oggi) {
-            // Se è OGGI
-            sottotitolo.innerText = "PREVISIONE ODIERNA";
-            sottotitolo.style.color = "#38bdf8"; // Azzurro originale
+            // Se torniamo a OGGI
+            elementoTitolo.innerText = "PREVISIONE ODIERNA";
+            elementoTitolo.style.color = "#38bdf8"; // Il tuo azzurro
         } else {
-            // Se è un GIORNO X (es. 8 MARZO)
-            const giorno = dataSelezionata.getDate();
-            const mese = dataSelezionata.toLocaleDateString('it-IT', { month: 'long' });
+            // Estraiamo il giorno e il mese (es: 8 MARZO)
+            const opzioni = { day: 'numeric', month: 'long' };
+            const dataEstesa = dataSelezionata.toLocaleDateString('it-IT', opzioni).toUpperCase();
             
-            // Costruiamo la frase esatta: "PREVISIONE PER IL GIORNO 8 MARZO"
-            const nuovaScritta = "PREVISIONE PER IL GIORNO " + giorno + " " + mese;
-            sottotitolo.innerText = nuovaScritta.toUpperCase();
+            // Componiamo la frase finale esattamente come l'hai chiesta
+            elementoTitolo.innerText = "PREVISIONE PER IL GIORNO " + dataEstesa;
             
-            // Usiamo il colore giallo (accento) per evidenziare che non è oggi
-            sottotitolo.style.color = "var(--accento)"; 
+            // Cambiamo colore in giallo (accento) per evidenziare il cambio data
+            elementoTitolo.style.color = "var(--accento)"; 
         }
     }
 }
