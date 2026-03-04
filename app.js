@@ -119,27 +119,35 @@ function generaBottoniGiorni() {
 
 // IL REGISTA: Sincronizza tutta l'app
 function aggiornaTuttaInterfaccia() {
-    console.log("Cambio data: ", dataSelezionata.toLocaleDateString());
+    console.log("Sincronizzo l'app sulla data:", dataSelezionata.toLocaleDateString());
 
-    // 1. Sincronizziamo il campo input date (quello nascosto o nelle impostazioni)
+    // 1. Sincronizziamo il campo input date per le API
     const inputDate = document.getElementById('input-date');
     if (inputDate) {
         inputDate.value = dataSelezionata.toISOString().split('T')[0];
     }
 
-    // 2. Chiamiamo la tua funzione principale che ricalcola tutto
+    // 2. Chiamiamo updateAll() per ricalcolare Watt e Grafico
     updateAll();
 
-    // 3. Feedback estetico sul titolo
-    const titolo = document.getElementById('camper-name-display');
-    if (titolo) {
-        const oggi = new Date().toDateString();
+    // 3. AGGIORNAMENTO SCRITTA PREVISIONE
+    // Cerchiamo l'elemento che contiene "PREVISIONE ODIERNA"
+    // Dallo screenshot sembra essere un elemento con classe 'view-title' o un <h2>
+    const sottotitolo = document.querySelector('.view-title') || document.querySelector('.report-container h2'); 
+    const oggi = new Date().toDateString();
+    
+    if (sottotitolo) {
         if (dataSelezionata.toDateString() === oggi) {
-            titolo.style.color = "white";
-            titolo.style.textShadow = "none";
+            // Se è oggi, rimettiamo la scritta originale
+            sottotitolo.innerText = "PREVISIONE ODIERNA";
+            sottotitolo.style.color = ""; // Torna al colore originale del CSS (azzurro)
         } else {
-            titolo.style.color = "var(--accento)";
-            titolo.style.textShadow = "0 0 10px var(--accento)";
+            // Se è un altro giorno, scriviamo la data specifica
+            const opzioni = { day: 'numeric', month: 'long' };
+            const dataFormattata = dataSelezionata.toLocaleDateString('it-IT', opzioni);
+            
+            sottotitolo.innerText = "PREVISIONE DEL GIORNO " + dataFormattata.toUpperCase();
+            sottotitolo.style.color = "var(--accento)"; // Diventa giallo/arancio per evidenziare il cambio
         }
     }
 }
