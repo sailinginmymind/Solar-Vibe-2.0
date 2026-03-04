@@ -27,17 +27,28 @@ function initEventListeners() {
     // 1. TASTO GPS (Già presente)
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-   // 2. Gestione Ricerca Città ISTANTANEA (Sostituisce la vecchia versione con Invio)
 const cityInput = document.getElementById('city-input');
+
 if (cityInput) {
-    cityInput.addEventListener('input', function (e) {
-        const query = e.target.value.trim();
-        
-        // Facciamo partire la ricerca solo se l'utente ha scritto almeno 3 lettere
-        // per evitare di sovraccaricare le API con ricerche troppo brevi (es. "p", "pi")
+    // 1. SCATTO AL "BLUR" (Quando esce dalla tastiera o clicca altrove)
+    // L'evento 'change' si attiva proprio quando l'input perde il focus
+    cityInput.addEventListener('change', function () {
+        const query = this.value.trim();
         if (query.length >= 3) {
-            searchCityCoords(query); 
-            console.log("Ricerca istantanea avviata per:", query);
+            console.log("Ricerca attivata all'uscita:", query);
+            searchCityCoords(query);
+        }
+    });
+
+    // 2. SCATTO AL TASTO "ENTER" (Ottimo per chi usa il PC)
+    cityInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            // Togliamo il focus manualmente per attivare anche l'evento change se necessario
+            this.blur(); 
+            const query = this.value.trim();
+            if (query.length >= 3) {
+                searchCityCoords(query);
+            }
         }
     });
 }
