@@ -90,6 +90,10 @@ async function updateAll() {
     const displayLabel = document.getElementById('unit-label');
 
     if (!lat || !lng || !displayVal) return;
+    updateCityName(lat, lng); 
+    // --------------------------------
+
+    displayVal.style.color = "#38bdf8";
 
     /**
      * MODIFICA ESTETICA:
