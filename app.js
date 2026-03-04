@@ -74,7 +74,49 @@ if (cityInput) {
     document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
 }
+function generaBottoniGiorni() {
+    const container = document.getElementById('days-selector');
+    if (!container) return; // Evita errori se il container non viene trovato
 
+    // Iniziali brevi come richiesto
+    const iniziali = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
+    const oggi = new Date();
+
+    container.innerHTML = ''; // Pulisce il contenitore
+
+    for (let i = 0; i < 7; i++) {
+        const dataTarget = new Date();
+        dataTarget.setDate(oggi.getDate() + i);
+
+        const giornoSettimana = iniziali[dataTarget.getDay()];
+        const numeroGiorno = dataTarget.getDate();
+
+        // Creazione dell'elemento bottone
+        const btn = document.createElement('div');
+        btn.className = i === 0 ? 'day-btn active' : 'day-btn';
+        
+        btn.innerHTML = `
+            <span class="day-name">${giornoSettimana}</span>
+            <span class="day-num">${numeroGiorno}</span>
+        `;
+
+        // Gestione del click
+        btn.onclick = function() {
+            // Rimuove la classe active da tutti e la assegna a quello cliccato
+            document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Qui chiamerai la funzione che aggiorna il grafico
+            // Esempio: caricaDatiGiorno(i); 
+            console.log("Giorno selezionato: +" + i + " giorni da oggi");
+        };
+
+        container.appendChild(btn);
+    }
+}
+
+// Ricordati di chiamarla all'avvio dell'app!
+generaBottoniGiorni();
 /**
  * Funzione: handleGpsSync
  * Spiegazione: Ottiene la posizione GPS, aggiorna i dati e mostra 
