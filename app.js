@@ -226,35 +226,64 @@ function setupStars() {
         container.appendChild(star);
     }
 }
-
+/**
+ * Funzione: updateSunUI
+ * Cosa fa: Posiziona il sole nel cielo in base all'ora, con un arco schiacciato 
+ * per evitare sovrapposizioni, adattandosi a schermi PC e Mobile.
+ */
 function updateSunUI(hDec, sunH, setH) {
     const sun = document.getElementById('sun-body');
     const sky = document.getElementById('sky-box');
     const stars = document.getElementById('stars-container');
+    
     if (!sun || !sky) return;
 
+    // 1. Gestione Notte: se l'ora attuale è fuori dal range alba-tramonto
     if (hDec < sunH || hDec > setH) {
-        sun.style.display = "none";
+        sun.style.display = "none"; 
         sky.style.background = "linear-gradient(to bottom, #0f172a, #1e293b)";
         if (stars) stars.style.opacity = "1";
     } else {
+        // 2. Gestione Giorno
         sun.style.display = "block";
         if (stars) stars.style.opacity = "0";
         
+        // Calcoliamo il progresso del sole (da 0 a 1)
         const progress = (hDec - sunH) / (setH - sunH);
-        const posX = progress * 100;
-        const posY = Math.sin(progress * Math.PI) * 80; 
+        
+        /**
+         * POSIZIONE ORIZZONTALE (X):
+         * Usiamo un range dal 15% all'85% per evitare che il sole tocchi i bordi 
+         * laterali del riquadro, specialmente su schermi stretti (mobile).
+         */
+        const posX = 15 + (progress * 70); 
 
+        /**
+         * POSIZIONE VERTICALE (Y) - OTTIMIZZAZIONE MOBILE:
+         * Per evitare che il sole "scavalchi" il riquadro o copra l'orario centrale:
+         * - Math.sin(progress * Math.PI) crea la parabola.
+         * - Moltiplicando per 35 (invece di 80), abbassiamo drasticamente il picco dell'arco.
+         * - Aggiungiamo '+ 10' come base per non far partire il sole troppo dal fondo.
+         */
+        const altezzaMassima = 35; 
+        const offsetBase = 10;
+        const posY = (Math.sin(progress * Math.PI) * altezzaMassima) + offsetBase;
+
+        // Applichiamo le coordinate in percentuale
         sun.style.left = `${posX}%`;
-        sun.style.bottom = `${posY}%`;
+        sun.style.bottom = `${posY}%`; 
 
+        // 3. Sfumatura del Cielo
         if (progress < 0.2 || progress > 0.8) {
+            // Colori dell'alba e del tramonto
             sky.style.background = "linear-gradient(to bottom, #f59e0b, #7c2d12)";
         } else {
+            // Colore del pieno giorno (azzurro come nel tuo screenshot)
             sky.style.background = "linear-gradient(to bottom, #38bdf8, #1d4ed8)";
         }
     }
 }
+
 /* --- GESTIONE GRAFICO: HOVER (PC) E TOUCH (MOBILE) AGGIORNATA --- */
 
 let chartSelectionTimer;
