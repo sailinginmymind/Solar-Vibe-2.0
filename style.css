@@ -721,15 +721,26 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 .location-box input {
     background: transparent !important;
     border: none !important;
-    /* La riga sotto la città ora segue il colore del tema scelto */
-    border-bottom: 2px solid var(--accento) !important; 
+    /* Riga più spessa e colorata col tema */
+    border-bottom: 3px solid var(--accento) !important; 
+    /* Testo molto più grande e leggibile */
     color: var(--accento) !important;
-    font-weight: bold;
+    font-size: 1.2rem !important; 
+    font-weight: 900;
     text-transform: uppercase;
     text-align: center;
     outline: none;
-    width: 60%;
+    /* Aumentiamo la larghezza per dare spazio ai nomi lunghi */
+    width: 80%; 
+    padding: 10px 0;
+    margin-top: 5px;
     transition: all 0.3s ease;
+}
+
+/* Effetto quando clicchi sulla casella per scrivere */
+.location-box input:focus {
+    width: 90%; /* Si allarga leggermente */
+    filter: drop-shadow(0 0 8px var(--accento)); /* Brilla del colore del tema */
 }
 
 /* Rende l'icona del pin 📍 leggermente luminosa col tema */
