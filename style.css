@@ -218,15 +218,17 @@ h2 {
 #r-cloud-percent { font-size: 14px; color: #38bdf8; font-weight: 900; }
 .sub-label { font-size: 7px; font-weight: 900; text-transform: uppercase; }
 
-/* --- DATI ENERGIA & METEO --- */
+/* --- DATI ENERGIA & METEO (DINAMICI) --- */
 .big-w { 
     font-size: 55px; 
     font-weight: 900; 
-    color: #38bdf8; 
+    /* Ora la potenza istantanea brilla del colore del tema */
+    color: var(--accento); 
     text-align: center; 
     display: block; 
     margin: 10px 0 0 0; 
-    cursor: pointer; 
+    cursor: pointer;
+    transition: color 0.3s ease;
 }
 
 .unit-hint { 
@@ -241,34 +243,39 @@ h2 {
 .weather-badges { 
     display: grid; 
     grid-template-columns: 1fr 1fr 1fr; 
-    gap: 8px; /* Ridotto leggermente il gap per dare più spazio ai riquadri */
+    gap: 8px; 
     margin-top: 20px;
 }
 
 .w-badge { 
-    background: #0f172a; 
-    padding: 12px 5px; /* Spazio verticale generoso, poco orizzontale */
+    /* Prende la sfumatura del tema (es. verde scuro se il tema è verde) */
+    background: var(--bg-card) !important; 
+    padding: 12px 5px; 
     border-radius: 20px; 
-    border: 1px solid #334155; 
+    /* Il bordo segue il tema ma resta sottile */
+    border: 1px solid var(--bordo) !important; 
     display: flex;
-    flex-direction: column; /* Forza etichetta sopra e valore sotto */
+    flex-direction: column; 
     align-items: center;
     justify-content: center;
-    min-height: 80px; /* Assicura che siano tutti alti uguali */
+    min-height: 80px; 
+    transition: all 0.3s ease;
 }
 
 .w-label { 
     font-size: 9px; 
-    color: #38bdf8; 
+    /* L'etichetta (VENTO, ecc) segue il colore accento */
+    color: var(--accento); 
     font-weight: 900; 
     margin-bottom: 6px; 
     letter-spacing: 1px;
     text-transform: uppercase;
+    transition: color 0.3s ease;
 }
 
 .w-val { 
     font-weight: 900; 
-    font-size: 16px; /* Leggermente ridotto da 18 a 16 per far stare "km/h" su una riga */
+    font-size: 16px; 
     color: white;
     line-height: 1.2;
 }
