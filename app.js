@@ -171,7 +171,7 @@ async function handleGpsSync() {
         const coords = await WeatherAPI.getUserLocation();
         const now = new Date();
         
-        // 1. Aggiorna i quadratini con i numeri
+        // 1. Aggiorna i valori negli input
         document.getElementById('input-lat').value = coords.latitude.toFixed(4);
         document.getElementById('input-lng').value = coords.longitude.toFixed(4);
         document.getElementById('input-date').value = now.toISOString().split('T')[0];
@@ -180,25 +180,31 @@ async function handleGpsSync() {
         // 2. RESET DATA: riporta il "post-it" globale a oggi
         dataSelezionata = new Date(); 
         
-        // 3. RESET BOTTONI: toglie l'evidenziazione dai giorni futuri
+        // 3. RESET BOTTONI: rigenera la lista giorni rimettendo il focus su "oggi"
         generaBottoniGiorni(); 
 
-        // 4. AGGIORNA TITOLO E DATI: questa è la riga che mancava!
-        // Questa funzione ora si occuperà di rimettere "PREVISIONE ODIERNA"
+        // 4. AGGIORNA TUTTO: ricalcola i dati e resetta la scritta "PREVISIONE ODIERNA"
         aggiornaTuttaInterfaccia();
 
+        // --- EFFETTO GLOW ---
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e"; 
+        // Aggiungiamo l'ombra esterna (glow) verde
+        btn.style.boxShadow = "0 0 20px #22c55e"; 
+        btn.style.borderColor = "#4ade80";
 
     } catch (err) {
         btn.innerText = "❌ ERRORE GPS";
         btn.style.background = "#ef4444"; 
+        btn.style.boxShadow = "0 0 20px #ef4444"; // Glow rosso in caso di errore
     } finally {
         btn.disabled = false;
+        // Dopo 3 secondi riportiamo il tasto allo stato originale
         setTimeout(() => { 
             btn.innerText = originalText; 
             btn.style.background = ""; 
             btn.style.boxShadow = "";
+            btn.style.borderColor = "";
         }, 3000);
     }
 }
