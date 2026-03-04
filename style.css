@@ -180,6 +180,10 @@ h2 {
     color: var(--accento) !important; 
     font-weight: 900;  
     text-transform: uppercase;
+    /* ALLINEAMENTO CENTRALE */
+    display: flex;
+    flex-direction: column; /* Dispone etichetta e orario in verticale */
+    align-items: center;    /* Centra orizzontalmente i testi tra loro */
     text-align: center;
     letter-spacing: 1px; /* Un po' di spazio tra le lettere per stile */
 }
