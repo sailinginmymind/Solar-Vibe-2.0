@@ -399,3 +399,41 @@ async function updateCityName(lat, lng) {
         cityElement.innerText = "Località non trovata";
     }
 }
+/**
+ * Funzione: searchCityCoords
+ * Cosa fa: Prende il nome di una città, trova Lat/Lng e aggiorna l'app.
+ * @param {string} cityName - Il nome della città digitato.
+ */
+async function searchCityCoords(cityName) {
+    if (!cityName) return;
+    const cityInput = document.getElementById('city-input');
+
+    try {
+        cityInput.style.color = "#fbbf24"; // Diventa giallo mentre cerca
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
+        const data = await response.json();
+
+        if (data && data.length > 0) {
+            // 1. Prende le coordinate trovate
+            const newLat = parseFloat(data[0].lat).toFixed(4);
+            const newLng = parseFloat(data[0].lon).toFixed(4);
+
+            // 2. Aggiorna i quadratini Lat e Lng nella Dashboard
+            document.getElementById('input-lat').value = newLat;
+            document.getElementById('input-lng').value = newLng;
+
+            // 3. Formatta il nome della città trovato (es. "Pisa, Toscana")
+            cityInput.value = data[0].display_name.split(',')[0].toUpperCase();
+            cityInput.style.color = "#38bdf8"; // Torna azzurro
+
+            // 4. SCATENA L'AGGIORNAMENTO DI TUTTO (Meteo, Sole, Watt)
+            updateAll(); 
+        } else {
+            alert("Città non trovata!");
+            cityInput.style.color = "#ef4444"; // Rosso errore
+        }
+    } catch (error) {
+        console.error("Errore ricerca:", error);
+        cityInput.style.color = "#ef4444";
+    }
+}
