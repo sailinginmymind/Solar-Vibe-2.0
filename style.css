@@ -522,19 +522,26 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    /* CAMBIO: Da 90% a 95% per avvicinarsi ai bordi delle card */
     width: 95%; 
-    /* CAMBIO: Da 400px a 550px per coprire bene la larghezza della Dashboard */
     max-width: 550px; 
-    background: rgba(15, 23, 42, 0.9);
-    backdrop-filter: blur(10px);
+    
+    /* CAMBIO: Ora lo sfondo segue la sfumatura del tema selezionato */
+    background: var(--bg-badge) !important; 
+    
+    /* CAMBIO: Aumentiamo l'effetto vetro per farlo risaltare */
+    backdrop-filter: blur(12px) saturate(160%); 
+    
     display: flex;
     justify-content: space-around;
-    /* CAMBIO: Leggero aumento del padding laterale per distanziare i bottoni */
     padding: 10px 15px; 
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    /* CAMBIO: Il bordo ora brilla del colore del tema (Verde, Rosso, ecc.) */
+    border: 1px solid var(--accento) !important; 
+    
     z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
 }
 
 /* Il singolo bottone */
