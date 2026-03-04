@@ -855,28 +855,31 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 
 @media (max-width: 600px) {
     .nav-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100vw !important; /* Forza la larghezza a tutto schermo */
         
-        /* Forza l'altezza e toglie arrotondamenti che creano il vuoto */
         height: 75px; 
-        border-radius: 0; 
+        margin: 0 !important;
+        border-radius: 0 !important; /* Toglie gli angoli tondi che creano il vuoto */
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: none !important;
         
-        /* Padding laterale per riavvicinare le icone */
-        padding: 0 15%;
-        
-        /* Estende il colore di fondo per le "safe areas" (la riga nera) */
-        padding-bottom: env(safe-area-inset-bottom);
+        padding: 0 15% env(safe-area-inset-bottom) 15%; /* Avvicina icone e gestisce il fondo */
         
         background: rgba(15, 23, 42, 0.98); 
-        border-top: 1px solid rgba(56, 189, 248, 0.3);
-        
         display: flex;
         justify-content: space-around;
         align-items: center;
-        z-index: 1000;
-        box-sizing: border-box; /* Importante per non farla uscire dai bordi */
+        z-index: 9999;
+        box-sizing: border-box;
+    }
+
+    /* Per evitare che l'ultima parte della pagina resti sotto la barra */
+    body, .app-container {
+        padding-bottom: 80px !important;
     }
 }
