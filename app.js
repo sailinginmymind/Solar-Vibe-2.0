@@ -24,6 +24,7 @@ window.onload = () => {
 
 function initEventListeners() {
     document.getElementById('edit-ps-btn').addEventListener('click', editPowerStation);
+    document.getElementById('edit-pan-ps-btn').addEventListener('click', () => editSpec('panPs'));
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
