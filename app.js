@@ -265,7 +265,6 @@ async function updateAll() {
 
     if (!lat || !lng || !displayVal) return;
 
-    // Impostazioni estetiche per i Watt (Azzurro)
     displayVal.style.color = "#38bdf8"; 
     if (displayLabel) {
         displayLabel.innerText = "POTENZA ISTANTANEA";
@@ -273,14 +272,10 @@ async function updateAll() {
     }
 
     try {
-        // --- MODIFICA QUI ---
-        // Se isGpsSyncing è true (tasto GPS premuto), aggiorna il nome della città.
-        // Se è false (stai scrivendo a mano), non tocca il campo di testo.
         if (isGpsSyncing) {
             await updateCityName(lat, lng); 
         }
 
-        // Recupero dati meteo tramite WeatherAPI
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
         if (!state.weatherData) return;
 
@@ -289,7 +284,6 @@ async function updateAll() {
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
-        // Aggiornamento testi Alba, Tramonto e Ora centrale
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         
@@ -297,16 +291,13 @@ async function updateAll() {
         document.getElementById('sunset-txt').innerText = sunset;
         document.getElementById('display-hour-center').innerText = time;
 
-        // Aggiornamento icone/testi meteo laterali
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
 
-        // Calcolo Potenza Watt tramite SolarEngine
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
-       // ... (resto del codice sopra invariato fino a sunH e setH)
 
         // 1. Calcolo Potenza per i Pannelli Fissi del Camper
         const powerServices = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
@@ -318,20 +309,25 @@ async function updateAll() {
         const totalPower = powerServices + powerPS;
 
         // AGGIORNAMENTO UI DASHBOARD
-        // Centro: Totale (Grande)
         displayVal.innerText = Math.round(totalPower) + " W";
         
-        // Sinistra: Pannelli Fissi (Piccolo)
         const leftDisplay = document.getElementById('w_services');
         if (leftDisplay) leftDisplay.innerText = Math.round(powerServices) + " W";
         
-        // Destra: Pannelli PS (Piccolo)
         const rightDisplay = document.getElementById('w_ps');
         if (rightDisplay) rightDisplay.innerText = Math.round(powerPS) + " W";
 
-        // Aggiornamento grafico Sole e Report Barre (usiamo il totale per le previsioni)
         if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
-        updateReportUI(totalPower, sunH, setH);
+
+        // --- NUOVA LOGICA PER IL REPORT ---
+        // Calcoliamo quanti Ah totali abbiamo basandoci sui DUE slider
+        const currentAhServices = state.battAh * (state.currentSOC / 100);
+        const currentAhPS = state.psAh * (state.currentPsSOC / 100);
+        const totalCurrentAh = currentAhServices + currentAhPS;
+        const totalMaxAh = state.battAh + state.psAh;
+
+        // Passiamo questi dati a updateReportUI
+        updateReportUI(totalPower, sunH, setH, totalCurrentAh, totalMaxAh);
 
     } catch (e) { 
         console.error("Errore updateAll:", e); 
