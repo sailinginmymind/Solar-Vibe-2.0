@@ -303,20 +303,23 @@ function updateReportUI(currentPower, sunH, setH) {
         bar.className = 'bar';
         bar.style.height = Math.max(5, (hP / state.panelWp * 100)) + "%";
 
-        const showDetail = () => {
-            document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
-            bar.classList.add('active');
-            if (detailBox) {
-                // 1. Rendiamo il testo più massiccio con i tag <b>
-                detailBox.innerHTML = `ORE <b>${h}:00</b> <span style="margin:0 10px; opacity:0.6;">→</span> <b>${Math.round(hP)} W</b>`;
-                
-                // 2. APPLICHIAMO LO STILE GRANDE
-                detailBox.style.fontSize = "22px";           // Dimensione raddoppiata
-                detailBox.style.color = "#ffffff";           // Testo bianco per risaltare
-                detailBox.style.textShadow = "0 0 10px var(--accento)"; // Bagliore del tema (Azzurro, Verde, etc.)
-                detailBox.style.letterSpacing = "0px";       // Riduciamo la spaziatura per non farlo uscire dai bordi
-            }
-        };
+       const showDetail = () => {
+    document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
+    bar.classList.add('active');
+    
+    if (detailBox) {
+        // 1. Testo uniforme senza <b> e con il colore giallo (#fbbf24) applicato a tutto
+        detailBox.innerHTML = `ORE ${h}:00 <span style="margin:0 10px; opacity:0.6;">→</span> ${Math.round(hP)} W`;
+        
+        // 2. STILE UNIFORME (come "PRODUZIONE TOTALE")
+        detailBox.style.fontSize = "11px";       // Riportato a 11px per coerenza
+        detailBox.style.color = "#fbbf24";      // Tutto giallo come richiesto
+        detailBox.style.textTransform = "uppercase";
+        detailBox.style.letterSpacing = "1.5px"; // Spaziatura larga tipica delle tue etichette
+        detailBox.style.fontWeight = "900";      // Grassetto deciso per leggibilità
+        detailBox.style.textShadow = "none";    // Togliamo il bagliore per pulizia
+    }
+};
 
         bar.addEventListener('mouseenter', showDetail);
         bar.addEventListener('click', showDetail);
