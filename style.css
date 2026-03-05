@@ -1134,3 +1134,45 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
         min-width: 90px;
     }
 }
+/* --- PULSANTI GARAGE UNIFICATI (SALVA & EDIT) --- */
+/* Applichiamo lo stesso stile "Glow" a tutti i pulsanti operativi del Garage */
+.mini-btn, .save-btn, .edit-btn, .edit-mini-btn {
+    background: var(--accento) !important; /* Colore dinamico in base al tema */
+    color: #0f172a !important;            /* Testo scuro per massimo contrasto */
+    border: none;
+    border-radius: 12px;                  /* Angoli arrotondati come il tasto salva */
+    padding: 10px 18px;                   /* Spaziatura generosa */
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* EFFETTO GLOW: Crea un'ombra luminosa dello stesso colore del tema */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 
+                0 0 10px var(--accento); 
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* EFFETTI AL PASSAGGIO/CLICK */
+.mini-btn:hover, .save-btn:hover, .edit-btn:hover, .edit-mini-btn:hover {
+    filter: brightness(1.2);              /* Lo schiarisce leggermente */
+    transform: translateY(-2px);          /* Lo solleva leggermente */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 
+                0 0 20px var(--accento);  /* Il Glow raddoppia di intensità */
+}
+
+.mini-btn:active, .save-btn:active, .edit-btn:active, .edit-mini-btn:active {
+    transform: translateY(1px) scale(0.95); /* Effetto pressione */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2), 
+                0 0 5px var(--accento);   /* Il Glow diminuisce alla pressione */
+}
+
+/* Se vuoi che gli EDIT siano leggermente più piccoli del tasto SALVA */
+.edit-mini-btn, .edit-btn {
+    padding: 6px 12px;
+    font-size: 10px;
+}
