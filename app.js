@@ -457,11 +457,13 @@ document.getElementById('hourly-chart').addEventListener('mouseover', (e) => {
     document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
     bar.classList.add('active');
     
-    // Ingrandiamo il testo per i dati dei tuoi 100 Ah
     const display = document.getElementById('detail-display');
+    // UNIFORMIAMO LO STILE: Giallo e 11px
     display.style.color = "#fbbf24";
-    display.style.fontSize = "1.2rem"; 
-    display.style.letterSpacing = "normal";
+    display.style.fontSize = "11px"; 
+    display.style.letterSpacing = "1.5px";
+    display.style.textTransform = "uppercase";
+    display.style.fontWeight = "900";
 });
 
 // Evento Mouseout (Uscita)
@@ -471,7 +473,7 @@ document.getElementById('hourly-chart').addEventListener('mouseout', (e) => {
 
     if (!chartSelectionTimer || chartSelectionTimer._called) {
         bar.classList.remove('active');
-        resetDetailDisplay(); // Torna piccolo e grigio con 'barra' gialla
+        resetDetailDisplay(); 
     }
 });
 
@@ -484,12 +486,16 @@ document.getElementById('hourly-chart').addEventListener('click', (e) => {
     bar.classList.add('active');
     
     const display = document.getElementById('detail-display');
+    // UNIFORMIAMO LO STILE: Giallo e 11px anche qui
     display.style.color = "#fbbf24";
-    display.style.fontSize = "1.2rem";
+    display.style.fontSize = "11px";
+    display.style.letterSpacing = "1.5px";
+    display.style.textTransform = "uppercase";
+    display.style.fontWeight = "900";
 
     chartSelectionTimer = setTimeout(() => {
         bar.classList.remove('active');
-        resetDetailDisplay(); // Torna piccolo e grigio dopo 3 secondi
+        resetDetailDisplay(); 
     }, 3000); 
 });
 
