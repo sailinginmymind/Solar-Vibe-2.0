@@ -1213,14 +1213,26 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     text-transform: uppercase;
 }
 
-/* 4. Numeri grandi con Glow */
+/* --- RESET E UNIFORMAZIONE GLOW NUMERI --- */
 .soc-number {
-    font-size: 24px !important;
-    font-weight: 900;
-    color: var(--accento) !important;
-    text-shadow: 0 0 12px var(--accento);
-}
+     color: var(--accento) !important;
+    
+    /* Applica lo stesso identico bagliore azzurro (o del tema) */
+    /* Abbiamo messo tre strati di ombra per renderlo molto visibile */
+    text-shadow: 
+        0 0 5px var(--accento), 
+        0 0 10px var(--accento), 
+        0 0 20px rgba(56, 189, 248, 0.5) !important;
 
+    font-family: inherit;
+    font-weight: 900 !important;
+    font-size: 24px !important;
+    transition: all 0.3s ease;
+}
+/* Un leggero effetto quando si muove lo slider */
+.soc-number:active {
+    text-shadow: 0 0 15px var(--accento), 0 0 30px var(--accento) !important;
+}
 /* 5. La barra fisica dello slider (Binario) */
 .slider-box input[type=range] {
     -webkit-appearance: none;
