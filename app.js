@@ -159,7 +159,14 @@ function aggiornaTuttaInterfaccia() {
     if (inputDate) {
         inputDate.value = dataSelezionata.toISOString().split('T')[0];
     }
-
+// --- AGGIUNTA PER SAFARI / IPHONE ---
+    // Se hai un elemento testuale che mostra la data in dashboard (es. id="dashboard-date")
+    const dashDate = document.getElementById('dashboard-date');
+    if (dashDate) {
+        const opzioniNumeriche = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        dashDate.innerText = dataSelezionata.toLocaleDateString('it-IT', opzioniNumeriche);
+    }
+    // ------------------------------------
     updateAll();
 
     const titoli = document.querySelectorAll('h3.section-title');
