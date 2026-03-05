@@ -486,7 +486,7 @@ function resetDetailDisplay() {
     
     display.innerHTML = '<span>TOCCA UNA </span><b style="color:#fbbf24; margin:0 6px;">BARRA</b><span> PER I DETTAGLI</span>';
     
-    display.style.color = "#94a3b8"; 
+    display.style.color = "#fbbf24"; 
     display.style.fontSize = "14px"; 
     display.style.letterSpacing = "1.5px";
     display.style.textTransform = "uppercase";
