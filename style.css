@@ -1060,3 +1060,44 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 .config-group .config-grid-row {
     margin-bottom: 0 !important; 
 }
+.power-display-container {
+    display: flex;
+    align-items: flex-end; /* Allinea tutto alla base del numero grande */
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.power-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.power-sub {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 10px; /* Alza un po' i numeri piccoli rispetto alla linea del grande */
+    min-width: 60px;
+}
+
+.small-w {
+    font-size: 1.2rem; /* Font più piccolo */
+    font-weight: bold;
+    color: #94a3b8; /* Colore più discreto (grigio/azzurro) */
+}
+
+.sub-w-label {
+    font-size: 8px;
+    font-weight: 900;
+    color: #64748b;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+/* Mantieni il tuo big-w originale ma assicurati che non abbia margini che rompono il layout */
+.big-w {
+    margin: 0 !important;
+    line-height: 1;
+}
