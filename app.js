@@ -448,60 +448,49 @@ function updateSunUI(hDec, sunH, setH) {
 
 let chartSelectionTimer;
 
-// Evento Mouseover (Passaggio)
+// Evento Mouseover (Passaggio PC)
 document.getElementById('hourly-chart').addEventListener('mouseover', (e) => {
     const bar = e.target.closest('.bar');
     if (!bar) return;
 
-    clearTimeout(chartSelectionTimer);
+    clearTimeout(chartSelectionTimer); // Ferma il timer di chiusura
     document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
     bar.classList.add('active');
     
     const display = document.getElementById('detail-display');
-    // UNIFORMIAMO LO STILE: Giallo e 11px
     display.style.color = "#fbbf24";
-    display.style.fontSize = "11px"; 
-    display.style.letterSpacing = "1.5px";
-    display.style.textTransform = "uppercase";
-    display.style.fontWeight = "900";
+    display.style.fontSize = "14px";
 });
 
-// Evento Mouseout (Uscita)
+// Evento Mouseout (Uscita PC)
 document.getElementById('hourly-chart').addEventListener('mouseout', (e) => {
     const bar = e.target.closest('.bar');
     if (!bar) return;
 
-    // Cancelliamo eventuali timer precedenti per non far sovrapporre le scritte
+    // Quando togli il mouse, avvia il countdown di 2 secondi
     clearTimeout(chartSelectionTimer);
-
-    // Avviamo il timer da 2 secondi (2000ms)
     chartSelectionTimer = setTimeout(() => {
         bar.classList.remove('active');
-        resetDetailDisplay(); // Riporta la scritta a "Tocca una barra"
+        resetDetailDisplay(); 
     }, 2000); 
 });
 
-// Evento Click (Fissaggio 2 secondi)
+// Evento Click (Touch Mobile/Display Van)
 document.getElementById('hourly-chart').addEventListener('click', (e) => {
     const bar = e.target.closest('.bar');
     if (!bar) return;
 
-    clearTimeout(chartSelectionTimer);
+    clearTimeout(chartSelectionTimer); // Fondamentale: resetta il timer al tocco
     bar.classList.add('active');
     
     const display = document.getElementById('detail-display');
-    
-    // AGGIORNAMENTO: Giallo e 14px (più leggibile)
     display.style.color = "#fbbf24";
-    display.style.fontSize = "14px"; 
-    display.style.letterSpacing = "1.5px";
-    display.style.textTransform = "uppercase";
-    display.style.fontWeight = "900";
+    display.style.fontSize = "14px";
 
-    // IL TIMER: Cambiato da 3000 a 2000 millisecondi
+    // DOPO 2 SECONDI TORNA SEMPRE AL RESET
     chartSelectionTimer = setTimeout(() => {
         bar.classList.remove('active');
-        resetDetailDisplay(); // Ritorna alla scritta iniziale dopo 2 secondi
+        resetDetailDisplay(); 
     }, 2000); 
 });
 // Avvio iniziale del display
