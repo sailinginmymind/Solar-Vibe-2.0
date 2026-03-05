@@ -232,10 +232,15 @@ async function handleGpsSync() {
  * Spiegazione: È il "cuore" che aggiorna tutto. 
  * Abbiamo aggiunto updateCityName per sincronizzare il testo della città.
  */
+/**
+ * Funzione: updateAll
+ * Spiegazione: Calcola la potenza solare e aggiorna l'interfaccia.
+ * Modifica: Ora aggiorna il nome della città solo se stiamo sincronizzando col GPS.
+ */
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
-   const date = dataSelezionata.toISOString().split('T')[0];
+    const date = dataSelezionata.toISOString().split('T')[0];
     const time = document.getElementById('input-time').value;
     const displayVal = document.getElementById('w_out');
     const displayLabel = document.getElementById('unit-label');
@@ -250,8 +255,12 @@ async function updateAll() {
     }
 
     try {
-        // --- AGGIUNTA QUI: Aggiorna il nome della città sotto il cerchio ---
-        updateCityName(lat, lng); 
+        // --- MODIFICA QUI ---
+        // Se isGpsSyncing è true (tasto GPS premuto), aggiorna il nome della città.
+        // Se è false (stai scrivendo a mano), non tocca il campo di testo.
+        if (isGpsSyncing) {
+            await updateCityName(lat, lng); 
+        }
 
         // Recupero dati meteo tramite WeatherAPI
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
@@ -292,7 +301,6 @@ async function updateAll() {
         console.error("Errore updateAll:", e); 
     }
 }
-
 function updateReportUI(currentPower, sunH, setH) {
     const chart = document.getElementById('hourly-chart');
     const detailBox = document.getElementById('detail-display');
