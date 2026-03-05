@@ -1215,14 +1215,12 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 
 /* --- RESET E UNIFORMAZIONE GLOW NUMERI --- */
 .soc-number {
-     color: var(--accento) !important;
+    /* Forza il colore del tema (Azzurro o quello scelto nel garage) */
+    color: var(--accento) !important;
     
-    /* Applica lo stesso identico bagliore azzurro (o del tema) */
-    /* Abbiamo messo tre strati di ombra per renderlo molto visibile */
-    text-shadow: 
-        0 0 5px var(--accento), 
-        0 0 10px var(--accento), 
-        0 0 20px rgba(56, 189, 248, 0.5) !important;
+    /* BAGLIORE RIDOTTO: Un solo strato sottile invece di tre */
+    /* Rggio a 8px e opacità al 60% */
+    text-shadow: 0 0 8px rgba(56, 189, 248, 0.6) !important;
 
     font-family: inherit;
     font-weight: 900 !important;
