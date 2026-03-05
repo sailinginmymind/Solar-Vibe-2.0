@@ -489,14 +489,17 @@ resetDetailDisplay();
 function resetDetailDisplay() {
     const display = document.getElementById('detail-display');
     if (!display) return;
+    
     // Inseriamo lo span per colorare solo la parola 'barra'
     display.innerHTML = 'Tocca una <span style="color:#fbbf24; margin:0 4px;">BARRA</span> per i dettagli';
+    
     display.style.color = "#94a3b8"; 
-    display.style.fontSize = "11px"; // Font piccolo come "Batteria Attuale"
+    // INGRANDITO: Portato a 14px per l'istruzione iniziale
+    display.style.fontSize = "14px"; 
     display.style.letterSpacing = "1.5px";
     display.style.textTransform = "uppercase";
+    display.style.fontWeight = "900";
 }
-
 /**
  * Funzione: updateCityName
  * Cosa fa: Prende Lat e Lng e aggiorna il campo di testo della città.
