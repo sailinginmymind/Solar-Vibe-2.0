@@ -1278,3 +1278,26 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     cursor: pointer;
     box-shadow: 0 0 10px var(--accento) !important;
 }
+/* --- OTTIMIZZAZIONE MOBILE PER SLIDER --- */
+@media (max-width: 480px) {
+    /* Forza il testo dell'header a spezzarsi se necessario */
+    .slider-header span:first-child {
+        display: block;
+        max-width: 80px;      /* Costringe "BATT SERVIZIO" a scendere */
+        line-height: 1.2;     /* Tiene le due righe vicine */
+        font-size: 10px;      /* Leggermente più piccolo per stare nel box */
+        text-align: left;
+    }
+
+    /* Assicuriamoci che il numero abbia il suo spazio riservato */
+    .soc-number {
+        min-width: 70px !important; 
+        text-align: right;
+        flex-shrink: 0;       /* Impedisce al numero di rimpicciolirsi */
+    }
+
+    /* Allinea il testo in alto e il numero al centro della sua zona */
+    .slider-header {
+        align-items: flex-start !important; 
+    }
+}
