@@ -303,31 +303,35 @@ function updateReportUI(currentPower, sunH, setH) {
         bar.className = 'bar';
         bar.style.height = Math.max(5, (hP / state.panelWp * 100)) + "%";
 
-        const showDetail = () => {
-            clearTimeout(chartSelectionTimer);
-            document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
-            bar.classList.add('active');
-            
-            if (detailBox) {
-                // Allineamento perfetto tramite Flexbox
-                detailBox.style.display = "flex";
-                detailBox.style.justifyContent = "center";
-                detailBox.style.alignItems = "baseline"; 
+       const showDetail = () => {
+    clearTimeout(chartSelectionTimer);
+    document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
+    bar.classList.add('active');
+    
+    if (detailBox) {
+        detailBox.style.display = "flex";
+        detailBox.style.justifyContent = "center";
+        detailBox.style.alignItems = "baseline"; 
 
-                detailBox.innerHTML = `<span>ORE </span><b style="margin-left:4px;">${h}:00</b> <span style="margin:0 10px; opacity:0.5;">→</span> <b style="color:#fff;">${Math.round(hP)} W</b>`;
-                
-                detailBox.style.fontSize = "18px"; 
-                detailBox.style.color = "#fbbf24"; 
-                detailBox.style.fontWeight = "900";
-                detailBox.style.textTransform = "uppercase";
-            }
+        // Costruiamo il contenuto forzando il GIALLO su tutto
+        detailBox.innerHTML = `
+            <span style="color:#fbbf24;">ORE </span>
+            <b style="color:#fbbf24; margin-left:4px;">${h}:00</b> 
+            <span style="color:#fbbf24; margin:0 10px; opacity:0.5;">→</span> 
+            <b style="color:#fbbf24;">${Math.round(hP)} W</b>
+        `;
+        
+        detailBox.style.fontSize = "18px"; 
+        detailBox.style.color = "#fbbf24"; // Colore base giallo
+        detailBox.style.fontWeight = "900";
+        detailBox.style.textShadow = "none"; // Rimuove il bagliore blu/azzurro
+    }
 
-            // Countdown di 2 secondi per il reset (PC e Mobile)
-            chartSelectionTimer = setTimeout(() => {
-                bar.classList.remove('active');
-                resetDetailDisplay();
-            }, 2000);
-        };
+    chartSelectionTimer = setTimeout(() => {
+        bar.classList.remove('active');
+        resetDetailDisplay();
+    }, 2000);
+};
 
         bar.addEventListener('mouseenter', showDetail);
         bar.addEventListener('click', showDetail);
@@ -473,24 +477,27 @@ document.getElementById('hourly-chart').addEventListener('mouseout', (e) => {
 });
 
 // Avvio iniziale
-resetDetailDisplay();
-/* Funzione per resettare il display con lo stile etichetta */
 function resetDetailDisplay() {
     const display = document.getElementById('detail-display');
     if (!display) return;
     
-    // Setup Flexbox per allineamento orizzontale perfetto
     display.style.display = "flex";
     display.style.justifyContent = "center";
     display.style.alignItems = "baseline"; 
     
-    display.innerHTML = '<span>TOCCA UNA </span><b style="color:#fbbf24; margin:0 6px;">BARRA</b><span> PER I DETTAGLI</span>';
+    // Testo iniziale tutto in GIALLO
+    display.innerHTML = `
+        <span style="color:#fbbf24;">TOCCA UNA </span>
+        <b style="color:#fbbf24; margin:0 6px;">BARRA</b>
+        <span style="color:#fbbf24;"> PER I DETTAGLI</span>
+    `;
     
     display.style.color = "#fbbf24"; 
     display.style.fontSize = "14px"; 
     display.style.letterSpacing = "1.5px";
     display.style.textTransform = "uppercase";
     display.style.fontWeight = "900";
+    display.style.textShadow = "none"; // Elimina eventuali ombre blu residue
 }
 /**
  * Funzione: updateCityName
