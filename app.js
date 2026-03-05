@@ -285,11 +285,18 @@ function updateReportUI(currentPower, sunH, setH) {
     
     if (!chart || !state.weatherData) return;
 
-    document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, state.battAh);
-    document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, state.battAh);
-    document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, state.battAh);
+    // --- AGGIUNTA LOGICA POWER STATION ---
+    // Sommiamo la batteria servizi alla power station per il calcolo totale
+    const capacitaTotaleAh = state.battAh + (state.powerStationAh || 0);
+
+    // Ora usiamo 'capacitaTotaleAh' invece di 'state.battAh'
+    document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, capacitaTotaleAh);
+    document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, capacitaTotaleAh);
+    document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, capacitaTotaleAh);
+    // -------------------------------------
 
     chart.innerHTML = "";
+    // ... resto della funzione (il ciclo for e showDetail che hai scritto tu vanno benissimo) ...
     let dailyTotal = 0;
     const startHour = Math.floor(sunH);
     const endHour = Math.ceil(setH);
