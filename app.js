@@ -470,26 +470,32 @@ function saveGarageSettings() {
 }
 
 function loadSavedData() {
-    // Carica il nome
-    const name = localStorage.getItem('vibe_camper_name') || "";
-    document.getElementById('camper_name_input').value = name;
-    document.getElementById('camper-name-display').innerText = (name || "IL MIO CAMPER").toUpperCase();
+    // Carichiamo il nome o usiamo il default
+    const savedName = localStorage.getItem('vibe_camper_name');
+    if (savedName !== null) {
+        state.camperName = savedName;
+        document.getElementById('camper_name_input').value = savedName;
+        document.getElementById('camper-name-display').innerText = savedName.toUpperCase();
+    }
 
-    // Carica i 4 valori tecnici (se non esistono, usa quelli di default nello state)
+    // Carichiamo i valori tecnici. Se la memoria è vuota (null), usiamo i valori di fabbrica
     state.battAh = parseFloat(localStorage.getItem('vibe_batt_ah')) || state.battAh;
     state.panelWp = parseFloat(localStorage.getItem('vibe_panel_wp')) || state.panelWp;
     state.psAh = parseFloat(localStorage.getItem('vibe_ps_ah')) || 0;
     state.panelPsWp = parseFloat(localStorage.getItem('vibe_ps_panel_wp')) || 0;
 
-    // Scrivi i valori nei testi del Garage
+    // Scriviamo i valori nei testi del Garage per farli vedere all'utente
     document.getElementById('batt_val').innerText = state.battAh;
     document.getElementById('panel_val').innerText = state.panelWp;
     document.getElementById('ps_val').innerText = state.psAh;
     document.getElementById('panel_ps_val').innerText = state.panelPsWp;
     
-    // Colore sfondo
+    // Carichiamo il colore dello sfondo
     const savedColor = localStorage.getItem('vibe_bg_color');
     if (savedColor) changeBg(savedColor);
+
+    // IMPORTANTE: Eseguiamo il primo calcolo automatico all'apertura
+    updateAll(); 
 }
 function setupStars() {
     const container = document.getElementById('stars-container');
