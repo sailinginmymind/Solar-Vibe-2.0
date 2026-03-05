@@ -87,11 +87,12 @@ h2 {
 .section-title {
     /* Colore tema per il colore del testo */
     color: var(--accento) !important;
+    text-align: center;
     /* Un leggerissimo bagliore per richiamare lo stile degli slider */
     text-shadow: 0 0 5px rgba(56, 189, 248, 0.3);
     
     /* Impostazioni di stile per renderlo elegante */
-    font-size: 12px !important;
+    font-size: 15px !important;
     font-weight: 900 !important;
     text-transform: uppercase;
     letter-spacing: 2px;
