@@ -8,10 +8,11 @@ let isGpsSyncing = false; // <--- AGGIUNGI QUESTA RIGA (Mancava nel tuo codice)
 let state = {
     isWh: false,
     currentSOC: 50,
+    camperName: localStorage.getItem('vibe_camper_name') || "IL MIO VAN",
     battAh: parseFloat(localStorage.getItem('vibe_batt_ah')) || 100,
-    powerStationAh: parseFloat(localStorage.getItem('vibe_ps_ah')) || 0,
+    psAh: parseFloat(localStorage.getItem('vibe_ps_ah')) || 0, // <--- Cambiato da powerStationAh a psAh per coerenza
     panelWp: parseFloat(localStorage.getItem('vibe_panel_wp')) || 100,
-    panelPsWp: parseFloat(localStorage.getItem('vibe_panel_ps_wp')) || 0, // <--- AGGIUNTA QUESTA
+    panelPsWp: parseFloat(localStorage.getItem('vibe_panel_ps_wp')) || 0, 
     weatherData: null
 };
 window.onload = () => {
@@ -23,48 +24,35 @@ window.onload = () => {
 };
 
 function initEventListeners() {
-    document.getElementById('edit-ps-btn').addEventListener('click', editPowerStation);
-    document.getElementById('edit-pan-ps-btn').addEventListener('click', () => editSpec('panPs'));
+    // --- 1. NAVIGAZIONE E GPS ---
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
-
-    // 1. TASTO GPS (Già presente)
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-const cityInput = document.getElementById('city-input');
-
-if (cityInput) {
-    // 1. SCATTO AL "BLUR" (Quando esce dalla tastiera o clicca altrove)
-    // L'evento 'change' si attiva proprio quando l'input perde il focus
-    cityInput.addEventListener('change', function () {
-        const query = this.value.trim();
-        if (query.length >= 3) {
-            console.log("Ricerca attivata all'uscita:", query);
-            searchCityCoords(query);
-        }
-    });
-
-    // 2. SCATTO AL TASTO "ENTER" (Ottimo per chi usa il PC)
-    cityInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-            // Togliamo il focus manualmente per attivare anche l'evento change se necessario
-            this.blur(); 
+    // --- 2. GESTIONE CITTA' ---
+    const cityInput = document.getElementById('city-input');
+    if (cityInput) {
+        cityInput.addEventListener('change', function () {
             const query = this.value.trim();
-            if (query.length >= 3) {
-                searchCityCoords(query);
+            if (query.length >= 3) searchCityCoords(query);
+        });
+        cityInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                this.blur(); 
+                const query = this.value.trim();
+                if (query.length >= 3) searchCityCoords(query);
             }
-        }
-    });
-}
+        });
+    }
 
-    // 3. CAMPI INPUT (Già presente)
+    // --- 3. INPUT CAMPI MANUALE ---
     ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
 
-    // 4. SLIDER BATTERIA (Già presente)
+    // --- 4. SLIDER BATTERIA ---
     const socSlider = document.getElementById('soc-slider');
     if (socSlider) {
         socSlider.addEventListener('input', (e) => {
@@ -74,10 +62,15 @@ if (cityInput) {
         });
     }
 
-    // 5. TASTI GARAGE E MODIFICHE (Già presente)
-    document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
-    document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
-    document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
+    // --- 5. TASTI GARAGE E MODIFICHE (CORRETTO) ---
+    // Colleghiamo il tasto Salva (Floppy) alla funzione che salva tutto
+    document.getElementById('btn-save-name').onclick = saveGarageSettings;
+
+    // Colleghiamo i 4 tasti di modifica alla funzione editSpec
+    document.getElementById('edit-batt-btn').onclick = () => editSpec('batt');
+    document.getElementById('edit-pan-btn').onclick = () => editSpec('pan');
+    document.getElementById('edit-ps-btn').onclick = () => editSpec('ps');
+    document.getElementById('edit-pan-ps-btn').onclick = () => editSpec('panPs');
 }
 /**
  * Spiegazione: Apre un box per inserire gli Ah della Power Station,
@@ -406,15 +399,28 @@ function switchView(vId, el) {
 }
 
 function editSpec(type) {
-    // 1. Definiamo il messaggio del prompt in base a cosa stiamo modificando
+    // 1. Definiamo il messaggio e i riferimenti in base al tipo
     let messaggio = "Inserisci valore:";
-    if (type === 'batt') messaggio = "Ah Batteria Servizi:";
-    if (type === 'pan') messaggio = "Watt Pannelli Fissi (Wp):";
-    if (type === 'panPs') messaggio = "Watt Pannelli Power Station (Wp):";
+    let currentVal = "";
 
-    let v = prompt(messaggio);
+    if (type === 'batt') {
+        messaggio = "Ah Batteria Servizi:";
+        currentVal = state.battAh;
+    } else if (type === 'pan') {
+        messaggio = "Watt Pannelli Fissi (Wp):";
+        currentVal = state.panelWp;
+    } else if (type === 'ps') { // <--- AGGIUNTO CASO CAPACITÀ PS
+        messaggio = "Ah Power Station:";
+        currentVal = state.psAh;
+    } else if (type === 'panPs') {
+        messaggio = "Watt Pannelli Power Station (Wp):";
+        currentVal = state.panelPsWp;
+    }
 
-    // 2. Controllo validità: se l'utente preme annulla o scrive lettere, non fa nulla
+    // Passiamo currentVal come secondo parametro al prompt così l'utente vede il valore attuale
+    let v = prompt(messaggio, currentVal);
+
+    // 2. Controllo validità
     if (v !== null && v !== "" && !isNaN(v)) {
         const valoreNumerico = parseFloat(v);
 
@@ -428,14 +434,20 @@ function editSpec(type) {
             localStorage.setItem('vibe_panel_wp', v);
             document.getElementById('panel_val').innerText = v;
         }
-        else if (type === 'panPs') { // <--- NUOVO CASO PER PANNELLI PS
+        else if (type === 'ps') { // <--- SALVATAGGIO CAPACITÀ PS
+            state.psAh = valoreNumerico;
+            localStorage.setItem('vibe_ps_ah', v);
+            document.getElementById('ps_val').innerText = v;
+        }
+        else if (type === 'panPs') {
             state.panelPsWp = valoreNumerico;
             localStorage.setItem('vibe_panel_ps_wp', v);
             document.getElementById('panel_ps_val').innerText = v;
         }
         
-        // 3. Ricalcola tutto con i nuovi valori
+        // 3. Ricalcola tutto e salva lo stato generale
         updateAll();
+        saveGarageSettings(); // Chiamiamo questa per sicurezza per sincronizzare tutto
     }
 }
 
