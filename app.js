@@ -21,8 +21,10 @@ let state = {
 };
 window.onload = () => {
     initEventListeners();
+    initSliders(); 
     loadSavedData();
     setupStars();
+    
     // Primo avvio automatico
     document.getElementById('btn-gps').click();
 };
@@ -763,3 +765,38 @@ function checkCambioGiorno() {
 
 // Controlla ogni 30 secondi se è cambiata la data
 setInterval(checkCambioGiorno, 30000);
+
+// 1. Questa funzione serve a calcolare il colore della scia azzurra
+function updateSliderFill(slider) {
+    const val = slider.value;
+    // Parla con il CSS e gli dice quanta barra colorare
+    slider.style.setProperty('--value', val + '%');
+}
+
+// 2. Questa funzione "prepara" i due slider per funzionare insieme
+function initSliders() {
+    const sliders = [
+        { id: 'ps-soc-slider', valId: 'ps-soc-val', stateKey: 'currentPsSOC' },
+        { id: 'soc-slider', valId: 'soc-val', stateKey: 'currentSOC' }
+    ];
+
+    sliders.forEach(s => {
+        const el = document.getElementById(s.id);
+        const valTxt = document.getElementById(s.valId);
+        
+        if (el) {
+            // Colora la barra al caricamento
+            updateSliderFill(el);
+
+            // Ascolta quando muovi il dito sul pallino
+            el.addEventListener('input', (e) => {
+                const val = e.target.value;
+                state[s.stateKey] = val; // Salva il dato nel tuo "state"
+                if (valTxt) valTxt.innerText = val + "%"; // Cambia il numero 50% -> 60% ecc.
+                
+                updateSliderFill(e.target); // Muove la scia azzurra
+                updateAll(); // Ricalcola i tempi di ricarica totali
+            });
+        }
+    });
+}
