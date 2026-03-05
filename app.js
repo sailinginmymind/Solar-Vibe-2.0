@@ -19,7 +19,7 @@ window.onload = () => {
 };
 
 function initEventListeners() {
-
+    document.getElementById('edit-ps-btn').addEventListener('click', editPowerStation);
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
