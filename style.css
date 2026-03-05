@@ -896,3 +896,22 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
         box-sizing: border-box !important;
     }
 }
+
+/* Pulsanti del Garage adattabili al tema */
+.mini-btn, .save-btn, .edit-btn {
+    background: var(--accento) !important; /* Usa il colore del tema (blu, verde, rosso o grigio) */
+    color: #0f172a !important;            /* Testo scuro per contrasto */
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.mini-btn:hover, .save-btn:hover {
+    filter: brightness(1.2);
+    box-shadow: 0 0 15px var(--accento); /* Glow del colore del tema */
+}
