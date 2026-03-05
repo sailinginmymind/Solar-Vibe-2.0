@@ -471,13 +471,17 @@ document.getElementById('hourly-chart').addEventListener('mouseout', (e) => {
     const bar = e.target.closest('.bar');
     if (!bar) return;
 
-    if (!chartSelectionTimer || chartSelectionTimer._called) {
+    // Cancelliamo eventuali timer precedenti per non far sovrapporre le scritte
+    clearTimeout(chartSelectionTimer);
+
+    // Avviamo il timer da 2 secondi (2000ms)
+    chartSelectionTimer = setTimeout(() => {
         bar.classList.remove('active');
-        resetDetailDisplay(); 
-    }
+        resetDetailDisplay(); // Riporta la scritta a "Tocca una barra"
+    }, 2000); 
 });
 
-// Evento Click (Fissaggio 3 secondi)
+// Evento Click (Fissaggio 2 secondi)
 document.getElementById('hourly-chart').addEventListener('click', (e) => {
     const bar = e.target.closest('.bar');
     if (!bar) return;
@@ -486,19 +490,20 @@ document.getElementById('hourly-chart').addEventListener('click', (e) => {
     bar.classList.add('active');
     
     const display = document.getElementById('detail-display');
-    // UNIFORMIAMO LO STILE: Giallo e 11px anche qui
+    
+    // AGGIORNAMENTO: Giallo e 14px (più leggibile)
     display.style.color = "#fbbf24";
-    display.style.fontSize = "11px";
+    display.style.fontSize = "14px"; 
     display.style.letterSpacing = "1.5px";
     display.style.textTransform = "uppercase";
     display.style.fontWeight = "900";
 
+    // IL TIMER: Cambiato da 3000 a 2000 millisecondi
     chartSelectionTimer = setTimeout(() => {
         bar.classList.remove('active');
-        resetDetailDisplay(); 
-    }, 3000); 
+        resetDetailDisplay(); // Ritorna alla scritta iniziale dopo 2 secondi
+    }, 2000); 
 });
-
 // Avvio iniziale del display
 resetDetailDisplay();
 /* Funzione per resettare il display con lo stile etichetta */
