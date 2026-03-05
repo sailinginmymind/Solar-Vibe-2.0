@@ -2,18 +2,21 @@
  * APP.JS - Versione Definitiva e Pulita
  */
 let chartSelectionTimer;
-let dataSelezionata = new Date(); // <--- AGGIUNTA QUESTA
-let isGpsSyncing = false; // <--- AGGIUNGI QUESTA RIGA (Mancava nel tuo codice)
+let dataSelezionata = new Date(); 
+let isGpsSyncing = false; 
 
 let state = {
     isWh: false,
     currentSOC: 50,
-    currentPsSOC: 50, // <--- Fondamentale: la virgola qui separa questo valore dal successivo
-    camperName: localStorage.getItem('vibe_camper_name') || "IL MIO VAN",
-    battAh: parseFloat(localStorage.getItem('vibe_batt_ah')) || 100,
+    currentPsSOC: 50, 
+    // Se non c'è nulla in memoria, lasciamo il nome vuoto o un placeholder
+    camperName: localStorage.getItem('vibe_camper_name') || "",
+    // Cambiamo i '100' in '0' per i nuovi utenti
+    battAh: parseFloat(localStorage.getItem('vibe_batt_ah')) || 0,
     psAh: parseFloat(localStorage.getItem('vibe_ps_ah')) || 0, 
-    panelWp: parseFloat(localStorage.getItem('vibe_panel_wp')) || 100,
+    panelWp: parseFloat(localStorage.getItem('vibe_panel_wp')) || 0,
     panelPsWp: parseFloat(localStorage.getItem('vibe_panel_ps_wp')) || 0, 
+    
     weatherData: null
 };
 window.onload = () => {
