@@ -345,29 +345,28 @@ function updateReportUI(currentPower, sunH, setH) {
     
     if (!chart || !state.weatherData) return;
 
- // --- AGGIUNTA LOGICA POWER STATION (CALCOLO COMBINATO) ---
+// --- AGGIUNTA LOGICA POWER STATION (CORRETTA) ---
 
-// 1. Definiamo le capacità (Ah) prendendole dallo stato
+// 1. Usiamo i nomi esatti del tuo 'state': battAh e psAh
 const capServizio = state.battAh || 0;
-const capPS = state.powerStationAh || 0;
+const capPS = state.psAh || 0; // <--- Modificato da powerStationAh a psAh
 const capacitaTotaleAh = capServizio + capPS;
 
-// 2. Calcoliamo quanta energia (Ah) c'è effettivamente dentro OGNI batteria
-// Sommiamo (Capacità * Percentuale attuale) di entrambe
+// 2. Calcoliamo l'energia attuale (Ah) in base ai due slider
 const ahAttualiServizio = capServizio * (state.currentSOC / 100);
 const ahAttualiPS = capPS * (state.currentPsSOC / 100);
 const ahTotaleReale = ahAttualiServizio + ahAttualiPS;
 
-// 3. Calcoliamo la "Percentuale Media" del sistema unificato
-// Se hai 100Ah al 100% e 100Ah allo 0%, il sistema è al 50% totale
+// 3. Calcoliamo la percentuale media del sistema completo
 const socMedio = capacitaTotaleAh > 0 ? (ahTotaleReale / capacitaTotaleAh) * 100 : 0;
 
-// 4. Inviamo al motore di calcolo la percentuale MEDIA e la capacità TOTALE
+// 4. Passiamo i dati al motore di calcolo
+// currentPower deve essere la produzione solare attuale in Watt
 document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(socMedio, 80, currentPower, capacitaTotaleAh);
 document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(socMedio, 90, currentPower, capacitaTotaleAh);
 document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(socMedio, 100, currentPower, capacitaTotaleAh);
 
-// -------------------------------------
+// ------------------------------------------------
     chart.innerHTML = "";
     // ... resto della funzione (il ciclo for e showDetail che hai scritto tu vanno benissimo) ...
     let dailyTotal = 0;
