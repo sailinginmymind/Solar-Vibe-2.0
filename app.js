@@ -445,9 +445,6 @@ function updateSunUI(hDec, sunH, setH) {
 }
 
 /* --- GESTIONE GRAFICO: HOVER (PC) E TOUCH (MOBILE) AGGIORNATA --- */
-
-let chartSelectionTimer;
-
 // Evento Mouseover (Passaggio PC)
 document.getElementById('hourly-chart').addEventListener('mouseover', (e) => {
     const bar = e.target.closest('.bar');
