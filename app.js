@@ -440,31 +440,33 @@ function editSpec(type) {
 }
 
 function saveGarageSettings() {
-    // 1. Recupera i valori attuali dalla UI
+    // 1. Leggiamo i valori attuali dalle scritte nel Garage
     const name = document.getElementById('camper_name_input').value;
     const batt = document.getElementById('batt_val').innerText;
     const panels = document.getElementById('panel_val').innerText;
-    const psBatt = document.getElementById('ps_val').innerText;
+    const psAh = document.getElementById('ps_val').innerText;
     const psPanels = document.getElementById('panel_ps_val').innerText;
 
-    // 2. Aggiorna lo "Stato" dell'app (per i calcoli immediati)
+    // 2. Sovrascriviamo lo 'state' globale per i calcoli immediati
     state.camperName = name;
-    state.battAh = parseFloat(batt);
-    state.panelWp = parseFloat(panels);
-    state.psAh = parseFloat(psBatt);
-    state.panelPsWp = parseFloat(psPanels);
+    state.battAh = parseFloat(batt) || 0;
+    state.panelWp = parseFloat(panels) || 0;
+    state.psAh = parseFloat(psAh) || 0;
+    state.panelPsWp = parseFloat(psPanels) || 0;
 
-    // 3. Salva tutto nel localStorage
+    // 3. Salviamo nel database del browser (sovrascrive sempre il precedente)
     localStorage.setItem('vibe_camper_name', name);
-    localStorage.setItem('vibe_batt_ah', batt);
-    localStorage.setItem('vibe_panel_wp', panels);
-    localStorage.setItem('vibe_ps_ah', psBatt);
-    localStorage.setItem('vibe_ps_panel_wp', psPanels);
+    localStorage.setItem('vibe_batt_ah', state.battAh);
+    localStorage.setItem('vibe_panel_wp', state.panelWp);
+    localStorage.setItem('vibe_ps_ah', state.psAh);
+    localStorage.setItem('vibe_ps_panel_wp', state.panelPsWp);
 
-    // 4. Aggiorna il titolo in alto
+    // 4. Aggiorniamo la UI
     document.getElementById('camper-name-display').innerText = (name || "IL MIO VAN").toUpperCase();
     
-    alert("Configurazione salvata nel Garage!");
+    // 5. Lanciamo un aggiornamento immediato dei calcoli
+    updateAll();
+    console.log("Dati Garage salvati correttamente!");
 }
 
 function loadSavedData() {
