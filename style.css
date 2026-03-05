@@ -495,6 +495,20 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     box-sizing: border-box;
     transition: color 0.3s ease, font-size 0.3s ease;
 }
+/* Ingrandimento del testo dei dettagli (ore x -> x w) nel Report */
+#detail-display b, 
+#detail-display span {
+    font-size: 18px !important; /* Molto più grande rispetto agli 11px attuali */
+    color: var(--accento);      /* Usa il colore del tema (azzurro, verde, ecc.) */
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); /* Effetto neon */
+}
+
+/* Se nel JS usi una freccia o un separatore specifico */
+.highlight-yellow {
+    font-size: 20px !important; /* La parola "BARRA" o la freccia ancora più grandi */
+    color: #fbbf24 !important;  /* Mantiene il giallo solare per contrasto */
+}
 
 /* Classe speciale per evidenziare la parola "barra" */
 .highlight-yellow {
@@ -742,7 +756,7 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     text-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
     font-family: monospace;
 }
-/* Aggiungi o modifica queste righe nel tuo CSS */
+
 #w_out, #unit-label {
     cursor: default !important; /* Forza il cursore a rimanere una freccia */
     pointer-events: none;      /* Rende l'elemento "trasparente" ai click */
