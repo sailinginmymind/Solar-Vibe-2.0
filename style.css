@@ -1184,63 +1184,60 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     width: 100%;
 }
 
-/* Stile comune per i box: ora entrambi avranno il bordo del tema */
 .slider-box {
     flex: 1;
     background: rgba(30, 41, 59, 0.4) !important; 
     padding: 15px 12px;
     border-radius: 24px;
-    border: 1px solid var(--accento) !important; /* Forza il bordo colorato */
+    border: 1px solid var(--accento) !important; /* Bordo neon identico */
     box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease;
 }
 
-/* Allineamento dei testi sopra lo slider */
+/* Etichette e Numeri */
 .slider-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .slider-header span:first-child {
-    font-size: 9px !important;
+    font-size: 10px !important;
     font-weight: 900;
     color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-/* Numeri percentuali identici e luminosi */
 .soc-number {
-    font-size: 24px !important;
+    font-size: 22px !important; /* Font grande uguale per entrambi */
     font-weight: 900;
     color: var(--accento) !important;
-    text-shadow: 0 0 12px var(--accento); /* Effetto Glow Neon */
+    text-shadow: 0 0 10px var(--accento);
 }
 
-/* --- STILE SLIDER (LINEA E PALLINO) --- */
+/* Barre degli slider identiche */
 input[type=range] {
     -webkit-appearance: none;
     width: 100%;
+    height: 6px; /* Spessore barra uguale */
     background: rgba(255, 255, 255, 0.1);
-    height: 6px;
     border-radius: 5px;
     outline: none;
 }
 
-/* Il pallino che trascini (Thumb) */
+/* Pallini (Thumb) identici */
 input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     background: var(--accento) !important;
     border: 3px solid #0f172a;
     border-radius: 50%;
+    box-shadow: 0 0 8px var(--accento);
     cursor: pointer;
-    box-shadow: 0 0 10px var(--accento);
 }
 
 /* Ottimizzazione per schermi piccoli */
