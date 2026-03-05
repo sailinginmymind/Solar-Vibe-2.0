@@ -62,16 +62,23 @@ function initEventListeners() {
         });
     }
 
-    // --- NUOVO: SLIDER POWER STATION (A SINISTRA) ---
-    const psSocSlider = document.getElementById('ps-soc-slider');
-    if (psSocSlider) {
-        psSocSlider.addEventListener('input', (e) => {
-            // Assicurati che 'currentPsSOC' sia definito nel tuo oggetto 'state' iniziale
-            state.currentPsSOC = e.target.value; 
-            document.getElementById('ps-soc-val').innerText = state.currentPsSOC + "%";
-            updateAll(); // Ricalcola i tempi di ricarica dedicati alla PS
-        });
-    }
+   // Listener per lo slider Power Station (Sinistra)
+const psSocSlider = document.getElementById('ps-soc-slider');
+if (psSocSlider) {
+    psSocSlider.addEventListener('input', (e) => {
+        // 1. Legge il valore dallo slider (0-100)
+        const val = e.target.value;
+        
+        // 2. Aggiorna l'oggetto state (il database temporaneo dell'app)
+        state.currentPsSOC = val; 
+        
+        // 3. Aggiorna il testo a video sopra lo slider
+        document.getElementById('ps-soc-val').innerText = val + "%";
+        
+        // 4. Lancia il ricalcolo di tutta l'energia (tempi di carica, Wh, ecc.)
+        updateAll(); 
+    });
+}
 
     // --- 5. TASTI GARAGE E MODIFICHE (CORRETTO) ---
     // Colleghiamo il tasto Salva (Floppy) alla funzione che salva tutto
