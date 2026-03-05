@@ -453,27 +453,18 @@ function updateSunUI(hDec, sunH, setH) {
     }
 }
 
-/* --- GESTIONE GRAFICO: HOVER (PC) E TOUCH (MOBILE) AGGIORNATA --- */
-// Evento Mouseover (Passaggio PC)
-document.getElementById('hourly-chart').addEventListener('mouseover', (e) => {
-    const bar = e.target.closest('.bar');
-    if (!bar) return;
+/* --- GESTIONE GRAFICO: DEFINITIVA --- */
 
-    clearTimeout(chartSelectionTimer); // Ferma il timer di chiusura
-    document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
-    bar.classList.add('active');
-    
-    const display = document.getElementById('detail-display');
-    display.style.color = "#fbbf24";
-    display.style.fontSize = "14px";
+// Mouseover (PC)
+document.getElementById('hourly-chart').addEventListener('mouseover', (e) => {
+    if (!e.target.closest('.bar')) return;
+    clearTimeout(chartSelectionTimer);
 });
 
-// Evento Mouseout (Uscita PC)
+// Mouseout (PC)
 document.getElementById('hourly-chart').addEventListener('mouseout', (e) => {
     const bar = e.target.closest('.bar');
     if (!bar) return;
-
-    // Quando togli il mouse, avvia il countdown di 2 secondi
     clearTimeout(chartSelectionTimer);
     chartSelectionTimer = setTimeout(() => {
         bar.classList.remove('active');
@@ -481,36 +472,21 @@ document.getElementById('hourly-chart').addEventListener('mouseout', (e) => {
     }, 2000); 
 });
 
-// Evento Click (Touch Mobile/Display Van)
-document.getElementById('hourly-chart').addEventListener('click', (e) => {
-    const bar = e.target.closest('.bar');
-    if (!bar) return;
-
-    clearTimeout(chartSelectionTimer); // Fondamentale: resetta il timer al tocco
-    bar.classList.add('active');
-    
-    const display = document.getElementById('detail-display');
-    display.style.color = "#fbbf24";
-    display.style.fontSize = "14px";
-
-    // DOPO 2 SECONDI TORNA SEMPRE AL RESET
-    chartSelectionTimer = setTimeout(() => {
-        bar.classList.remove('active');
-        resetDetailDisplay(); 
-    }, 2000); 
-});
-// Avvio iniziale del display
+// Avvio iniziale
 resetDetailDisplay();
 /* Funzione per resettare il display con lo stile etichetta */
 function resetDetailDisplay() {
     const display = document.getElementById('detail-display');
     if (!display) return;
     
-    // Inseriamo lo span per colorare solo la parola 'barra'
-    display.innerHTML = 'Tocca una <span style="color:#fbbf24; margin:0 4px;">BARRA</span> per i dettagli';
+    // Setup Flexbox per allineamento orizzontale perfetto
+    display.style.display = "flex";
+    display.style.justifyContent = "center";
+    display.style.alignItems = "baseline"; 
+    
+    display.innerHTML = '<span>TOCCA UNA </span><b style="color:#fbbf24; margin:0 6px;">BARRA</b><span> PER I DETTAGLI</span>';
     
     display.style.color = "#94a3b8"; 
-    // INGRANDITO: Portato a 14px per l'istruzione iniziale
     display.style.fontSize = "14px"; 
     display.style.letterSpacing = "1.5px";
     display.style.textTransform = "uppercase";
