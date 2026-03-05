@@ -455,9 +455,17 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 /* --- OTTIMIZZAZIONE SLIDER BATTERIA --- */
 
 .slider-box {
-    width: 100%;
-    padding: 10px 0;
-    margin: 20px 0;
+    flex: 1;
+    background: rgba(30, 41, 59, 0.4) !important;
+    padding: 15px;
+    border-radius: 24px;
+    border: 1px solid var(--accento) !important;
+    min-height: 100px; /* Altezza fissa del box per sicurezza */
+    
+    /* TRUCCO PER L'ALLINEAMENTO */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Spinge il testo in alto e lo slider in basso */
 }
 
 #soc-slider {
