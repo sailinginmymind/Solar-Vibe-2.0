@@ -1060,44 +1060,52 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 .config-group .config-grid-row {
     margin-bottom: 0 !important; 
 }
+/* Contenitore principale che allinea le tre colonne */
 .power-display-container {
     display: flex;
-    align-items: flex-end; /* Allinea tutto alla base del numero grande */
+    align-items: center; /* Centra i numeri piccoli rispetto al grande */
     justify-content: center;
-    gap: 20px;
-    margin: 20px 0;
+    gap: 25px;           /* Più spazio tra le sezioni */
+    margin: 25px 0;
+    width: 100%;
 }
 
 .power-main {
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-width: 140px;    /* Impedisce al numero centrale di far saltare il layout */
 }
 
 .power-sub {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-bottom: 10px; /* Alza un po' i numeri piccoli rispetto alla linea del grande */
-    min-width: 60px;
+    flex: 1;
 }
 
+/* Numeri laterali (Watt parziali) - Ora Gialli e Grandi */
 .small-w {
-    font-size: 1.2rem; /* Font più piccolo */
-    font-weight: bold;
-    color: #94a3b8; /* Colore più discreto (grigio/azzurro) */
-}
-
-.sub-w-label {
-    font-size: 8px;
-    font-weight: 900;
-    color: #64748b;
-    letter-spacing: 1px;
-    margin-bottom: 2px;
-}
-
-/* Mantieni il tuo big-w originale ma assicurati che non abbia margini che rompono il layout */
-.big-w {
-    margin: 0 !important;
+    font-size: 1.6rem;    /* Incrementato da 1.2rem */
+    font-weight: 800;
+    color: #fbbf24;       /* Giallo Solar */
     line-height: 1;
+}
+
+/* Etichette FISSO e PS - Ora Gialle e Leggibili */
+.sub-w-label {
+    font-size: 11px;      /* Incrementato da 8px */
+    font-weight: 900;
+    color: #fbbf24;       /* Giallo Solar */
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+/* Totale centrale (Azzurro) */
+.big-w {
+    font-size: 3.8rem !important; /* Leggermente più grande per dominare la scena */
+    margin: 0 !important;
+    line-height: 0.9;
+    color: #38bdf8;
 }
