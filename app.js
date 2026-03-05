@@ -1,15 +1,17 @@
 /**
  * APP.JS - Versione Definitiva e Pulita
  */
-let chartSelectionTimer; // Questa riga deve stare fuori da tutto
+let chartSelectionTimer;
+let dataSelezionata = new Date(); // <--- AGGIUNTA QUESTA
+
 let state = {
     isWh: false,
     currentSOC: 50,
     battAh: parseFloat(localStorage.getItem('vibe_batt_ah')) || 100,
+    powerStationAh: parseFloat(localStorage.getItem('vibe_ps_ah')) || 0, // <--- AGGIUNTA QUESTA
     panelWp: parseFloat(localStorage.getItem('vibe_panel_wp')) || 100,
     weatherData: null
 };
-
 window.onload = () => {
     initEventListeners();
     loadSavedData();
@@ -73,6 +75,19 @@ if (cityInput) {
     document.getElementById('btn-save-name').addEventListener('click', saveGarageName);
     document.getElementById('edit-batt-btn').addEventListener('click', () => editSpec('batt'));
     document.getElementById('edit-pan-btn').addEventListener('click', () => editSpec('pan'));
+}
+/**
+ * Spiegazione: Apre un box per inserire gli Ah della Power Station,
+ * li salva nel browser e aggiorna i calcoli.
+ */
+function editPowerStation() {
+    let v = prompt("Capacità Power Station (Ah):", state.powerStationAh);
+    if (v !== null && !isNaN(v) && v !== "") {
+        state.powerStationAh = parseFloat(v);
+        localStorage.setItem('vibe_ps_ah', v);
+        document.getElementById('ps_val').innerText = v;
+        updateAll();
+    }
 }
 function generaBottoniGiorni() {
     const container = document.getElementById('days-selector');
@@ -385,12 +400,11 @@ function loadSavedData() {
     document.getElementById('camper_name_input').value = name;
     document.getElementById('camper-name-display').innerText = (name || "IL MIO CAMPER").toUpperCase();
     document.getElementById('batt_val').innerText = state.battAh;
+    document.getElementById('ps_val').innerText = state.powerStationAh; // <--- AGGIUNTA QUESTA
     document.getElementById('panel_val').innerText = state.panelWp;
     
     const savedColor = localStorage.getItem('vibe_bg_color');
-    if (savedColor) {
-        changeBg(savedColor); // Se c'è un colore salvato, lo applica subito
-    }
+    if (savedColor) changeBg(savedColor);
 }
 
 function setupStars() {
@@ -584,24 +598,7 @@ function changeBg(tema) {
     // Spiegazione: Grazie alle classi 'tema-xxx', la variabile CSS --accento 
     // cambia valore automaticamente e i pulsanti si aggiornano da soli!
 }
-/* I pulsanti Edit e Save del Garage */
-.edit-btn, .save-btn, #btn-save-name {
-    background-color: var(--accento) !important;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 12px;
-}
 
-.edit-btn:hover, .save-btn:hover {
-    filter: brightness(1.2); /* Lo schiarisce leggermente al passaggio */
-    box-shadow: 0 0 15px var(--accento); /* Crea il glow del colore del tema */
-}
 // VARIABILE PER MONITORARE IL GIORNO CORRENTE
 let giornoAttualeMonitor = new Date().getDate();
 
