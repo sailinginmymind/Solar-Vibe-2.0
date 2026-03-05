@@ -443,7 +443,53 @@ h2 {
 }
 
 input[type=range] { width: 100%; accent-color: #38bdf8; }
+/* --- OTTIMIZZAZIONE SLIDER BATTERIA --- */
 
+.slider-box {
+    width: 100%;
+    padding: 10px 0;
+    margin: 20px 0;
+}
+
+#soc-slider {
+    -webkit-appearance: none;
+    width: 100% !important;   /* Forza la larghezza massima */
+    height: 12px;              /* Rende la corsia più spessa */
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    outline: none;
+    margin: 20px 0;            /* Più spazio sopra e sotto */
+}
+
+/* Il "pallino" (Cursore) per Chrome, Safari, Edge e Mobile */
+#soc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;               /* Dimensione generosa per il pollice */
+    height: 28px;
+    background: var(--accento); /* Segue il colore del tema! */
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid var(--bg-puro);
+    box-shadow: 0 0 15px var(--accento); /* Effetto Glow */
+    transition: transform 0.2s ease;
+}
+
+/* Il "pallino" per Firefox */
+#soc-slider::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    background: var(--accento);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid var(--bg-puro);
+    box-shadow: 0 0 15px var(--accento);
+}
+
+/* Animazione quando lo si tocca */
+#soc-slider:active::-webkit-slider-thumb {
+    transform: scale(1.2); /* Si ingrandisce mentre lo trascini */
+}
 /* Contenitore grafico più alto */
 .chart-container {
     display: flex;
