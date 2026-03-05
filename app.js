@@ -574,6 +574,24 @@ function changeBg(tema) {
     document.body.style.backgroundColor = tema;
     localStorage.setItem('vibe_bg_color', tema);
 }
+/* I pulsanti Edit e Save del Garage */
+.edit-btn, .save-btn, #btn-save-name {
+    background-color: var(--accento) !important;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.edit-btn:hover, .save-btn:hover {
+    filter: brightness(1.2); /* Lo schiarisce leggermente al passaggio */
+    box-shadow: 0 0 15px var(--accento); /* Crea il glow del colore del tema */
+}
 // VARIABILE PER MONITORARE IL GIORNO CORRENTE
 let giornoAttualeMonitor = new Date().getDate();
 
