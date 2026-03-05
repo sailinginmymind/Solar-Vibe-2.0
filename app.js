@@ -345,16 +345,29 @@ function updateReportUI(currentPower, sunH, setH) {
     
     if (!chart || !state.weatherData) return;
 
-    // --- AGGIUNTA LOGICA POWER STATION ---
-    // Sommiamo la batteria servizi alla power station per il calcolo totale
-    const capacitaTotaleAh = state.battAh + (state.powerStationAh || 0);
+ // --- AGGIUNTA LOGICA POWER STATION (CALCOLO COMBINATO) ---
 
-    // Ora usiamo 'capacitaTotaleAh' invece di 'state.battAh'
-    document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, capacitaTotaleAh);
-    document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, capacitaTotaleAh);
-    document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, capacitaTotaleAh);
-    // -------------------------------------
+// 1. Definiamo le capacità (Ah) prendendole dallo stato
+const capServizio = state.battAh || 0;
+const capPS = state.powerStationAh || 0;
+const capacitaTotaleAh = capServizio + capPS;
 
+// 2. Calcoliamo quanta energia (Ah) c'è effettivamente dentro OGNI batteria
+// Sommiamo (Capacità * Percentuale attuale) di entrambe
+const ahAttualiServizio = capServizio * (state.currentSOC / 100);
+const ahAttualiPS = capPS * (state.currentPsSOC / 100);
+const ahTotaleReale = ahAttualiServizio + ahAttualiPS;
+
+// 3. Calcoliamo la "Percentuale Media" del sistema unificato
+// Se hai 100Ah al 100% e 100Ah allo 0%, il sistema è al 50% totale
+const socMedio = capacitaTotaleAh > 0 ? (ahTotaleReale / capacitaTotaleAh) * 100 : 0;
+
+// 4. Inviamo al motore di calcolo la percentuale MEDIA e la capacità TOTALE
+document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(socMedio, 80, currentPower, capacitaTotaleAh);
+document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(socMedio, 90, currentPower, capacitaTotaleAh);
+document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(socMedio, 100, currentPower, capacitaTotaleAh);
+
+// -------------------------------------
     chart.innerHTML = "";
     // ... resto della funzione (il ciclo for e showDetail che hai scritto tu vanno benissimo) ...
     let dailyTotal = 0;
