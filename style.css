@@ -961,3 +961,56 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     filter: brightness(1.2);
     box-shadow: 0 0 15px var(--accento); /* Glow del colore del tema */
 }
+/* Layout Griglia Garage */
+.config-grid-row {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.config-cell {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cell-label {
+    font-size: 10px;
+    color: #94a3b8;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.cell-value {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+}
+
+/* --- PULSANTI EDIT ADATTABILI --- */
+.edit-mini-btn {
+    /* Usa il colore del tema se esiste, altrimenti usa l'azzurro di default */
+    background: var(--accent-color, #38bdf8); 
+    color: #000;
+    border: none;
+    padding: 3px 8px;
+    font-size: 9px;
+    font-weight: 900;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Effetto al passaggio del mouse o al tocco */
+.edit-mini-btn:active {
+    transform: scale(0.9);
+    filter: brightness(1.2);
+}
