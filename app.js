@@ -52,13 +52,24 @@ function initEventListeners() {
         if (el) el.addEventListener('change', updateAll);
     });
 
-    // --- 4. SLIDER BATTERIA ---
+ // --- SLIDER BATTERIA SERVIZI (A DESTRA) ---
     const socSlider = document.getElementById('soc-slider');
     if (socSlider) {
         socSlider.addEventListener('input', (e) => {
             state.currentSOC = e.target.value;
             document.getElementById('soc-val').innerText = state.currentSOC + "%";
-            updateAll();
+            updateAll(); // Ricalcola i tempi di ricarica
+        });
+    }
+
+    // --- NUOVO: SLIDER POWER STATION (A SINISTRA) ---
+    const psSocSlider = document.getElementById('ps-soc-slider');
+    if (psSocSlider) {
+        psSocSlider.addEventListener('input', (e) => {
+            // Assicurati che 'currentPsSOC' sia definito nel tuo oggetto 'state' iniziale
+            state.currentPsSOC = e.target.value; 
+            document.getElementById('ps-soc-val').innerText = state.currentPsSOC + "%";
+            updateAll(); // Ricalcola i tempi di ricarica dedicati alla PS
         });
     }
 
