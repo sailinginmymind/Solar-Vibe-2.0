@@ -1,7 +1,7 @@
 /**
  * APP.JS - Versione Definitiva e Pulita
  */
-
+let chartSelectionTimer; // Questa riga deve stare fuori da tutto
 let state = {
     isWh: false,
     currentSOC: 50,
