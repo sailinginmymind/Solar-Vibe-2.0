@@ -1063,30 +1063,35 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 /* Contenitore principale che allinea le tre colonne */
 .power-display-container {
     display: flex;
-    align-items: center; /* Centra i numeri piccoli rispetto al grande */
-    justify-content: center;
-    gap: 25px;           /* Più spazio tra le sezioni */
+    align-items: center; 
+    justify-content: space-between; /* Distribuisce meglio il peso delle scritte lunghe */
+    gap: 10px;
     margin: 25px 0;
     width: 100%;
 }
 
-.power-main {
+.power-display-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 140px;    /* Impedisce al numero centrale di far saltare il layout */
+    align-items: center; 
+    justify-content: space-between; /* Distribuisce meglio il peso delle scritte lunghe */
+    gap: 10px;
+    margin: 25px 0;
+    width: 100%;
 }
 
-.power-sub {
+.power-display-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
+    align-items: center; 
+    justify-content: space-between; /* Distribuisce meglio il peso delle scritte lunghe */
+    gap: 10px;
+    margin: 25px 0;
+    width: 100%;
 }
 
 /* Numeri laterali (Watt parziali) - Ora Gialli e Grandi */
+/* Numeri Gialli */
 .small-w {
-    font-size: 1.6rem;    /* Incrementato da 1.2rem */
+    font-size: 1.5rem;    
     font-weight: 800;
     color: #fbbf24;       /* Giallo Solar */
     line-height: 1;
@@ -1102,9 +1107,9 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     margin-bottom: 4px;
 }
 
-/* Totale centrale (Azzurro) */
+/* Totale Centrale Azzurro */
 .big-w {
-    font-size: 3.8rem !important; /* Leggermente più grande per dominare la scena */
+    font-size: 3.5rem !important; 
     margin: 0 !important;
     line-height: 0.9;
     color: #38bdf8;
