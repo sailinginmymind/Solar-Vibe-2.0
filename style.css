@@ -85,10 +85,18 @@ h2 {
 }
 
 .section-title {
-    text-align: center; 
-    color: #38bdf8; 
-    margin: 0 0 15px 0;
-    font-size: 1.2rem;
+    /* Colore tema per il colore del testo */
+    color: var(--accento) !important;
+    /* Un leggerissimo bagliore per richiamare lo stile degli slider */
+    text-shadow: 0 0 5px rgba(56, 189, 248, 0.3);
+    
+    /* Impostazioni di stile per renderlo elegante */
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    display: block;
 }
 
 .card { 
