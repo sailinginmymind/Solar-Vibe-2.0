@@ -1179,34 +1179,56 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 /* Contenitore per affiancare gli slider */
 .dual-slider-container {
     display: flex;
-    gap: 15px;
+    gap: 12px; /* Spazio tra i due box */
     margin: 20px 0;
     width: 100%;
 }
 
+/* Stile aggiornato per essere identico al box originale di destra */
 .dual-slider-container .slider-box {
-    flex: 1; /* Ognuno prende metà spazio */
-    background: rgba(0, 0, 0, 0.2);
-    padding: 15px 10px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    margin: 0; /* Rimuoviamo il margine vecchio */
+    flex: 1; /* Divide lo spazio al 50% */
+    background: rgba(30, 41, 59, 0.4); /* Sfondo più scuro e professionale */
+    padding: 15px 12px;
+    border-radius: 24px;              /* Arrotondamento uguale alle card */
+    
+    /* BORDO DINAMICO: qui sta il segreto, usa var(--accento) */
+    border: 1px solid var(--accento) !important; 
+    
+    /* Effetto luce interna */
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.2); 
+    margin: 0;
+    transition: all 0.3s ease;
 }
 
-/* Rimpiccioliamo leggermente i testi per farli stare in metà spazio */
+/* Etichette (SOC PS / SOC BATT) */
 .slider-header span:first-child {
     font-size: 10px !important;
-}
-
-.soc-number {
-    font-size: 20px !important; /* Un po' più piccolo per non sovrapporsi */
     font-weight: 900;
-    color: var(--accento);
-    text-shadow: 0 0 10px var(--accento);
+    color: #94a3b8; /* Grigio chiaro per non distrarre */
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
-/* Su schermi molto stretti riduciamo il gap */
-@media (max-width: 400px) {
+/* Numeri percentuali (Uguali e luminosi) */
+.soc-number {
+    font-size: 24px !important; /* Dimensione aumentata come richiesto */
+    font-weight: 900;
+    color: var(--accento) !important;
+    text-shadow: 0 0 12px var(--accento); /* Effetto Glow Neon */
+}
+
+/* Forza lo stile dei "pallini" (Thumb) per entrambi gli slider */
+.dual-slider-container input[type=range]::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+    background: var(--accento);
+    border: 3px solid #0f172a;
+    box-shadow: 0 0 10px var(--accento);
+}
+
+/* --- OTTIMIZZAZIONE MOBILE --- */
+@media (max-width: 480px) {
     .dual-slider-container { gap: 8px; }
-    .soc-number { font-size: 16px !important; }
+    .dual-slider-container .slider-box { padding: 12px 8px; }
+    .soc-number { font-size: 18px !important; }
 }
