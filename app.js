@@ -312,7 +312,7 @@ function updateReportUI(currentPower, sunH, setH) {
         detailBox.innerHTML = `ORE ${h}:00 <span style="margin:0 10px; opacity:0.6;">→</span> ${Math.round(hP)} W`;
         
         // 2. STILE UNIFORME (come "PRODUZIONE TOTALE")
-        detailBox.style.fontSize = "11px";       // Riportato a 11px per coerenza
+        detailBox.style.fontSize = "14px";       // Riportato a 14px per coerenza
         detailBox.style.color = "#fbbf24";      // Tutto giallo come richiesto
         detailBox.style.textTransform = "uppercase";
         detailBox.style.letterSpacing = "1.5px"; // Spaziatura larga tipica delle tue etichette
