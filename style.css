@@ -1176,3 +1176,37 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     padding: 6px 12px;
     font-size: 10px;
 }
+/* Contenitore per affiancare gli slider */
+.dual-slider-container {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.dual-slider-container .slider-box {
+    flex: 1; /* Ognuno prende metà spazio */
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin: 0; /* Rimuoviamo il margine vecchio */
+}
+
+/* Rimpiccioliamo leggermente i testi per farli stare in metà spazio */
+.slider-header span:first-child {
+    font-size: 10px !important;
+}
+
+.soc-number {
+    font-size: 20px !important; /* Un po' più piccolo per non sovrapporsi */
+    font-weight: 900;
+    color: var(--accento);
+    text-shadow: 0 0 10px var(--accento);
+}
+
+/* Su schermi molto stretti riduciamo il gap */
+@media (max-width: 400px) {
+    .dual-slider-container { gap: 8px; }
+    .soc-number { font-size: 16px !important; }
+}
