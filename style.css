@@ -1224,7 +1224,8 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    width: 100%;          /* Occupa tutto lo spazio interno del box */
+    overflow: hidden;     /* Evita che contenuti interni spingano i bordi */
 }
 
 .slider-header span:first-child {
@@ -1235,18 +1236,17 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 }
 
 /* --- RESET E UNIFORMAZIONE GLOW NUMERI --- */
+/* 1. Blocchiamo la larghezza del contenitore del numero */
 .soc-number {
-    /* Forza il colore del tema (Azzurro o quello scelto nel garage) */
-    color: var(--accento) !important;
+    display: inline-block;
+    min-width: 65px;      /* Forza una larghezza minima sufficiente per "100%" */
+    text-align: right;    /* Tiene il numero ancorato a destra */
     
-    /* BAGLIORE RIDOTTO: Un solo strato sottile invece di tre */
-    /* Rggio a 8px e opacità al 60% */
+    /* Manteniamo i tuoi stili esistenti */
+    color: var(--accento) !important;
     text-shadow: 0 0 8px rgba(56, 189, 248, 0.6) !important;
-
-    font-family: inherit;
     font-weight: 900 !important;
     font-size: 24px !important;
-    transition: all 0.3s ease;
 }
 /* Un leggero effetto quando si muove lo slider */
 .soc-number:active {
