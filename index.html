@@ -41,34 +41,30 @@
                 <input type="number" id="input-lat" placeholder="Lat" class="manual-input" step="0.01">
                 <input type="number" id="input-lng" placeholder="Lng" class="manual-input" step="0.01">
             </div>
-           <div id="location-display" class="location-box" style="margin-top: 15px; text-align: center; font-size: 0.8rem; color: #94a3b8;">
-    📍 <input type="text" id="city-input" placeholder=" CERCO POSIZIONE ..." 
-        style="background: transparent; border: none; border-bottom: 1px solid #38bdf8; color: #38bdf8; font-weight: bold; text-transform: uppercase; text-align: center; outline: none; width: 60%;">
-</div>
+            <div id="location-display" class="location-box" style="margin-top: 15px; text-align: center; font-size: 0.8rem; color: #94a3b8;">
+                📍 <input type="text" id="city-input" placeholder=" CERCO POSIZIONE ..." 
+                    style="background: transparent; border: none; border-bottom: 1px solid #38bdf8; color: #38bdf8; font-weight: bold; text-transform: uppercase; text-align: center; outline: none; width: 60%;">
+            </div>
         </div>
     </div>
 
-<div id="view-energy" class="view">
+    <div id="view-energy" class="view">
         <div class="card">
             <div id="detail-display" style="text-align:center; color:#fbbf24; font-weight:bold; margin-bottom:10px; min-height:1.5em;">
                 Tocca una barra per i dettagli
             </div>
-            
             <h3 class="section-title">PREVISIONE ODIERNA</h3>
             <div id="hourly-chart" class="chart-container"></div>
-           <div class="total-display-box">
-    <div class="label-stack">
-        <span>PRODUZIONE</span>
-        <span>TOTALE <span class="eq-symbol">=</span></span>
-    </div>
-
-    <div class="value-huge" id="total-wh-day">0 Wh</div>
-</div>
-          <div id="days-selector" class="days-container"></div>
+            <div class="total-display-box">
+                <div class="label-stack">
+                    <span>PRODUZIONE</span>
+                    <span>TOTALE <span class="eq-symbol">=</span></span>
+                </div>
+                <div class="value-huge" id="total-wh-day">0 Wh</div>
+            </div>
+            <div id="days-selector" class="days-container"></div>
             <div class="scroll-hint">← trascina per vedere altri giorni →</div>
-            
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
-
             <h3 class="section-title">STATO CARICA</h3>
             <div class="slider-box">
                 <div class="slider-header">
@@ -85,52 +81,61 @@
         </div>
     </div>
 
-<div id="view-garage" class="view">
-    <div class="card">
-        <h3 class="section-title">GARAGE</h3>
-        
-        <div class="garage-input-group">
-            <input type="text" id="camper_name_input" placeholder="NOME CAMPER" class="manual-input">
-            <button id="btn-save-name" class="mini-btn">💾</button>
-        </div>
-        
-        <div class="garage-row">
-            <div>
-                <div style="font-size: 11px; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">🔋 BATTERIA SERVIZI</div>
-                <div style="font-size: 18px; font-weight: 900;"><span id="batt_val">100</span> Ah</div>
+    <div id="view-garage" class="view">
+        <div class="card">
+            <h3 class="section-title">GARAGE</h3>
+            <div class="garage-input-group" style="margin-bottom: 20px;">
+                <input type="text" id="camper_name_input" placeholder="NOME CAMPER" class="manual-input">
+                <button id="btn-save-name" class="mini-btn">💾</button>
             </div>
-            <button id="edit-batt-btn" class="mini-btn">EDIT</button>
-        </div>
+            
+            <div class="config-grid-row">
+                <div class="config-cell">
+                    <div class="cell-label">🔋 BATTERIA SERVIZI</div>
+                    <div class="cell-value">
+                        <span id="batt_val">100</span> Ah
+                        <button id="edit-batt-btn" class="edit-mini-btn">EDIT</button>
+                    </div>
+                </div>
+                <div class="config-cell">
+                    <div class="cell-label">☀️ PANNELLI DI S.</div>
+                    <div class="cell-value">
+                        <span id="panel_val">100</span> W
+                        <button id="edit-pan-btn" class="edit-mini-btn">EDIT</button>
+                    </div>
+                </div>
+            </div>
 
-        <div class="garage-row">
-            <div>
-                <div style="font-size: 11px; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">🔌 POWER STATION</div>
-                <div style="font-size: 18px; font-weight: 900;"><span id="ps_val">0</span> Ah</div>
+            <div class="config-grid-row">
+                <div class="config-cell">
+                    <div class="cell-label">🔌 POWER STATION</div>
+                    <div class="cell-value">
+                        <span id="ps_val">0</span> Ah
+                        <button id="edit-ps-btn" class="edit-mini-btn">EDIT</button>
+                    </div>
+                </div>
+                <div class="config-cell">
+                    <div class="cell-label">☀️ PANNELLI PS</div>
+                    <div class="cell-value">
+                        <span id="panel_ps_val">0</span> W
+                        <button id="edit-pan-ps-btn" class="edit-mini-btn">EDIT</button>
+                    </div>
+                </div>
             </div>
-            <button id="edit-ps-btn" class="mini-btn">EDIT</button> 
-        </div>
-        
-        <div class="garage-row">
-            <div>
-                <div style="font-size: 11px; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">☀️ PANNELLI SOLARI</div>
-                <div style="font-size: 18px; font-weight: 900;"><span id="panel_val">100</span> W</div>
-            </div>
-            <button id="edit-pan-btn" class="mini-btn">EDIT</button>
-        </div>
 
-        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-            <span style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">🎨 COLORE INTERNI</span>
-            <div style="display: flex; gap: 10px;">
-                <div onclick="changeBg('#0f172a')" style="width: 24px; height: 24px; border-radius: 50%; background: #0f172a; border: 1px solid #38bdf8; cursor: pointer;"></div>
-                <div onclick="changeBg('#1a1a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; border: 1px solid #64748b; cursor: pointer;"></div>
-                <div onclick="changeBg('#062c1f')" style="width: 24px; height: 24px; border-radius: 50%; background: #062c1f; border: 1px solid #10b981; cursor: pointer;"></div>
-                <div onclick="changeBg('#2d0a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #2d0a1a; border: 1px solid #f43f5e; cursor: pointer;"></div>
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <span style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">🎨 COLORE INTERNI</span>
+                <div style="display: flex; gap: 10px;">
+                    <div onclick="changeBg('#0f172a')" style="width: 24px; height: 24px; border-radius: 50%; background: #0f172a; border: 1px solid #38bdf8; cursor: pointer;"></div>
+                    <div onclick="changeBg('#1a1a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; border: 1px solid #64748b; cursor: pointer;"></div>
+                    <div onclick="changeBg('#062c1f')" style="width: 24px; height: 24px; border-radius: 50%; background: #062c1f; border: 1px solid #10b981; cursor: pointer;"></div>
+                    <div onclick="changeBg('#2d0a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #2d0a1a; border: 1px solid #f43f5e; cursor: pointer;"></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <nav class="nav-bar">
         <div class="nav-item active" data-view="live">
@@ -146,8 +151,7 @@
             <small>GARAGE</small>
         </div>
     </nav>
-
-    <script src="weather-api.js"></script>
+</div> <script src="weather-api.js"></script>
     <script src="solar-engine.js"></script>
     <script src="app.js"></script>
 </body>
