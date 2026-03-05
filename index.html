@@ -82,69 +82,66 @@
     </div>
 
     <div id="view-garage" class="view">
-       <div class="card">
-    <h3 class="section-title">GARAGE</h3>
-    
-    <div class="garage-input-group" style="margin-bottom: 25px;">
-        <input type="text" id="camper_name_input" placeholder="NOME CAMPER" class="manual-input">
-        <button id="btn-save-name" class="mini-btn">💾</button>
-    </div>
-    
-    <div class="config-group camper-border">
-        <div class="group-header">IMPIANTO FISSO CAMPER</div>
-        
-        <div class="config-grid-row">
-            <div class="config-cell">
-                <div class="cell-label">🔋 BATTERIA SERVIZI</div>
-                <div class="cell-value">
-                    <span id="batt_val">550</span> Ah
-                    <button id="edit-batt-btn" class="edit-mini-btn">EDIT</button>
+        <div class="card">
+            <h3 class="section-title">GARAGE</h3>
+            
+            <div class="garage-input-group" style="margin-bottom: 25px;">
+                <input type="text" id="camper_name_input" placeholder="NOME CAMPER" class="manual-input">
+                <button id="btn-save-name" class="mini-btn">💾</button>
+            </div>
+            
+            <div class="config-group camper-border">
+                <div class="group-header">IMPIANTO FISSO CAMPER</div>
+                <div class="config-grid-row">
+                    <div class="config-cell">
+                        <div class="cell-label">🔋 BATTERIA SERVIZI</div>
+                        <div class="cell-value">
+                            <span id="batt_val">550</span> Ah
+                            <button id="edit-batt-btn" class="edit-mini-btn">EDIT</button>
+                        </div>
+                    </div>
+                    <div class="config-cell">
+                        <div class="cell-label">☀️ PANNELLI DI S.</div>
+                        <div class="cell-value">
+                            <span id="panel_val">1120</span> W
+                            <button id="edit-pan-btn" class="edit-mini-btn">EDIT</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="config-cell">
-                <div class="cell-label">☀️ PANNELLI DI S.</div>
-                <div class="cell-value">
-                    <span id="panel_val">1120</span> W
-                    <button id="edit-pan-btn" class="edit-mini-btn">EDIT</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="config-group ps-border">
-        <div class="group-header">UNITÀ PORTATILE / PS</div>
-        
-        <div class="config-grid-row">
-            <div class="config-cell">
-                <div class="cell-label">🔌 POWER STATION</div>
-                <div class="cell-value">
-                    <span id="ps_val">0</span> Ah
-                    <button id="edit-ps-btn" class="edit-mini-btn">EDIT</button>
+            <div class="config-group ps-border">
+                <div class="group-header">UNITÀ PORTATILE / PS</div>
+                <div class="config-grid-row">
+                    <div class="config-cell">
+                        <div class="cell-label">🔌 POWER STATION</div>
+                        <div class="cell-value">
+                            <span id="ps_val">0</span> Ah
+                            <button id="edit-ps-btn" class="edit-mini-btn">EDIT</button>
+                        </div>
+                    </div>
+                    <div class="config-cell">
+                        <div class="cell-label">☀️ PANNELLI PS</div>
+                        <div class="cell-value">
+                            <span id="panel_ps_val">0</span> W
+                            <button id="edit-pan-ps-btn" class="edit-mini-btn">EDIT</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="config-cell">
-                <div class="cell-label">☀️ PANNELLI PS</div>
-                <div class="cell-value">
-                    <span id="panel_ps_val">0</span> W
-                    <button id="edit-pan-ps-btn" class="edit-mini-btn">EDIT</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-        <span style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">🎨 COLORE INTERNI</span>
-        <div style="display: flex; gap: 10px;">
-            <div onclick="changeBg('#0f172a')" style="width: 24px; height: 24px; border-radius: 50%; background: #0f172a; border: 1px solid #38bdf8; cursor: pointer;"></div>
-            <div onclick="changeBg('#1a1a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; border: 1px solid #64748b; cursor: pointer;"></div>
-            <div onclick="changeBg('#062c1f')" style="width: 24px; height: 24px; border-radius: 50%; background: #062c1f; border: 1px solid #10b981; cursor: pointer;"></div>
-            <div onclick="changeBg('#2d0a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #2d0a1a; border: 1px solid #f43f5e; cursor: pointer;"></div>
-        </div>
-    </div>
-</div>
-    <nav class="nav-bar">
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <span style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">🎨 COLORE INTERNI</span>
+                <div style="display: flex; gap: 10px;">
+                    <div onclick="changeBg('#0f172a')" style="width: 24px; height: 24px; border-radius: 50%; background: #0f172a; border: 1px solid #38bdf8; cursor: pointer;"></div>
+                    <div onclick="changeBg('#1a1a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #1a1a1a; border: 1px solid #64748b; cursor: pointer;"></div>
+                    <div onclick="changeBg('#062c1f')" style="width: 24px; height: 24px; border-radius: 50%; background: #062c1f; border: 1px solid #10b981; cursor: pointer;"></div>
+                    <div onclick="changeBg('#2d0a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #2d0a1a; border: 1px solid #f43f5e; cursor: pointer;"></div>
+                </div>
+            </div>
+        </div> </div> <nav class="nav-bar">
         <div class="nav-item active" data-view="live">
             <span>🛰️</span>
             <small>DASHBOARD</small>
@@ -158,8 +155,10 @@
             <small>GARAGE</small>
         </div>
     </nav>
+
 </div> <script src="weather-api.js"></script>
-    <script src="solar-engine.js"></script>
-    <script src="app.js"></script>
+<script src="solar-engine.js"></script>
+<script src="app.js"></script>
+
 </body>
 </html>
