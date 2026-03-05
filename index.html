@@ -80,13 +80,25 @@
             <div class="scroll-hint">← trascina per vedere altri giorni →</div>
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
             <h3 class="section-title">STATO CARICA</h3>
-            <div class="slider-box">
-                <div class="slider-header">
-                    <span>BATTERIA ATTUALE</span>
-                    <span id="soc-val">50%</span>
-                </div>
-                <input type="range" id="soc-slider" min="0" max="100" value="50">
-            </div>
+           <div class="dual-slider-container">
+    
+    <div class="slider-box">
+        <div class="slider-header">
+            <span>SOC PS</span>
+            <span id="ps-soc-val" class="soc-number">50%</span>
+        </div>
+        <input type="range" id="ps-soc-slider" min="0" max="100" value="50">
+    </div>
+
+    <div class="slider-box">
+        <div class="slider-header">
+            <span>SOC BATT</span>
+            <span id="soc-val" class="soc-number">50%</span>
+        </div>
+        <input type="range" id="soc-slider" min="0" max="100" value="50">
+    </div>
+
+</div>
             <div class="report-grid">
                 <div class="w-badge"><span>A 80% IN</span><br><b id="charge_80_txt">--</b></div>
                 <div class="w-badge" style="border-color:#fbbf24"><span>90% IN</span><br><b id="charge_90_txt">--</b></div>
