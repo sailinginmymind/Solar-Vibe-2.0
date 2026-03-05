@@ -304,18 +304,51 @@ function updateReportUI(currentPower, sunH, setH) {
         bar.style.height = Math.max(5, (hP / state.panelWp * 100)) + "%";
 
 const showDetail = () => {
-    // 1. Appena tocchi o passi sopra, cancelliamo timer vecchi
-    clearTimeout(chartSelectionTimer);
-
     document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
     bar.classList.add('active');
     
     if (detailBox) {
-        detailBox.innerHTML = `ORE ${h}:00 <span style="margin:0 10px; opacity:0.6;">→</span> ${Math.round(hP)} W`;
-        detailBox.style.fontSize = "14px"; 
-        detailBox.style.color = "#fbbf24"; 
-        detailBox.style.fontWeight = "900";
+        // --- NUOVO METODO DI COSTRUZIONE DEL TESTO ---
+        // Costruiamo il contenuto come elementi HTML separati
+        // Questo è il testo prima dell'orario
+        const oreText = document.createElement('span');
+        oreText.innerText = `ORE `;
+
+        // Questo è l'orario in grassetto (lo avvolgiamo in un <b>)
+        const timeBold = document.createElement('b');
+        timeBold.innerText = `${h}:00`;
+
+        // Questa è la freccia con lo stile esistente
+        const arrow = document.createElement('span');
+        arrow.style.margin = "0 10px";
+        arrow.style.opacity = "0.5";
+        arrow.innerText = `→`;
+
+        // Questo è il valore in Watt in grassetto e con il colore bianco (lo avvolgiamo in un <b>)
+        const powerBold = document.createElement('b');
+        powerBold.style.color = "#fff";
+        powerBold.innerText = `${Math.round(hP)} W`;
+
+        // Svuotiamo il detailBox e aggiungiamo gli elementi uno per uno
+        detailBox.innerHTML = "";
+        detailBox.appendChild(oreText);
+        detailBox.appendChild(timeBold);
+        detailBox.appendChild(arrow);
+        detailBox.appendChild(powerBold);
+        
+        // --- APPLICHIAMO LO STILE DI ALLINEAMENTO FLEXBOX ---
+        // Questo allinea tutti gli elementi (testo e <b>) orizzontalmente
+        detailBox.style.display = "flex";
+        detailBox.style.justifyContent = "center"; // Centra orizzontalmente
+        detailBox.style.alignItems = "baseline";    // Questo è il "segreto": allinea sulla linea di base del testo
+        
+        // --- MANTENIAMO LO STILE ESISTENTE (RADDOPPIATO) ---
+        detailBox.style.fontSize = "22px";           // Dimensione raddoppiata
+        detailBox.style.color = "#ffffff";           // Testo bianco per risaltare
+        detailBox.style.textShadow = "0 0 10px var(--accento)"; // Bagliore del tema (Azzurro, Verde, etc.)
+        detailBox.style.letterSpacing = "0px";       // Riduciamo la spaziatura per non farlo uscire dai bordi
     }
+};
 
     // --- IL PEZZO MANCANTE È QUESTO QUI SOTTO ---
     // Questo comando dice: "Tra 2 secondi esatti, cancella tutto"
