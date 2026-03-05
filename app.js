@@ -294,16 +294,32 @@ async function updateAll() {
         // Calcolo Potenza Watt tramite SolarEngine
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
-        // Somma la potenza di entrambi i sistemi di pannelli
-        const totalWp = state.panelWp + state.panelPsWp;
-        const power = SolarEngine.calculatePower(hDec, sunH, setH, totalWp, hourly.cloud_cover[hourIdx]);
-        
-        // Mostra i Watt finali
-        displayVal.innerText = Math.round(power) + " W";
+       // ... (resto del codice sopra invariato fino a sunH e setH)
 
-        // Aggiornamento grafico Sole e Report Barre
+        // 1. Calcolo Potenza per i Pannelli Fissi del Camper
+        const powerServices = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
+        
+        // 2. Calcolo Potenza per i Pannelli della Power Station
+        const powerPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
+        
+        // 3. Calcolo Totale
+        const totalPower = powerServices + powerPS;
+
+        // AGGIORNAMENTO UI DASHBOARD
+        // Centro: Totale (Grande)
+        displayVal.innerText = Math.round(totalPower) + " W";
+        
+        // Sinistra: Pannelli Fissi (Piccolo)
+        const leftDisplay = document.getElementById('w_services');
+        if (leftDisplay) leftDisplay.innerText = Math.round(powerServices) + " W";
+        
+        // Destra: Pannelli PS (Piccolo)
+        const rightDisplay = document.getElementById('w_ps');
+        if (rightDisplay) rightDisplay.innerText = Math.round(powerPS) + " W";
+
+        // Aggiornamento grafico Sole e Report Barre (usiamo il totale per le previsioni)
         if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
-        updateReportUI(power, sunH, setH);
+        updateReportUI(totalPower, sunH, setH);
 
     } catch (e) { 
         console.error("Errore updateAll:", e); 
