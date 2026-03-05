@@ -560,7 +560,7 @@ function changeBg(tema) {
     // 1. Rimuove le classi dei temi precedenti
     document.body.classList.remove('tema-verde', 'tema-rosso', 'tema-grigio');
     
-    // 2. Aggiunge la classe corretta in base al colore scelto
+    // 2. Aggiunge la classe corretta
     if (tema === '#062c1f') {
         document.body.classList.add('tema-verde');
     } else if (tema === '#2d0a1a') {
@@ -568,11 +568,14 @@ function changeBg(tema) {
     } else if (tema === '#1a1a1a') {
         document.body.classList.add('tema-grigio');
     }
-    // Nota: Se il tema è quello originale (#0f172a), non aggiungiamo classi e resta Blu.
+    // Se è blu originale, non aggiunge classi speciali
 
-    // 3. Applica il colore di sfondo e salva la preferenza
+    // 3. Applica lo sfondo e salva
     document.body.style.backgroundColor = tema;
     localStorage.setItem('vibe_bg_color', tema);
+    
+    // Spiegazione: Grazie alle classi 'tema-xxx', la variabile CSS --accento 
+    // cambia valore automaticamente e i pulsanti si aggiornano da soli!
 }
 /* I pulsanti Edit e Save del Garage */
 .edit-btn, .save-btn, #btn-save-name {
