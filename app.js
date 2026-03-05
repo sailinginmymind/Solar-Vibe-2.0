@@ -9,8 +9,9 @@ let state = {
     isWh: false,
     currentSOC: 50,
     battAh: parseFloat(localStorage.getItem('vibe_batt_ah')) || 100,
-    powerStationAh: parseFloat(localStorage.getItem('vibe_ps_ah')) || 0, // <--- AGGIUNTA QUESTA
+    powerStationAh: parseFloat(localStorage.getItem('vibe_ps_ah')) || 0,
     panelWp: parseFloat(localStorage.getItem('vibe_panel_wp')) || 100,
+    panelPsWp: parseFloat(localStorage.getItem('vibe_panel_ps_wp')) || 0, // <--- AGGIUNTA QUESTA
     weatherData: null
 };
 window.onload = () => {
@@ -292,7 +293,9 @@ async function updateAll() {
         // Calcolo Potenza Watt tramite SolarEngine
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
-        const power = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
+        // Somma la potenza di entrambi i sistemi di pannelli
+        const totalWp = state.panelWp + state.panelPsWp;
+        const power = SolarEngine.calculatePower(hDec, sunH, setH, totalWp, hourly.cloud_cover[hourIdx]);
         
         // Mostra i Watt finali
         displayVal.innerText = Math.round(power) + " W";
@@ -386,17 +389,35 @@ function switchView(vId, el) {
 }
 
 function editSpec(type) {
-    let v = prompt(type === 'batt' ? "Ah Batteria:" : "Watt Pannelli (Wp):");
-    if (v && !isNaN(v)) {
+    // 1. Definiamo il messaggio del prompt in base a cosa stiamo modificando
+    let messaggio = "Inserisci valore:";
+    if (type === 'batt') messaggio = "Ah Batteria Servizi:";
+    if (type === 'pan') messaggio = "Watt Pannelli Fissi (Wp):";
+    if (type === 'panPs') messaggio = "Watt Pannelli Power Station (Wp):";
+
+    let v = prompt(messaggio);
+
+    // 2. Controllo validità: se l'utente preme annulla o scrive lettere, non fa nulla
+    if (v !== null && v !== "" && !isNaN(v)) {
+        const valoreNumerico = parseFloat(v);
+
         if (type === 'batt') {
-            state.battAh = parseFloat(v);
+            state.battAh = valoreNumerico;
             localStorage.setItem('vibe_batt_ah', v);
             document.getElementById('batt_val').innerText = v;
-        } else {
-            state.panelWp = parseFloat(v);
+        } 
+        else if (type === 'pan') {
+            state.panelWp = valoreNumerico;
             localStorage.setItem('vibe_panel_wp', v);
             document.getElementById('panel_val').innerText = v;
         }
+        else if (type === 'panPs') { // <--- NUOVO CASO PER PANNELLI PS
+            state.panelPsWp = valoreNumerico;
+            localStorage.setItem('vibe_panel_ps_wp', v);
+            document.getElementById('panel_ps_val').innerText = v;
+        }
+        
+        // 3. Ricalcola tutto con i nuovi valori
         updateAll();
     }
 }
