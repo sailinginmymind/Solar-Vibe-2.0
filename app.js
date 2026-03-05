@@ -8,9 +8,10 @@ let isGpsSyncing = false; // <--- AGGIUNGI QUESTA RIGA (Mancava nel tuo codice)
 let state = {
     isWh: false,
     currentSOC: 50,
+    currentPsSOC: 50, // <--- Fondamentale: la virgola qui separa questo valore dal successivo
     camperName: localStorage.getItem('vibe_camper_name') || "IL MIO VAN",
     battAh: parseFloat(localStorage.getItem('vibe_batt_ah')) || 100,
-    psAh: parseFloat(localStorage.getItem('vibe_ps_ah')) || 0, // <--- Cambiato da powerStationAh a psAh per coerenza
+    psAh: parseFloat(localStorage.getItem('vibe_ps_ah')) || 0, 
     panelWp: parseFloat(localStorage.getItem('vibe_panel_wp')) || 100,
     panelPsWp: parseFloat(localStorage.getItem('vibe_panel_ps_wp')) || 0, 
     weatherData: null
