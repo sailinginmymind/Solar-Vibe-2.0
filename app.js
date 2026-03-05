@@ -3,6 +3,7 @@
  */
 let chartSelectionTimer;
 let dataSelezionata = new Date(); // <--- AGGIUNTA QUESTA
+let isGpsSyncing = false; // <--- AGGIUNGI QUESTA RIGA (Mancava nel tuo codice)
 
 let state = {
     isWh: false,
@@ -180,6 +181,7 @@ generaBottoniGiorni();
  * direttamente il feedback verde di successo (senza scritte intermedie).
  */
 async function handleGpsSync() {
+    isGpsSyncing = true; // <--- 1. ACCENDE IL SEGNALE GPS
     const btn = document.getElementById('btn-gps');
     const originalText = "📡 AGGIORNA GPS E ORA ATTUALE ⏱️";
 
@@ -217,6 +219,8 @@ async function handleGpsSync() {
         btn.style.boxShadow = "0 0 20px #ef4444"; // Glow rosso in caso di errore
     } finally {
         btn.disabled = false;
+        isGpsSyncing = false; // <--- 2. SPEGNE IL SEGNALE GPS (Così puoi scrivere a mano dopo)
+        
         // Dopo 3 secondi riportiamo il tasto allo stato originale
         setTimeout(() => { 
             btn.innerText = originalText; 
