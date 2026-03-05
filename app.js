@@ -525,28 +525,45 @@ function resetDetailDisplay() {
  * Cosa fa: Prende Lat e Lng e aggiorna il campo di testo della città.
  * Correzione: Ora punta a 'city-input' e usa .value per i campi di testo.
  */
+/**
+ * Funzione: updateCityName
+ * Spiegazione: Converte Latitudine e Longitudine nel nome della Città e del Paese.
+ * Abbiamo aggiunto il supporto per il Paese e una gestione degli errori più robusta.
+ */
 async function updateCityName(lat, lng) {
     const cityElement = document.getElementById('city-input'); 
     if (!cityElement) return;
 
     try {
-        // Usiamo un servizio di fallback se il primo fallisce
-        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`, {
+        // Interpelliamo il servizio OpenStreetMap (Nominatim)
+        // Aggiungiamo 'accept-language=it' per avere i nomi in italiano se disponibili
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=it`, {
             headers: { 'User-Agent': 'VibeSolarApp' }
         });
+        
         const data = await response.json();
         
-        const city = data.address.city || data.address.town || data.address.village || data.address.municipality;
-        
-        if (city) {
-            cityElement.value = city.toUpperCase();
+        if (data && data.address) {
+            // Cerchiamo la città tra i vari nomi che può avere nell'API
+            const city = data.address.city || data.address.town || data.address.village || data.address.municipality || data.address.suburb;
+            // Prendiamo il nome del Paese (es: Italia)
+            const country = data.address.country;
+
+            if (city && country) {
+                // Se abbiamo entrambi: "ROMA, ITALIA"
+                cityElement.value = `${city}, ${country}`.toUpperCase();
+            } else if (city) {
+                // Se abbiamo solo la città: "ROMA"
+                cityElement.value = city.toUpperCase();
+            } else {
+                cityElement.value = "POSIZIONE GPS";
+            }
         } else {
-            cityElement.value = "POSIZIONE GPS";
+            cityElement.value = "POSIZIONE RILEVATA";
         }
     } catch (error) {
         console.error("Errore recupero città:", error);
-        // Se non trova il nome, almeno scriviamo le coordinate o un testo generico
-        cityElement.value = "POSIZIONE RILEVATA";
+        cityElement.value = "ERRORE GEOLOCALIZZAZIONE";
     }
 }
 /**
