@@ -1176,59 +1176,76 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     padding: 6px 12px;
     font-size: 10px;
 }
-/* Contenitore per affiancare gli slider */
+/* Contenitore per affiancare i due box */
 .dual-slider-container {
     display: flex;
-    gap: 12px; /* Spazio tra i due box */
+    gap: 12px;
     margin: 20px 0;
     width: 100%;
 }
 
-/* Stile aggiornato per essere identico al box originale di destra */
-.dual-slider-container .slider-box {
-    flex: 1; /* Divide lo spazio al 50% */
-    background: rgba(30, 41, 59, 0.4); /* Sfondo più scuro e professionale */
+/* Stile comune per i box: ora entrambi avranno il bordo del tema */
+.slider-box {
+    flex: 1;
+    background: rgba(30, 41, 59, 0.4) !important; 
     padding: 15px 12px;
-    border-radius: 24px;              /* Arrotondamento uguale alle card */
-    
-    /* BORDO DINAMICO: qui sta il segreto, usa var(--accento) */
-    border: 1px solid var(--accento) !important; 
-    
-    /* Effetto luce interna */
-    box-shadow: inset 0 0 15px rgba(0,0,0,0.2); 
-    margin: 0;
+    border-radius: 24px;
+    border: 1px solid var(--accento) !important; /* Forza il bordo colorato */
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
     transition: all 0.3s ease;
 }
 
-/* Etichette (SOC PS / SOC BATT) */
-.slider-header span:first-child {
-    font-size: 10px !important;
-    font-weight: 900;
-    color: #94a3b8; /* Grigio chiaro per non distrarre */
-    letter-spacing: 1px;
-    text-transform: uppercase;
+/* Allineamento dei testi sopra lo slider */
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
-/* Numeri percentuali (Uguali e luminosi) */
+.slider-header span:first-child {
+    font-size: 9px !important;
+    font-weight: 900;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Numeri percentuali identici e luminosi */
 .soc-number {
-    font-size: 24px !important; /* Dimensione aumentata come richiesto */
+    font-size: 24px !important;
     font-weight: 900;
     color: var(--accento) !important;
     text-shadow: 0 0 12px var(--accento); /* Effetto Glow Neon */
 }
 
-/* Forza lo stile dei "pallini" (Thumb) per entrambi gli slider */
-.dual-slider-container input[type=range]::-webkit-slider-thumb {
-    width: 24px;
-    height: 24px;
-    background: var(--accento);
+/* --- STILE SLIDER (LINEA E PALLINO) --- */
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    height: 6px;
+    border-radius: 5px;
+    outline: none;
+}
+
+/* Il pallino che trascini (Thumb) */
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    background: var(--accento) !important;
     border: 3px solid #0f172a;
+    border-radius: 50%;
+    cursor: pointer;
     box-shadow: 0 0 10px var(--accento);
 }
 
-/* --- OTTIMIZZAZIONE MOBILE --- */
+/* Ottimizzazione per schermi piccoli */
 @media (max-width: 480px) {
     .dual-slider-container { gap: 8px; }
-    .dual-slider-container .slider-box { padding: 12px 8px; }
     .soc-number { font-size: 18px !important; }
+    .slider-box { padding: 12px 8px; }
 }
