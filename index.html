@@ -85,7 +85,7 @@
         </div>
     </div>
 
- <div id="view-garage" class="view">
+<div id="view-garage" class="view">
     <div class="card">
         <h3 class="section-title">GARAGE</h3>
         
@@ -95,14 +95,26 @@
         </div>
         
         <div class="garage-row">
-            <span>🔋 Batteria: <b><span id="batt_val">100</span> Ah</b></span>
+            <div>
+                <div style="font-size: 11px; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">BATTERIA SERVIZI</div>
+                <div style="font-size: 18px; font-weight: 900;"><span id="batt_val">100</span> Ah</div>
+            </div>
             <button id="edit-batt-btn" class="mini-btn">EDIT</button>
-            <div style="font-size: 11px; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">POWER STATION</div>
-        <div style="font-size: 18px; font-weight: 900;"><span id="ps_val">0</span> Ah</div>
+        </div>
+
+        <div class="garage-row">
+            <div>
+                <div style="font-size: 11px; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">POWER STATION</div>
+                <div style="font-size: 18px; font-weight: 900;"><span id="ps_val">0</span> Ah</div>
+            </div>
+            <button id="edit-ps-btn" class="mini-btn">EDIT</button> 
         </div>
         
         <div class="garage-row">
-            <span>☀️ Pannelli: <b><span id="panel_val">100</span> W</b></span>
+            <div>
+                <div style="font-size: 11px; color: #94a3b8; font-weight: 800; letter-spacing: 1px;">PANNELLI SOLARI</div>
+                <div style="font-size: 18px; font-weight: 900;"><span id="panel_val">100</span> W</div>
+            </div>
             <button id="edit-pan-btn" class="mini-btn">EDIT</button>
         </div>
 
@@ -117,7 +129,7 @@
                 <div onclick="changeBg('#2d0a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #2d0a1a; border: 1px solid #f43f5e; cursor: pointer;"></div>
             </div>
         </div>
-        </div>
+    </div>
 </div>
 
     <nav class="nav-bar">
