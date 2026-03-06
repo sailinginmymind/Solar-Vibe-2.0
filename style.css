@@ -1417,27 +1417,25 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
         color: var(--accento);
     }
 }
-/* --- SELETTORE UNITÀ (Ah/Wh) --- */
-.unit-selector {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--accento);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 900;
-    padding: 2px 4px;
-    outline: none;
-    cursor: pointer;
-    margin: 0 5px;
-    transition: all 0.3s ease;
+
+/* Stile per i valori convertiti nel Garage (Wh sotto Ah e viceversa) */
+.conv-val-container {
+    font-size: 1.1rem; /* Dimensione aumentata (era circa 0.7rem) */
+    font-weight: 800;  /* Molto marcato */
+    margin-top: 8px;   /* Più spazio dal valore principale */
+    letter-spacing: 0.5px;
+    display: block;    /* Assicura che vada a capo correttamente */
 }
 
-.unit-selector:focus {
-    border-color: var(--accento);
-    box-shadow: 0 0 5px var(--accento);
+/* Colore specifico per la conversione Batteria (Azzurro) */
+#batt_conv_val, .batt-unit-small {
+    color: #38bdf8;
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
 }
 
-.unit-selector option {
-    background: #0f172a; /* Sfondo scuro per le opzioni del menu */
-    color: white;
+/* Colore specifico per la conversione Power Station (Giallo) */
+#ps_conv_val, .ps-unit-small {
+    color: #fbbf24;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
 }
+
