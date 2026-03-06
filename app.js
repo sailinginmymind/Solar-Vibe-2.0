@@ -192,16 +192,17 @@ function updateReportUI(currentPower, sunH, setH) {
     if (!chart || !state.weatherData) return;
 
     // --- 1. PREPARAZIONE DATI PER IL CALCOLO ---
-    // Usiamo i Watt specifici per ogni uscita
+    // Recuperiamo i Watt attuali dai display della Dashboard
     const wattServizi = parseFloat(document.getElementById('w_services')?.innerText) || 0;
     const wattPS = parseFloat(document.getElementById('w_ps')?.innerText) || 0;
 
     // --- 2. AGGIORNAMENTO TEMPI POWER STATION ---
-    // Se psAh è 0, non calcola nulla e mette "--"
+    // NOTA: state.psAh ora contiene Wh. Dividiamo per 12.8 per dare gli Ah al motore
     if (state.psAh > 0) {
-        document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wattPS, state.psAh);
-        document.getElementById('ps_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 90, wattPS, state.psAh);
-        document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wattPS, state.psAh);
+        const psAhEquiv = state.psAh / 12.8; 
+        document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wattPS, psAhEquiv);
+        document.getElementById('ps_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 90, wattPS, psAhEquiv);
+        document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wattPS, psAhEquiv);
     } else {
         document.getElementById('ps_charge_80_txt').innerText = "--";
         document.getElementById('ps_charge_90_txt').innerText = "--";
@@ -209,6 +210,7 @@ function updateReportUI(currentPower, sunH, setH) {
     }
     
     // --- 3. AGGIORNAMENTO TEMPI BATTERIA SERVIZIO ---
+    // Qui rimane tutto uguale perché state.battAh sono già Ah
     if (state.battAh > 0) {
         document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, wattServizi, state.battAh);
         document.getElementById('batt_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, wattServizi, state.battAh);
