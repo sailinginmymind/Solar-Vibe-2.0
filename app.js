@@ -303,36 +303,22 @@ function editSpec(type) {
  * Utilizza il coefficiente 12.8V per batterie LiFePO4.
  */
 function updateConversions() {
-    // 1. GESTIONE BATTERIA SERVIZIO
-    const bVal = parseFloat(document.getElementById('batt_val').innerText) || 0;
-    const bUnit = document.getElementById('batt_unit').value;
+    // 1. GESTIONE BATTERIA SERVIZIO (Solo Ah -> Wh)
+    const bAh = parseFloat(document.getElementById('batt_val').innerText) || 0;
     const bConvVal = document.getElementById('batt_conv_val');
 
     if (bConvVal) {
-        if (bUnit === "Ah") {
-            // Se inserisci Ah, calcola i Wh
-            bConvVal.innerText = Math.round(bVal * 12.8);
-            bConvVal.nextSibling.textContent = " Wh";
-        } else {
-            // Se inserisci Wh, calcola gli Ah
-            bConvVal.innerText = Math.round(bVal / 12.8);
-            bConvVal.nextSibling.textContent = " Ah";
-        }
+        // Calcoliamo i Wh partendo dai Ah inseriti
+        bConvVal.innerText = Math.round(bAh * 12.8);
     }
 
-    // 2. GESTIONE POWER STATION
-    const pVal = parseFloat(document.getElementById('ps_val').innerText) || 0;
-    const pUnit = document.getElementById('ps_unit').value;
+    // 2. GESTIONE POWER STATION (Solo Ah -> Wh)
+    const pAh = parseFloat(document.getElementById('ps_val').innerText) || 0;
     const pConvVal = document.getElementById('ps_conv_val');
 
     if (pConvVal) {
-        if (pUnit === "Ah") {
-            pConvVal.innerText = Math.round(pVal * 12.8);
-            pConvVal.nextSibling.textContent = " Wh";
-        } else {
-            pConvVal.innerText = Math.round(pVal / 12.8);
-            pConvVal.nextSibling.textContent = " Ah";
-        }
+        // Calcoliamo i Wh partendo dai Ah inseriti
+        pConvVal.innerText = Math.round(pAh * 12.8);
     }
 }
 
