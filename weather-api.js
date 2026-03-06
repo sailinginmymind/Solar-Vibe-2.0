@@ -45,8 +45,8 @@ const WeatherAPI = {
  */
 function updateDashboardClock() {
     const clockElement = document.getElementById('display-hour-center'); 
-    const inputTime = document.getElementById('input-time'); // Riquadro ora in basso
-    const inputDate = document.getElementById('input-date'); // Riquadro data in basso
+    const inputTime = document.getElementById('input-time'); 
+    const inputDate = document.getElementById('input-date'); 
 
     if (!clockElement) return;
 
@@ -54,20 +54,19 @@ function updateDashboardClock() {
     let timeToUse = oraLocale;
 
     if (window.timezoneOffsetSeconds !== null) {
-        // Calcoliamo l'ora della città (es. Taipei)
         const utcTimeMs = oraLocale.getTime() + (oraLocale.getTimezoneOffset() * 60000);
         timeToUse = new Date(utcTimeMs + (window.timezoneOffsetSeconds * 1000));
     }
 
-    // 1. Aggiorna l'ora nel cerchio centrale
     const h = timeToUse.getHours().toString().padStart(2, '0');
     const m = timeToUse.getMinutes().toString().padStart(2, '0');
-    clockElement.innerText = `${h}:${m}`;
+    const hDec = timeToUse.getHours() + (timeToUse.getMinutes() / 60);
 
-    // 2. Aggiorna il riquadro dell'ora in basso (input-time)
+    // 1. Aggiorna i testi
+    clockElement.innerText = `${h}:${m}`;
     if (inputTime) inputTime.value = `${h}:${m}`;
 
-    // 3. Aggiorna il riquadro della data in basso (input-date)
+    // 2. Aggiorna la data solo se necessario
     if (inputDate) {
         const yyyy = timeToUse.getFullYear();
         const mm = (timeToUse.getMonth() + 1).toString().padStart(2, '0');
@@ -75,12 +74,8 @@ function updateDashboardClock() {
         inputDate.value = `${yyyy}-${mm}-${dd}`;
     }
 
-    // 4. SINCRONIZZA IL SOLE
-    // Questa funzione aggiorna la posizione del sole in base alla nuova ora
- if (typeof updateAll === 'function') {
-    updateAll(); 
+    // 3. MUOVI IL SOLE (Senza scaricare dati meteo ogni secondo)
+    if (typeof updateSunUI === 'function' && window.lastSunH !== undefined) {
+        updateSunUI(hDec, window.lastSunH, window.lastSetH); 
+    }
 }
-}
-
-// Avviamo l'aggiornamento automatico ogni secondo
-setInterval(updateDashboardClock, 1000);
