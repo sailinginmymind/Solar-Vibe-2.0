@@ -124,7 +124,54 @@ async function handleGpsSync() {
         }, 3000);
     }
 }
+/**
+ * FUNZIONE EDIT UNIVERSALE
+ * Spiegazione: Gestisce i prompt per tutti i valori del garage.
+ * Nota: 'ps' salva Wh (Wattora), 'batt' salva Ah (Ampere/ora).
+ */
+function editSpec(type) {
+    console.log("Apertura edit per:", type); // Serve per vedere se il tasto risponde
 
+    let current = 0;
+    let label = "";
+
+    // 1. Recupero il valore attuale dallo 'state'
+    if (type === 'batt') {
+        current = state.battAh || 0;
+        label = "Capacità Batteria SERVIZI (Ah)";
+    } else if (type === 'ps') {
+        current = state.psAh || 0; 
+        label = "Capacità POWER STATION (Wh)";
+    } else if (type === 'pan') {
+        current = state.panelWp || 0;
+        label = "Potenza Pannelli Camper (W)";
+    } else if (type === 'panPs') {
+        current = state.panelPsWp || 0;
+        label = "Potenza Pannelli PS (W)";
+    }
+
+    // 2. Mostro il box di inserimento
+    const v = prompt(`Modifica ${label}:`, current);
+
+    // 3. Se l'utente preme OK e mette un numero
+    if (v !== null && v !== "" && !isNaN(v)) {
+        const val = parseFloat(v);
+        
+        // Aggiorno lo stato
+        if (type === 'batt') state.battAh = val;
+        else if (type === 'ps') state.psAh = val;
+        else if (type === 'pan') state.panelWp = val;
+        else if (type === 'panPs') state.panelPsWp = val;
+
+        // 4. Salvo e rinfresco tutta l'app
+        saveGarageSettings(); // Salva su memoria telefono
+        if (typeof loadSavedData === 'function') loadSavedData();      // Aggiorna i testi
+        if (typeof updateConversions === 'function') updateConversions(); // Aggiorna i Wh/Ah piccoli
+        if (typeof updateAll === 'function') updateAll();              // Ricalcola il Report
+        
+        console.log("Valore aggiornato:", val);
+    }
+}
 // --- TUTTO IL RESTO RIMANE INVARIATO (LOGICA E CALCOLI) ---
 
 async function updateAll() {
