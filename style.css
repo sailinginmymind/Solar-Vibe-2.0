@@ -1016,11 +1016,48 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 
 .cell-value {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column; /* Incolonna il valore principale e quello convertito */
+    align-items: flex-start; /* Allinea tutto a sinistra */
     font-size: 16px;
     font-weight: bold;
     color: #fff;
+    gap: 4px; /* Spazio tra le due righe */
+}
+
+/* Contenitore per allineare Numero e Unità (usato per entrambe le righe) */
+.val-row {
+    display: flex;
+    align-items: baseline; /* Allinea il testo sulla stessa linea di base */
+    width: 100%;
+}
+/* Forza l'unità di misura ad avere una larghezza fissa */
+.cell-value small, 
+.batt-unit-small, 
+.ps-unit-small {
+    display: inline-block;
+    width: 35px;         /* Larghezza identica per Ah e wh/ah */
+    text-align: left;    /* Allinea il testo a sinistra nella sua colonna */
+    margin-left: 6px;    /* Distanza dal numero */
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+/* --- NUMERI CONVERTITI GRANDI --- */
+#batt_conv_val, #ps_conv_val {
+    font-size: 1.8rem;   /* Dimensione richiesta */
+    font-weight: 900;
+    line-height: 1;
+}
+
+/* Colori specifici e bagliore */
+#batt_conv_val, .batt-unit-small {
+    color: #38bdf8;      /* Azzurro Batteria */
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+#ps_conv_val, .ps-unit-small {
+    color: #fbbf24;      /* Giallo Power Station */
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
 }
 
 /* --- PULSANTI EDIT ADATTABILI --- */
