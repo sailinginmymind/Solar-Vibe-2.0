@@ -58,7 +58,7 @@ const SolarEngine = {
         const [hours, minutes] = timeStr.split(':').map(Number);
         return hours + (minutes / 60);
     }
-    getCurrentCityTime() {
+   getCurrentCityTime() {
         const oraLocale = new Date();
         if (window.timezoneOffsetSeconds !== null) {
             const utcTimeMs = oraLocale.getTime() + (oraLocale.getTimezoneOffset() * 60000);
