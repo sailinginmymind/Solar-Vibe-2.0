@@ -77,12 +77,10 @@ function initEventListeners() {
     // 5. Salvataggio nome camper
     const saveNameBtn = document.getElementById('btn-save-name');
     if (saveNameBtn) saveNameBtn.onclick = saveGarageSettings;
-
     // NOTA: I tasti EDIT (batt, ps, pan, panPs) ora sono gestiti 
     // direttamente dall'attributo onclick="editSpec(...)" nel file HTML.
     // Non serve aggiungere altro qui per evitare conflitti.
 }
-
 // --- FUNZIONE GPS CON RIPRISTINO GLOW ---
 async function handleGpsSync() {
     isGpsSyncing = true;
@@ -272,29 +270,52 @@ function initSliders() {
 
 function updateSliderFill(slider) { slider.style.setProperty('--value', slider.value + '%'); }
 
+/**
+ * FUNZIONE EDIT UNIVERSALE
+ * Spiegazione: Gestisce i prompt per tutti i valori del garage.
+ * Nota: 'ps' salva Wh, 'batt' salva Ah.
+ */
 function editSpec(type) {
-    // 1. Identifichiamo il valore attuale e l'unità di misura selezionata
-    let current = type === 'batt' ? state.battAh : 
-                  type === 'pan' ? state.panelWp : 
-                  type === 'ps' ? state.psAh : state.panelPsWp;
-    // Recuperiamo l'unità (se è batteria o PS) per mostrarla nel prompt
-    let unitLabel = "";
-    if (type === 'batt') unitLabel = document.getElementById('batt_unit').value;
-    else if (type === 'ps') unitLabel = document.getElementById('ps_unit').value;
-    else unitLabel = "W"; // Per i pannelli è sempre Watt
-    // 2. Chiediamo il valore includendo l'unità nel messaggio
-    let v = prompt(`Inserisci valore (${unitLabel}):`, current);
+    // 1. Log di controllo (se premi F12 nel browser vedrai se la funzione parte)
+    console.log("Tentativo di modifica per:", type);
+
+    let current = 0;
+    let label = "";
+
+    // 2. Recupero dati dallo stato
+    if (type === 'batt') {
+        current = state.battAh || 0;
+        label = "Capacità Batteria (Ah)";
+    } else if (type === 'ps') {
+        current = state.psAh || 0; // Salviamo Wh per la Power Station
+        label = "Capacità Power Station (Wh)";
+    } else if (type === 'pan') {
+        current = state.panelWp || 0;
+        label = "Potenza Pannelli Camper (W)";
+    } else if (type === 'panPs') {
+        current = state.panelPsWp || 0;
+        label = "Potenza Pannelli PS (W)";
+    }
+
+    // 3. Apertura Prompt
+    const v = prompt(`Inserisci ${label}:`, current);
+
+    // 4. Validazione e salvataggio
     if (v !== null && v !== "" && !isNaN(v)) {
-        if (type === 'batt') state.battAh = parseFloat(v);
-        else if (type === 'pan') state.panelWp = parseFloat(v);
-        else if (type === 'ps') state.psAh = parseFloat(v);
-        else if (type === 'panPs') state.panelPsWp = parseFloat(v);
-        // 3. Salviamo e ricarichiamo i dati a video
+        const val = parseFloat(v);
+        
+        if (type === 'batt') state.battAh = val;
+        else if (type === 'ps') state.psAh = val;
+        else if (type === 'pan') state.panelWp = val;
+        else if (type === 'panPs') state.panelPsWp = val;
+
+        // 5. Aggiornamento a cascata
         saveGarageSettings();
-        loadSavedData();
-        // 4. AGGIUNTA: Forza l'aggiornamento immediato delle conversioni (Wh/Ah) e dei report
+        if (typeof loadSavedData === 'function') loadSavedData();
         if (typeof updateConversions === 'function') updateConversions();
-        if (typeof updateChargeReports === 'function') updateChargeReports();
+        if (typeof updateAll === 'function') updateAll();
+        
+        console.log("Valore aggiornato con successo:", val);
     }
 }
 /**
