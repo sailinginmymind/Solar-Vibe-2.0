@@ -1,8 +1,8 @@
-/* Definizione dei Temi (Variabili) */
+/* 1. Definizione dei Temi (Variabili) */
 :root {
-    --bg-puro: #0f172a;        /* Blu Notte Originale */
-    --accento: #38bdf8;        /* Azzurro dei bordi e icone */
-    --bg-card: rgba(30, 41, 59, 0.7); /* Sfondo semitrasparente card */
+    --bg-puro: #0f172a;        
+    --accento: #38bdf8;        
+    --bg-card: rgba(30, 41, 59, 0.7); 
     --bg-badge: rgba(56, 189, 248, 0.15);
 }
 
@@ -11,7 +11,6 @@ body.tema-verde {
     --bg-puro: #062c1f;
     --accento: #10b981;
     --bg-card: rgba(6, 44, 31, 0.8);
-    /* Sfumatura interna dei riquadri: un verde più chiaro e trasparente */
     --bg-badge: rgba(16, 185, 129, 0.15);
 }
 
@@ -28,13 +27,13 @@ body.tema-grigio {
     --bg-puro: #1a1a1a;
     --accento: #94a3b8;
     --bg-card: rgba(35, 35, 35, 0.8);
-    /* Sfumatura interna: un bianco/grigio chiarissimo molto trasparente */
     --bg-badge: rgba(255, 255, 255, 0.05); 
 }
-}
+
 /* --- STILE DINAMICO NOME CAMPER --- */
+/* Rimosso l'errore della graffa extra qui sopra */
 #camper-name-display {
-    color: var(--accento) !important;       /* Segue il colore del tema */
+    color: var(--accento) !important;       /* Ora leggerà correttamente il cambio variabile */
     text-shadow: 0 0 10px var(--accento);  /* Effetto Neon coordinato */
     transition: all 0.4s ease;             /* Cambio fluido al cambio tema */
     font-weight: 900;
