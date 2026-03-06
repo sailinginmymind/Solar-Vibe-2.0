@@ -18,19 +18,39 @@ const SolarEngine = {
         return arcHeight * panelWp * weatherFactor;
     },
 
-    // Calcola il tempo necessario per raggiungere un target di Ah
+   // Calcola il tempo necessario per ricaricare la batteria (Ah) fino a un certo SOC (%)
     estimateChargeTime(currentSoc, targetSoc, currentPower, battAh) {
+        // 1. Controlli di sicurezza: se non c'è sole o i dati sono 0
+        if (currentPower <= 5 || battAh <= 0) return "--";
+        
+        // Se la batteria è già al target o sopra
+        if (parseFloat(currentSoc) >= targetSoc) return "OK";
+
         const voltage = 12.8;
-        const lossFactor = 0.85; // Efficienza MPPT/Cavi
-        const producedA = (currentPower * lossFactor) / voltage;
-        const netA = producedA - 0.5; // Consumo base camper
+        const lossFactor = 0.85; // Efficienza MPPT e cadute di tensione cavi
+        
+        // 2. Calcoliamo l'energia totale della batteria in Wh
+        const totalWh = battAh * voltage;
+        
+        // 3. Calcoliamo quanta energia (Wh) manca per arrivare al target
+        const energyNeeded = totalWh * ((targetSoc - currentSoc) / 100);
+        
+        // 4. Calcoliamo le ore necessarie (Energia / Potenza netta)
+        // Sottraiamo un piccolo consumo base (es. 10W per centralina/sensori)
+        const netPower = (currentPower * lossFactor) - 10; 
+        
+        if (netPower <= 0) return "∞";
 
-        if (netA <= 0.05) return "∞";
+        const hoursDecimal = energyNeeded / netPower;
 
-        const neededAh = (battAh * (targetSoc / 100)) - (battAh * (currentSoc / 100));
-        if (neededAh <= 0) return "0h";
+        // Se il tempo stimato supera i 2 giorni, mostriamo un limite
+        if (hoursDecimal > 48) return ">48h";
 
-        return (neededAh / netA).toFixed(1) + "h";
+        // 5. Formattazione in ore e minuti (es: 1h 45m invece di 1.8h)
+        const h = Math.floor(hoursDecimal);
+        const m = Math.round((hoursDecimal - h) * 60);
+
+        return h > 0 ? `${h}h ${m}m` : `${m}m`;
     },
 
     // Converte orario stringa (HH:MM) in ore decimali
