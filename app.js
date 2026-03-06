@@ -284,7 +284,72 @@ function editSpec(type) {
         if (typeof updateChargeReports === 'function') updateChargeReports();
     }
 }
+/**
+ * Calcola e scrive la conversione Wh/Ah subito sotto i valori principali nel Garage.
+ * Utilizza il coefficiente 12.8V per batterie LiFePO4.
+ */
+function updateConversions() {
+    // 1. GESTIONE BATTERIA SERVIZIO
+    const bVal = parseFloat(document.getElementById('batt_val').innerText) || 0;
+    const bUnit = document.getElementById('batt_unit').value;
+    const bConvVal = document.getElementById('batt_conv_val');
 
+    if (bConvVal) {
+        if (bUnit === "Ah") {
+            // Se inserisci Ah, calcola i Wh
+            bConvVal.innerText = Math.round(bVal * 12.8);
+            bConvVal.nextSibling.textContent = " Wh";
+        } else {
+            // Se inserisci Wh, calcola gli Ah
+            bConvVal.innerText = Math.round(bVal / 12.8);
+            bConvVal.nextSibling.textContent = " Ah";
+        }
+    }
+
+    // 2. GESTIONE POWER STATION
+    const pVal = parseFloat(document.getElementById('ps_val').innerText) || 0;
+    const pUnit = document.getElementById('ps_unit').value;
+    const pConvVal = document.getElementById('ps_conv_val');
+
+    if (pConvVal) {
+        if (pUnit === "Ah") {
+            pConvVal.innerText = Math.round(pVal * 12.8);
+            pConvVal.nextSibling.textContent = " Wh";
+        } else {
+            pConvVal.innerText = Math.round(pVal / 12.8);
+            pConvVal.nextSibling.textContent = " Ah";
+        }
+    }
+}
+
+/**
+ * Calcola i tempi di ricarica per il Report basandosi sulle unità scelte
+ */
+function updateChargeReports() {
+    const wattServizi = parseFloat(document.getElementById('w_services')?.innerText) || 0;
+    const wattPS = parseFloat(document.getElementById('w_ps')?.innerText) || 0;
+    
+    // Capacità in Wh (moneta comune per il calcolo)
+    const bUnit = document.getElementById('batt_unit').value;
+    const pUnit = document.getElementById('ps_unit').value;
+    
+    const capS_Wh = bUnit === "Ah" ? (state.battAh * 12.8) : state.battAh;
+    const capPS_Wh = pUnit === "Ah" ? (state.psAh * 12.8) : state.psAh;
+
+    // Aggiorna i testi nel report chiamando la tua funzione esistente nel SolarEngine
+    // Nota: SolarEngine.estimateChargeTime deve essere aggiornato per gestire Wh se passi Wh
+    if (capPS_Wh > 0) {
+        document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wattPS, capPS_Wh / 12.8);
+        document.getElementById('ps_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 90, wattPS, capPS_Wh / 12.8);
+        document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wattPS, capPS_Wh / 12.8);
+    }
+    
+    if (capS_Wh > 0) {
+        document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, wattServizi, capS_Wh / 12.8);
+        document.getElementById('batt_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, wattServizi, capS_Wh / 12.8);
+        document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, wattServizi, capS_Wh / 12.8);
+    }
+}
 function saveGarageSettings() {
     // 1. Preleviamo il valore dall'input
     const nameInput = document.getElementById('camper_name_input');
