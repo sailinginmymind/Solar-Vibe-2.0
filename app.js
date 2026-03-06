@@ -58,6 +58,20 @@ function initEventListeners() {
     document.getElementById('edit-pan-btn').onclick = () => editSpec('pan');
     document.getElementById('edit-ps-btn').onclick = () => editSpec('ps');
     document.getElementById('edit-pan-ps-btn').onclick = () => editSpec('panPs');
+
+    // --- AGGIUNTA PER GESTIONE UNITÀ Ah/Wh ---
+    // Questi "ascoltano" quando cambi la scelta nel menu a tendina del Garage
+    document.getElementById('batt_unit').onchange = () => {
+        localStorage.setItem('vibe_batt_unit', document.getElementById('batt_unit').value);
+        if (typeof updateConversions === 'function') updateConversions();
+        if (typeof updateChargeReports === 'function') updateChargeReports();
+    };
+
+    document.getElementById('ps_unit').onchange = () => {
+        localStorage.setItem('vibe_ps_unit', document.getElementById('ps_unit').value);
+        if (typeof updateConversions === 'function') updateConversions();
+        if (typeof updateChargeReports === 'function') updateChargeReports();
+    };
 }
 
 // --- FUNZIONE GPS CON RIPRISTINO GLOW ---
