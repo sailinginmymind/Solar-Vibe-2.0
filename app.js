@@ -187,7 +187,9 @@ async function updateAll() {
     // ------------------------------
 
     const date = dataSelezionata.toISOString().split('T')[0];
-    const time = document.getElementById('input-time').value;
+    const nowCity = SolarEngine.getCurrentCityTime();
+    const time = document.getElementById('input-time').value || 
+             (nowCity.getHours().toString().padStart(2,'0') + ":" + nowCity.getMinutes().toString().padStart(2,'0'));
     const displayVal = document.getElementById('w_out');
     
     if (!lat || !lng || !displayVal) return;
