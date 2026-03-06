@@ -989,106 +989,65 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     filter: brightness(1.2);
     box-shadow: 0 0 15px var(--accento); /* Glow del colore del tema */
 }
-/* Layout Griglia Garage */
-.config-grid-row {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.config-cell {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.cell-label {
-    font-size: 10px;
-    color: #94a3b8;
-    font-weight: 800;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-}
+/* --- GARAGE: LAYOUT UNIFICATO E DIMENSIONI --- */
 
 .cell-value {
     display: flex;
-    flex-direction: column; /* Incolonna il valore principale e quello convertito */
-    align-items: flex-start; /* Allinea tutto a sinistra */
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-    gap: 4px; /* Spazio tra le due righe */
+    flex-direction: column; 
+    align-items: flex-start;
+    position: relative; /* Necessario per posizionare il tasto EDIT */
+    gap: 0px; /* Stringiamo le due righe */
 }
 
-/* Contenitore per allineare Numero e Unità (usato per entrambe le righe) */
-.val-row {
-    display: flex;
-    align-items: baseline; /* Allinea il testo sulla stessa linea di base */
-    width: 100%;
+/* 1. FORZIAMO LA STESSA DIMENSIONE PER ENTRAMBI I NUMERI */
+/* (Sia quelli bianchi sopra che quelli colorati sotto) */
+#batt_val, #batt_conv_val, 
+#ps_val, #ps_conv_val,
+.config-cell span {
+    font-size: 2.2rem !important; /* Dimensione aumentata per entrambi */
+    font-weight: 900 !important;
+    line-height: 1.1;
+    letter-spacing: -1px;
 }
-/* Forza l'unità di misura ad avere una larghezza fissa */
+
+/* 2. ALLINEAMENTO PERFETTO DELLE UNITÀ */
 .cell-value small, 
 .batt-unit-small, 
 .ps-unit-small {
     display: inline-block;
-    width: 35px;         /* Larghezza identica per Ah e wh/ah */
-    text-align: left;    /* Allinea il testo a sinistra nella sua colonna */
-    margin-left: 6px;    /* Distanza dal numero */
-    font-size: 10px;
+    width: 35px;         
+    text-align: left;    
+    margin-left: 8px;    
+    font-size: 14px !important; /* Leggermente più grandi per bilanciare i numeri */
+    font-weight: 800;
     text-transform: uppercase;
 }
 
-/* --- NUMERI CONVERTITI GRANDI --- */
-#batt_conv_val, #ps_conv_val {
-    font-size: 1.8rem;   /* Dimensione richiesta */
-    font-weight: 900;
-    line-height: 1;
-}
-
-/* Colori specifici e bagliore */
+/* 3. EFFETTI RIGA SOTTO (COLORI E GLOW) */
 #batt_conv_val, .batt-unit-small {
-    color: #38bdf8;      /* Azzurro Batteria */
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+    color: #38bdf8;      
+    text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
 }
 
 #ps_conv_val, .ps-unit-small {
-    color: #fbbf24;      /* Giallo Power Station */
-    text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+    color: #fbbf24;      
+    text-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
 }
 
-/* --- PULSANTI EDIT ADATTABILI --- */
+/* 4. POSIZIONAMENTO TASTO EDIT */
+/* Lo spostiamo in alto a destra della cella per non rompere l'allineamento dei numeri */
 .edit-mini-btn {
-    /* Usa il colore del tema se esiste, altrimenti usa l'azzurro di default */
-    background: var(--accent-color, #38bdf8); 
-    color: #000;
-    border: none;
-    padding: 3px 8px;
+    position: absolute;
+    top: -5px;
+    right: 0;
+    background: var(--accento, #38bdf8) !important; 
+    color: #0f172a !important;
+    padding: 4px 8px;
     font-size: 9px;
     font-weight: 900;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
 }
-
-/* Effetto al passaggio del mouse o al tocco */
-.edit-mini-btn:active {
-    transform: scale(0.9);
-    filter: brightness(1.2);
-}
-/* --- STILE PER I GRUPPI DI CONFIGURAZIONE --- */
-
-.config-group {
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 20px; /* Spazio tra i due gruppi */
-    background: rgba(0, 0, 0, 0.15); /* Leggero sfondo scuro per contrasto */
-    border: 1px solid rgba(255, 255, 255, 0.08); /* Bordo di base molto leggero */
-}
-
 /* Titolo piccolo sopra il gruppo */
 .group-header {
     font-size: 10px;
