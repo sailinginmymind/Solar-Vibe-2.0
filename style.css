@@ -32,6 +32,14 @@ body.tema-grigio {
     --bg-badge: rgba(255, 255, 255, 0.05); 
 }
 }
+/* --- STILE DINAMICO NOME CAMPER --- */
+#camper-name-display {
+    color: var(--accento) !important;       /* Segue il colore del tema */
+    text-shadow: 0 0 10px var(--accento);  /* Effetto Neon coordinato */
+    transition: all 0.4s ease;             /* Cambio fluido al cambio tema */
+    font-weight: 900;
+    text-transform: uppercase;
+}
 /* --- RESET & BASE --- */
 * { 
     box-sizing: border-box; 
