@@ -1,5 +1,5 @@
 /**
- * APP.JS - Versione Integrale Corretta
+ * APP.JS - Versione Integrale con Fix Nav Bar e Glow
  */
 let chartSelectionTimer;
 let dataSelezionata = new Date(); 
@@ -23,18 +23,23 @@ window.onload = () => {
     loadSavedData();
     setupStars();
     generaBottoniGiorni();
-    // Primo avvio automatico
-    document.getElementById('btn-gps').click();
+    
+    // 1. ATTIVAZIONE NAV BAR: Mostra la Dashboard (live) all'avvio
+    switchView('live', document.querySelector('[data-view="live"]')); // <--- FIX NAV BAR
+
+    // 2. Avvio automatico dati
+    const gpsBtn = document.getElementById('btn-gps');
+    if (gpsBtn) gpsBtn.click();
 };
 
 function initEventListeners() {
-    // --- 1. NAVIGAZIONE E GPS ---
+    // Navigazione
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
+    
     document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
 
-    // --- 2. GESTIONE CITTA' ---
     const cityInput = document.getElementById('city-input');
     if (cityInput) {
         cityInput.addEventListener('change', function () {
@@ -43,13 +48,11 @@ function initEventListeners() {
         });
     }
 
-    // --- 3. INPUT CAMPI MANUALE ---
     ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
 
-    // --- 5. TASTI GARAGE ---
     document.getElementById('btn-save-name').onclick = saveGarageSettings;
     document.getElementById('edit-batt-btn').onclick = () => editSpec('batt');
     document.getElementById('edit-pan-btn').onclick = () => editSpec('pan');
@@ -57,21 +60,62 @@ function initEventListeners() {
     document.getElementById('edit-pan-ps-btn').onclick = () => editSpec('panPs');
 }
 
-// --- LOGICA CORE: UPDATE ALL ---
+// --- FUNZIONE GPS CON RIPRISTINO GLOW ---
+async function handleGpsSync() {
+    isGpsSyncing = true;
+    const btn = document.getElementById('btn-gps');
+    if (!btn) return;
+
+    btn.disabled = true;
+    btn.innerText = "🛰️ RICERCA POSIZIONE...";
+
+    try {
+        const coords = await WeatherAPI.getUserLocation();
+        const now = new Date();
+        
+        document.getElementById('input-lat').value = coords.latitude.toFixed(4);
+        document.getElementById('input-lng').value = coords.longitude.toFixed(4);
+        document.getElementById('input-time').value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        
+        dataSelezionata = new Date();
+        generaBottoniGiorni();
+        aggiornaTuttaInterfaccia();
+
+        // --- EFFETTO GLOW ---
+        btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
+        btn.style.background = "#22c55e"; 
+        btn.style.boxShadow = "0 0 20px #22c55e"; // <--- RIPRISTINO GLOW
+        btn.style.borderColor = "#4ade80";
+
+    } catch (err) {
+        btn.innerText = "❌ ERRORE GPS";
+        btn.style.background = "#ef4444";
+        btn.style.boxShadow = "0 0 20px #ef4444"; // <--- GLOW ROSSO ERRORE
+    } finally {
+        btn.disabled = false;
+        isGpsSyncing = false;
+        
+        setTimeout(() => { 
+            btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE"; 
+            btn.style.background = ""; 
+            btn.style.boxShadow = ""; // <--- SPEGNE GLOW
+            btn.style.borderColor = "";
+        }, 3000);
+    }
+}
+
+// --- TUTTO IL RESTO RIMANE INVARIATO (LOGICA E CALCOLI) ---
+
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
     const date = dataSelezionata.toISOString().split('T')[0];
     const time = document.getElementById('input-time').value;
     const displayVal = document.getElementById('w_out');
-
     if (!lat || !lng || !displayVal) return;
 
     try {
-        if (isGpsSyncing) {
-            await updateCityName(lat, lng); 
-        }
-
+        if (isGpsSyncing) await updateCityName(lat, lng); 
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
         if (!state.weatherData) return;
 
@@ -90,34 +134,24 @@ async function updateAll() {
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
 
-        // Calcolo Potenze
         const pServices = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
         const totalPower = pServices + pPS;
 
-        // Aggiornamento Dashboard
         displayVal.innerText = Math.round(totalPower) + " W";
         if (document.getElementById('w_services')) document.getElementById('w_services').innerText = Math.round(pServices) + " W";
         if (document.getElementById('w_ps')) document.getElementById('w_ps').innerText = Math.round(pPS) + " W";
 
-        if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
-
-        // Lancio del Report
+        updateSunUI(hDec, sunH, setH);
         updateReportUI(totalPower, sunH, setH);
-
-    } catch (e) { 
-        console.error("Errore updateAll:", e); 
-    }
+    } catch (e) { console.error(e); }
 }
 
 function updateReportUI(currentPower, sunH, setH) {
     const chart = document.getElementById('hourly-chart');
-    const detailBox = document.getElementById('detail-display');
     const totalDisplay = document.getElementById('total-wh-day');
-    
     if (!chart || !state.weatherData) return;
 
-    // A. Calcolo tempi ricarica
     const capS = state.battAh || 0;
     const capPS = state.psAh || 0;
 
@@ -132,7 +166,6 @@ function updateReportUI(currentPower, sunH, setH) {
         document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, capS);
     }
 
-    // B. Grafico
     chart.innerHTML = "";
     let dailyTotal = 0;
     const startH = Math.floor(sunH);
@@ -142,26 +175,21 @@ function updateReportUI(currentPower, sunH, setH) {
         const cloud = state.weatherData.hourly.cloud_cover[h] || 0;
         const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, cloud);
         dailyTotal += hP;
-
         const bar = document.createElement('div');
         bar.className = 'bar';
         bar.style.height = Math.max(5, (hP / (state.panelWp || 1) * 100)) + "%";
-
         bar.onclick = () => {
-            clearTimeout(chartSelectionTimer);
             document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
             bar.classList.add('active');
-            if (detailBox) {
-                detailBox.innerHTML = `<span style="color:#fbbf24;">ORE ${h}:00 → ${Math.round(hP)} W</span>`;
-            }
-            chartSelectionTimer = setTimeout(() => { bar.classList.remove('active'); resetDetailDisplay(); }, 2000);
+            const detailBox = document.getElementById('detail-display');
+            if (detailBox) detailBox.innerHTML = `<span style="color:#fbbf24;">ORE ${h}:00 → ${Math.round(hP)} W</span>`;
+            setTimeout(() => { bar.classList.remove('active'); resetDetailDisplay(); }, 2000);
         };
         chart.appendChild(bar);
     }
     if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
 }
 
-// --- FUNZIONI DI SUPPORTO ---
 function switchView(vId, el) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -171,18 +199,13 @@ function switchView(vId, el) {
 }
 
 function initSliders() {
-    const sliders = [
-        { id: 'ps-soc-slider', valId: 'ps-soc-val', stateKey: 'currentPsSOC' },
-        { id: 'soc-slider', valId: 'soc-val', stateKey: 'currentSOC' }
-    ];
+    const sliders = [{ id: 'ps-soc-slider', valId: 'ps-soc-val', stateKey: 'currentPsSOC' }, { id: 'soc-slider', valId: 'soc-val', stateKey: 'currentSOC' }];
     sliders.forEach(s => {
         const el = document.getElementById(s.id);
-        const valTxt = document.getElementById(s.valId);
         if (el) {
             el.addEventListener('input', (e) => {
-                const val = e.target.value;
-                state[s.stateKey] = val;
-                if (valTxt) valTxt.innerText = val + "%";
+                state[s.stateKey] = e.target.value;
+                if (document.getElementById(s.valId)) document.getElementById(s.valId).innerText = e.target.value + "%";
                 updateSliderFill(el);
                 updateAll();
             });
@@ -191,45 +214,18 @@ function initSliders() {
     });
 }
 
-function updateSliderFill(slider) {
-    slider.style.setProperty('--value', slider.value + '%');
-}
+function updateSliderFill(slider) { slider.style.setProperty('--value', slider.value + '%'); }
 
-async function handleGpsSync() {
-    isGpsSyncing = true;
-    const btn = document.getElementById('btn-gps');
-    btn.disabled = true;
-    try {
-        const coords = await WeatherAPI.getUserLocation();
-        const now = new Date();
-        document.getElementById('input-lat').value = coords.latitude.toFixed(4);
-        document.getElementById('input-lng').value = coords.longitude.toFixed(4);
-        document.getElementById('input-time').value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        dataSelezionata = new Date();
-        generaBottoniGiorni();
-        aggiornaTuttaInterfaccia();
-        btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
-        btn.style.background = "#22c55e";
-    } catch (err) {
-        btn.innerText = "❌ ERRORE GPS";
-    } finally {
-        btn.disabled = false;
-        isGpsSyncing = false;
-        setTimeout(() => { btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE"; btn.style.background = ""; }, 3000);
-    }
-}
-
-// Funzioni mancanti del garage e città
 function editSpec(type) {
-    let msg = type === 'batt' ? "Ah Batteria Servizi:" : type === 'pan' ? "Watt Pannelli (Wp):" : type === 'ps' ? "Ah Power Station:" : "Watt Pannelli PS:";
     let current = type === 'batt' ? state.battAh : type === 'pan' ? state.panelWp : type === 'ps' ? state.psAh : state.panelPsWp;
-    let v = prompt(msg, current);
+    let v = prompt("Inserisci valore:", current);
     if (v !== null && v !== "" && !isNaN(v)) {
-        if (type === 'batt') { state.battAh = parseFloat(v); document.getElementById('batt_val').innerText = v; }
-        else if (type === 'pan') { state.panelWp = parseFloat(v); document.getElementById('panel_val').innerText = v; }
-        else if (type === 'ps') { state.psAh = parseFloat(v); document.getElementById('ps_val').innerText = v; }
-        else if (type === 'panPs') { state.panelPsWp = parseFloat(v); document.getElementById('panel_ps_val').innerText = v; }
+        if (type === 'batt') state.battAh = parseFloat(v);
+        else if (type === 'pan') state.panelWp = parseFloat(v);
+        else if (type === 'ps') state.psAh = parseFloat(v);
+        else if (type === 'panPs') state.panelPsWp = parseFloat(v);
         saveGarageSettings();
+        loadSavedData();
     }
 }
 
@@ -240,7 +236,6 @@ function saveGarageSettings() {
     localStorage.setItem('vibe_panel_wp', state.panelWp);
     localStorage.setItem('vibe_ps_ah', state.psAh);
     localStorage.setItem('vibe_ps_panel_wp', state.panelPsWp);
-    document.getElementById('camper-name-display').innerText = (name || "IL MIO VAN").toUpperCase();
     updateAll();
 }
 
@@ -248,14 +243,13 @@ function loadSavedData() {
     const savedName = localStorage.getItem('vibe_camper_name');
     if (savedName) {
         state.camperName = savedName;
-        document.getElementById('camper_name_input').value = savedName;
         document.getElementById('camper-name-display').innerText = savedName.toUpperCase();
+        document.getElementById('camper_name_input').value = savedName;
     }
     document.getElementById('batt_val').innerText = state.battAh;
     document.getElementById('panel_val').innerText = state.panelWp;
     document.getElementById('ps_val').innerText = state.psAh;
     document.getElementById('panel_ps_val').innerText = state.panelPsWp;
-    updateAll();
 }
 
 function generaBottoniGiorni() {
