@@ -79,3 +79,4 @@ function updateDashboardClock() {
         updateSunUI(hDec, window.lastSunH, window.lastSetH); 
     }
 }
+setInterval(updateDashboardClock, 1000);
