@@ -1,9 +1,9 @@
 /**
  * WEATHER-API.JS
- * Gestisce le chiamate al servizio meteo Open-Meteo
+ * Gestisce le chiamate al servizio meteo Open-Meteo e l'ora locale della città
  */
 
-// 1. Variabile globale per salvare lo spostamento dell'ora (Offset)
+// 1. Variabile per salvare il fuso orario (Offset)
 let timezoneOffsetSeconds = null;
 
 const WeatherAPI = {
@@ -18,10 +18,11 @@ const WeatherAPI = {
             );
         });
     },
-    // Scarica i dati meteo (Temperatura, Nubi, Vento, Umidità, Alba/Tramonto)
+
+    // Scarica i dati meteo
     fetchForecast: async (lat, lng, date) => {
         try {
-            // Aggiungiamo '&timezone=auto' per far sì che Open-Meteo calcoli il fuso orario corretto
+            // Usiamo &timezone=auto per far calcolare a Open-Meteo il fuso orario dalla posizione
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m&daily=sunrise,sunset&timezone=auto&start_date=${date}&end_date=${date}`;
             
             const response = await fetch(url);
@@ -29,14 +30,11 @@ const WeatherAPI = {
             
             const data = await response.json();
 
-            // 2. SALVIAMO IL FUSO ORARIO
-            // Open-Meteo restituisce 'utc_offset_seconds' (es. 7200 per la Romania)
+            // 2. SALVIAMO IL FUSO ORARIO DELLA CITTÀ
             if (data.utc_offset_seconds !== undefined) {
                 timezoneOffsetSeconds = data.utc_offset_seconds;
-                // Aggiorniamo subito l'orologio se la funzione esiste
-                if (typeof updateDashboardClock === 'function') {
-                    updateDashboardClock();
-                }
+                // Aggiorniamo subito l'ora visualizzata
+                updateDashboardClock();
             }
 
             return data;
@@ -46,34 +44,35 @@ const WeatherAPI = {
         }
     }
 };
+
 /**
  * FUNZIONE OROLOGIO SINCRONIZZATO
- * Questa funzione calcola l'ora in base alla città scelta
+ * Calcola l'ora in base alla città scelta (usando display-hour-center)
  */
 function updateDashboardClock() {
-    // Cerca l'elemento dell'orologio (assicurati che l'ID sia 'clock' nel tuo HTML)
-    const clockElement = document.getElementById('clock');
+    // Usiamo l'ID presente nel tuo HTML: display-hour-center
+    const clockElement = document.getElementById('display-hour-center'); 
     if (!clockElement) return;
 
     const oraLocale = new Date();
 
     if (timezoneOffsetSeconds !== null) {
-        // 1. Calcoliamo l'ora UTC attuale
+        // 1. Calcoliamo l'ora universale (UTC)
         const utcTimeMs = oraLocale.getTime() + (oraLocale.getTimezoneOffset() * 60000);
         
-        // 2. Aggiungiamo i secondi del fuso orario della città (trasformati in millisecondi)
+        // 2. Aggiungiamo lo scostamento della città cercata
         const cityTime = new Date(utcTimeMs + (timezoneOffsetSeconds * 1000));
         
         const h = cityTime.getHours().toString().padStart(2, '0');
         const m = cityTime.getMinutes().toString().padStart(2, '0');
         clockElement.innerText = `${h}:${m}`;
     } else {
-        // Se non hai ancora cercato una città, usa l'ora del tuo dispositivo
+        // Se non hai ancora cercato una città, mostra l'ora del tuo telefono/PC
         const h = oraLocale.getHours().toString().padStart(2, '0');
         const m = oraLocale.getMinutes().toString().padStart(2, '0');
         clockElement.innerText = `${h}:${m}`;
     }
 }
 
-// Aggiorna l'orologio ogni secondo
+// Avviamo l'aggiornamento automatico ogni secondo
 setInterval(updateDashboardClock, 1000);
