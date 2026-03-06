@@ -20,27 +20,25 @@ let state = {
 window.onload = () => {
     initEventListeners();
     initSliders(); 
-    loadSavedData();
-    // --- AGGIUNTA: Ripristino unità Ah/Wh ---
-    const savedBattUnit = localStorage.getItem('vibe_batt_unit') || 'Ah';
-    const savedPsUnit = localStorage.getItem('vibe_ps_unit') || 'Wh';
     
-    if(document.getElementById('batt_unit')) {
-        document.getElementById('batt_unit').value = savedBattUnit;
-    }
-    if(document.getElementById('ps_unit')) {
-        document.getElementById('ps_unit').value = savedPsUnit;
-    }
-    // Aggiorna le scritte di conversione (es. "Capacità stimata...") subito all'avvio
+    // 1. Carichiamo i dati salvati (Nome, Ah e Watt)
+    loadSavedData();
+    
+    // 2. SINCRONIZZAZIONE AVVIO
+    // Calcoliamo subito i Wh basandoci sui Ah appena caricati
     if (typeof updateConversions === 'function') updateConversions();
-    // ----------------------------------------
+    
+    // Ricalcoliamo tutta l'interfaccia (Meteo e Report) con i dati salvati
+    if (typeof updateAll === 'function') updateAll();
+    
+    // 3. Estetica e Giorni
     setupStars();
     generaBottoniGiorni();
     
-    // 1. ATTIVAZIONE NAV BAR: Mostra la Dashboard (live) all'avvio
-    switchView('live', document.querySelector('[data-view="live"]')); // <--- FIX NAV BAR
+    // 4. ATTIVAZIONE NAV BAR: Mostra la Dashboard all'avvio
+    switchView('live', document.querySelector('[data-view="live"]'));
 
-    // 2. Avvio automatico dati
+    // 5. Avvio automatico dati GPS
     const gpsBtn = document.getElementById('btn-gps');
     if (gpsBtn) gpsBtn.click();
 };
