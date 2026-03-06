@@ -140,15 +140,15 @@
     <div class="group-header">IMPIANTO FISSO CAMPER</div>
     <div class="config-grid-row">
         <div class="config-cell">
-            <div class="cell-label">🔋 BATTERIA SERVIZI</div>
-            <div class="cell-value">
-                <span id="batt_val">0</span> <span class="unit-label">Ah</span>
-                <button id="edit-batt-btn" class="edit-mini-btn">EDIT</button>
-            </div>
-            <div style="font-size: 11px; color: #38bdf8; margin-top: 4px; font-weight: bold;">
-                <span id="batt_conv_val">--</span> Wh
-            </div>
-        </div>
+    <div class="cell-label">🔋 BATTERIA SERVIZI</div>
+    <div class="cell-value">
+        <span id="batt_val">0</span> <span class="unit-label">Ah</span>
+        <button onclick="editSpec('batt')" class="edit-mini-btn">EDIT</button>
+    </div>
+    <div style="font-size: 11px; color: #38bdf8; margin-top: 4px; font-weight: bold;">
+        <span id="batt_conv_val">0</span> Wh
+    </div>
+</div>
         <div class="config-cell">
             <div class="cell-label">☀️ PANNELLI DI S.</div>
             <div class="cell-value">
@@ -162,16 +162,16 @@
 <div class="config-group ps-border">
     <div class="group-header">UNITÀ PORTATILE / PS</div>
     <div class="config-grid-row">
-        <div class="config-cell">
-            <div class="cell-label">🔌 POWER STATION</div>
-            <div class="cell-value">
-                <span id="ps_val">0</span> <span class="unit-label">Ah</span>
-                <button id="edit-ps-btn" class="edit-mini-btn">EDIT</button>
-            </div>
-            <div style="font-size: 11px; color: #fbbf24; margin-top: 4px; font-weight: bold;">
-                <span id="ps_conv_val">--</span> Wh
-            </div>
-        </div>
+       <div class="config-cell">
+    <div class="cell-label">🔌 POWER STATION</div>
+    <div class="cell-value">
+        <span id="ps_val">0</span> <span class="unit-label">Wh</span>
+        <button onclick="editSpec('ps')" class="edit-mini-btn">EDIT</button>
+    </div>
+    <div style="font-size: 11px; color: #fbbf24; margin-top: 4px; font-weight: bold;">
+        <span id="ps_conv_val">0</span> Ah
+    </div>
+</div>
         <div class="config-cell">
             <div class="cell-label">☀️ PANNELLI PS</div>
             <div class="cell-value">
