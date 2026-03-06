@@ -136,32 +136,53 @@
                 <input type="text" id="camper_name_input" placeholder="NOME CAMPER" class="manual-input">
                 <button id="btn-save-name" class="mini-btn">💾</button>
             </div>
-            <div class="config-group camper-border">
-                <div class="group-header">IMPIANTO FISSO CAMPER</div>
-                <div class="config-grid-row">
-                    <div class="config-cell">
-                        <div class="cell-label">🔋 BATTERIA SERVIZI</div>
-                        <div class="cell-value"><span id="batt_val">550</span> Ah <button id="edit-batt-btn" class="edit-mini-btn">EDIT</button></div>
-                    </div>
-                    <div class="config-cell">
-                        <div class="cell-label">☀️ PANNELLI DI S.</div>
-                        <div class="cell-value"><span id="panel_val">1120</span> W <button id="edit-pan-btn" class="edit-mini-btn">EDIT</button></div>
-                    </div>
-                </div>
+          <div class="config-group camper-border">
+    <div class="group-header">IMPIANTO FISSO CAMPER</div>
+    <div class="config-grid-row">
+        <div class="config-cell">
+            <div class="cell-label">🔋 BATTERIA SERVIZI</div>
+            <div class="cell-value">
+                <span id="batt_val">550</span>
+                <select id="batt_unit" class="unit-selector">
+                    <option value="Ah">Ah</option>
+                    <option value="Wh">Wh</option>
+                </select>
+                <button id="edit-batt-btn" class="edit-mini-btn">EDIT</button>
             </div>
-            <div class="config-group ps-border">
-                <div class="group-header">UNITÀ PORTATILE / PS</div>
-                <div class="config-grid-row">
-                    <div class="config-cell">
-                        <div class="cell-label">🔌 POWER STATION</div>
-                        <div class="cell-value"><span id="ps_val">0</span> Ah <button id="edit-ps-btn" class="edit-mini-btn">EDIT</button></div>
-                    </div>
-                    <div class="config-cell">
-                        <div class="cell-label">☀️ PANNELLI PS</div>
-                        <div class="cell-value"><span id="panel_ps_val">0</span> W <button id="edit-pan-ps-btn" class="edit-mini-btn">EDIT</button></div>
-                    </div>
-                </div>
+        </div>
+        <div class="config-cell">
+            <div class="cell-label">☀️ PANNELLI DI S.</div>
+            <div class="cell-value">
+                <span id="panel_val">1120</span> W 
+                <button id="edit-pan-btn" class="edit-mini-btn">EDIT</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="config-group ps-border">
+    <div class="group-header">UNITÀ PORTATILE / PS</div>
+    <div class="config-grid-row">
+        <div class="config-cell">
+            <div class="cell-label">🔌 POWER STATION</div>
+            <div class="cell-value">
+                <span id="ps_val">0</span>
+                <select id="ps_unit" class="unit-selector">
+                    <option value="Wh">Wh</option>
+                    <option value="Ah">Ah</option>
+                </select>
+                <button id="edit-ps-btn" class="edit-mini-btn">EDIT</button>
+            </div>
+        </div>
+        <div class="config-cell">
+            <div class="cell-label">☀️ PANNELLI PS</div>
+            <div class="cell-value">
+                <span id="panel_ps_val">0</span> W 
+                <button id="edit-pan-ps-btn" class="edit-mini-btn">EDIT</button>
+            </div>
+        </div>
+    </div>
+</div>
             <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                 <span style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">🎨 COLORE INTERNI</span>
