@@ -177,13 +177,25 @@ function editSpec(type) {
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
+    const dateInput = document.getElementById('input-date'); // <--- 1. Prendi l'elemento input
+
+    // --- AGGIUNTA FONDAMENTALE ---
+    // Se l'utente ha cambiato la data nell'input, aggiorniamo la variabile globale
+    if (dateInput && dateInput.value) {
+        dataSelezionata = new Date(dateInput.value);
+    }
+    // ------------------------------
+
     const date = dataSelezionata.toISOString().split('T')[0];
     const time = document.getElementById('input-time').value;
     const displayVal = document.getElementById('w_out');
+    
     if (!lat || !lng || !displayVal) return;
 
     try {
         if (isGpsSyncing) await updateCityName(lat, lng); 
+        
+        // Ora fetchForecast userà la data aggiornata!
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
         if (!state.weatherData) return;
 
@@ -192,8 +204,7 @@ async function updateAll() {
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
-        // --- INIZIO AGGIORNAMENTO BADGE METEO ---
-        // Preleviamo i dati dall'oggetto 'hourly' dell'API usando l'indice dell'ora (hourIdx)
+        // --- AGGIORNAMENTO BADGE METEO ---
         if (document.getElementById('r-wind')) 
             document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
 
@@ -205,8 +216,9 @@ async function updateAll() {
 
         if (document.getElementById('r-cloud-percent')) 
             document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
-        // --- FINE AGGIORNAMENTO BADGE METEO ---
 
+        // --- CALCOLO ALBA E TRAMONTO ---
+        // Usiamo [0] perché fetchForecast restituisce i dati per il giorno richiesto
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         
@@ -217,7 +229,7 @@ async function updateAll() {
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
 
-        // Calcolo delle potenze basato sulla copertura nuvolosa attuale
+        // Calcolo potenze
         const pServices = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
         const totalPower = pServices + pPS;
@@ -228,7 +240,13 @@ async function updateAll() {
 
         updateSunUI(hDec, sunH, setH);
         updateReportUI(totalPower, sunH, setH);
-    } catch (e) { console.error("Errore nel caricamento dati:", e); }
+        
+        // OPZIONALE: Se hai il calendario nel Report, aggiorna anche i bottoni evidenziati
+        if (typeof generaBottoniGiorni === 'function') generaBottoniGiorni();
+
+    } catch (e) { 
+        console.error("Errore nel caricamento dati:", e); 
+    }
 }
 
 function updateReportUI(currentPower, sunH, setH) {
