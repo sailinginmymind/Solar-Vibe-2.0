@@ -136,21 +136,17 @@
                 <input type="text" id="camper_name_input" placeholder="NOME CAMPER" class="manual-input">
                 <button id="btn-save-name" class="mini-btn">💾</button>
             </div>
-        <div class="config-group camper-border">
+       <div class="config-group camper-border">
     <div class="group-header">IMPIANTO FISSO CAMPER</div>
     <div class="config-grid-row">
         <div class="config-cell">
             <div class="cell-label">🔋 BATTERIA SERVIZI</div>
             <div class="cell-value">
-                <span id="batt_val">550</span>
-                <select id="batt_unit" class="unit-selector" onchange="updateConversions()">
-                    <option value="Ah">Ah</option>
-                    <option value="Wh">Wh</option>
-                </select>
+                <span id="batt_val">550</span> <span class="unit-label">Ah</span>
                 <button id="edit-batt-btn" class="edit-mini-btn">EDIT</button>
             </div>
-            <div id="batt_conv_row" style="font-size: 10px; color: #94a3b8; margin-top: 4px; font-style: italic;">
-                Capacità stimata: <span id="batt_conv_val" style="color: var(--accento); font-weight: bold;">--</span> Wh
+            <div style="font-size: 11px; color: #38bdf8; margin-top: 4px; font-weight: bold;">
+                <span id="batt_conv_val">--</span> Wh
             </div>
         </div>
         <div class="config-cell">
@@ -169,15 +165,11 @@
         <div class="config-cell">
             <div class="cell-label">🔌 POWER STATION</div>
             <div class="cell-value">
-                <span id="ps_val">0</span>
-                <select id="ps_unit" class="unit-selector" onchange="updateConversions()">
-                    <option value="Wh">Wh</option>
-                    <option value="Ah">Ah</option>
-                </select>
+                <span id="ps_val">0</span> <span class="unit-label">Ah</span>
                 <button id="edit-ps-btn" class="edit-mini-btn">EDIT</button>
             </div>
-            <div id="ps_conv_row" style="font-size: 10px; color: #94a3b8; margin-top: 4px; font-style: italic;">
-                Capacità stimata: <span id="ps_conv_val" style="color: var(--accento); font-weight: bold;">--</span> Ah
+            <div style="font-size: 11px; color: #fbbf24; margin-top: 4px; font-weight: bold;">
+                <span id="ps_conv_val">--</span> Wh
             </div>
         </div>
         <div class="config-cell">
