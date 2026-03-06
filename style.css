@@ -1437,4 +1437,35 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     color: #fbbf24;
     text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
 }
+/* Contenitore della conversione (Wh o Ah piccoli sotto i principali) */
+.conv-val-container {
+    display: block;
+    margin-top: 10px;      /* Più distacco dal numero sopra */
+    line-height: 1;
+}
 
+/* Grandezza dei numeri convertiti */
+#batt_conv_val, #ps_conv_val {
+    font-size: 1.8rem;    /* Molto più grande (quasi come il principale) */
+    font-weight: 800;
+    letter-spacing: -1px; /* Look più moderno e compatto */
+}
+
+/* Grandezza dell'unità di misura (Wh / Ah) vicino al numero grande */
+.batt-unit-small, .ps-unit-small {
+    font-size: 1rem;      /* Unità di misura leggibile ma non enorme */
+    font-weight: 600;
+    margin-left: 4px;
+    opacity: 0.9;
+}
+
+/* Colori e Glow (Coordinati con il tuo stile) */
+#batt_conv_val, .batt-unit-small {
+    color: #38bdf8; /* Azzurro */
+    text-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+}
+
+#ps_conv_val, .ps-unit-small {
+    color: #fbbf24; /* Giallo Power Station */
+    text-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+}
