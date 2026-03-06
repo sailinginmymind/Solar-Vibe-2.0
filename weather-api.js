@@ -77,8 +77,8 @@ function updateDashboardClock() {
 
     // 4. SINCRONIZZA IL SOLE
     // Questa funzione aggiorna la posizione del sole in base alla nuova ora
-  if (typeof updateSolarSystem === 'function') {
-    updateSolarSystem(timeToUse); // <--- Aggiungi timeToUse qui
+ if (typeof updateAll === 'function') {
+    updateAll(); 
 }
 }
 
