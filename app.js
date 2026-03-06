@@ -43,14 +43,23 @@ window.onload = () => {
     if (gpsBtn) gpsBtn.click();
 };
 
+/**
+ * Inizializza tutti i collegamenti ai tasti e agli input.
+ * Spiegazione: Ho rimosso i riferimenti a 'batt_unit' e 'ps_unit' perché 
+ * abbiamo eliminato i menu a tendina. Ho anche rimosso i collegamenti 
+ * via ID per i tasti EDIT, dato che ora usiamo l'onclick diretto nell'HTML.
+ */
 function initEventListeners() {
-    // Navigazione
+    // 1. Navigazione tra le schermate (Dashboard, Report, Garage)
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
     
-    document.getElementById('btn-gps').addEventListener('click', handleGpsSync);
+    // 2. Tasto GPS
+    const gpsBtn = document.getElementById('btn-gps');
+    if (gpsBtn) gpsBtn.addEventListener('click', handleGpsSync);
 
+    // 3. Ricerca città manuale
     const cityInput = document.getElementById('city-input');
     if (cityInput) {
         cityInput.addEventListener('change', function () {
@@ -59,30 +68,19 @@ function initEventListeners() {
         });
     }
 
+    // 4. Input manuali (Ora, Data, Coordinate)
     ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
 
-    document.getElementById('btn-save-name').onclick = saveGarageSettings;
-    document.getElementById('edit-batt-btn').onclick = () => editSpec('batt');
-    document.getElementById('edit-pan-btn').onclick = () => editSpec('pan');
-    document.getElementById('edit-ps-btn').onclick = () => editSpec('ps');
-    document.getElementById('edit-pan-ps-btn').onclick = () => editSpec('panPs');
+    // 5. Salvataggio nome camper
+    const saveNameBtn = document.getElementById('btn-save-name');
+    if (saveNameBtn) saveNameBtn.onclick = saveGarageSettings;
 
-    // --- AGGIUNTA PER GESTIONE UNITÀ Ah/Wh ---
-    // Questi "ascoltano" quando cambi la scelta nel menu a tendina del Garage
-    document.getElementById('batt_unit').onchange = () => {
-        localStorage.setItem('vibe_batt_unit', document.getElementById('batt_unit').value);
-        if (typeof updateConversions === 'function') updateConversions();
-        if (typeof updateChargeReports === 'function') updateChargeReports();
-    };
-
-    document.getElementById('ps_unit').onchange = () => {
-        localStorage.setItem('vibe_ps_unit', document.getElementById('ps_unit').value);
-        if (typeof updateConversions === 'function') updateConversions();
-        if (typeof updateChargeReports === 'function') updateChargeReports();
-    };
+    // NOTA: I tasti EDIT (batt, ps, pan, panPs) ora sono gestiti 
+    // direttamente dall'attributo onclick="editSpec(...)" nel file HTML.
+    // Non serve aggiungere altro qui per evitare conflitti.
 }
 
 // --- FUNZIONE GPS CON RIPRISTINO GLOW ---
