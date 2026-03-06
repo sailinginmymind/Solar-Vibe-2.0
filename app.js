@@ -246,33 +246,36 @@ function editSpec(type) {
 }
 
 function saveGarageSettings() {
-    // 1. Prendiamo il valore dall'input
+    // 1. Preleviamo il valore dall'input
     const nameInput = document.getElementById('camper_name_input');
     const name = nameInput.value.trim();
-    // 2. Salvataggio nel localStorage (il tuo codice originale)
+    // 2. Salvataggio nel localStorage
     localStorage.setItem('vibe_camper_name', name);
     localStorage.setItem('vibe_batt_ah', state.battAh);
     localStorage.setItem('vibe_panel_wp', state.panelWp);
     localStorage.setItem('vibe_ps_ah', state.psAh);
     localStorage.setItem('vibe_ps_panel_wp', state.panelPsWp);
-    // 3. AGGIORNAMENTO ISTANTANEO DEL TITOLO (Quello che mancava)
+    // 3. Aggiornamento istantaneo del titolo in alto
     const display = document.getElementById('camper-name-display');
     if (display && name !== "") {
         display.innerText = name.toUpperCase();
     }
-    // 4. Feedback visivo per l'utente
-    // Invece di un alert invasivo, facciamo cambiare colore al pulsante per un secondo
+    // 4. EFFETTO GLOW VERDE DI CONFERMA
     const saveBtn = document.getElementById('btn-save-name');
     if (saveBtn) {
-        const originalContent = saveBtn.innerHTML;
-        saveBtn.innerHTML = "✅ SALVATO";
-        saveBtn.style.color = "#22c55e"; // Verde
-        
+        // Applichiamo lo stile di successo (Glow Verde)
+        saveBtn.style.transition = "all 0.3s ease"; // Rende l'effetto fluido
+        saveBtn.style.background = "#16a34a";       // Verde scuro
+        saveBtn.style.boxShadow = "0 0 20px #22c55e"; // Bagliore verde neon
+        saveBtn.style.borderColor = "#4ade80";      // Bordo più chiaro
+        // Dopo 1.5 secondi torna allo stile originale
         setTimeout(() => {
-            saveBtn.innerHTML = originalContent;
-            saveBtn.style.color = "";
-        }, 2000);
+            saveBtn.style.background = ""; 
+            saveBtn.style.boxShadow = "";
+            saveBtn.style.borderColor = "";
+        }, 1500);
     }
+
     updateAll();
 }
 
