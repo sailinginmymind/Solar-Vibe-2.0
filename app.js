@@ -21,6 +21,19 @@ window.onload = () => {
     initEventListeners();
     initSliders(); 
     loadSavedData();
+    // --- AGGIUNTA: Ripristino unità Ah/Wh ---
+    const savedBattUnit = localStorage.getItem('vibe_batt_unit') || 'Ah';
+    const savedPsUnit = localStorage.getItem('vibe_ps_unit') || 'Wh';
+    
+    if(document.getElementById('batt_unit')) {
+        document.getElementById('batt_unit').value = savedBattUnit;
+    }
+    if(document.getElementById('ps_unit')) {
+        document.getElementById('ps_unit').value = savedPsUnit;
+    }
+    // Aggiorna le scritte di conversione (es. "Capacità stimata...") subito all'avvio
+    if (typeof updateConversions === 'function') updateConversions();
+    // ----------------------------------------
     setupStars();
     generaBottoniGiorni();
     
