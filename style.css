@@ -1088,40 +1088,51 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 .config-group .config-grid-row {
     margin-bottom: 0 !important; 
 }
-/* Contenitore principale */
+/* --- DASHBOARD: FIX ALLINEAMENTO 4 CIFRE --- */
+
 .power-display-container {
     display: flex;
     align-items: center; 
     justify-content: center;
-    gap: 20px;
+    gap: 10px;        /* Ridotto il gap per lasciare più spazio ai testi */
     margin: 20px 0;
     width: 100%;
+    flex-wrap: nowrap; /* Impedisce assolutamente di andare a capo */
 }
 
 .power-main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 120px;
+    /* Riduciamo leggermente la larghezza minima per dare spazio ai lati */
+    min-width: 100px; 
 }
-
-/* Blocchi laterali in verticale */
+/* Il numero centrale (es. 1050 W) */
+.big-w {
+    font-size: 3.2rem !important; /* Leggermente ridotto (era 3.5) per ospitare le 4 cifre */
+    color: #38bdf8;
+    line-height: 0.9;
+    margin: 0 !important;
+    white-space: nowrap;          /* Impedisce al numero di spezzarsi */
+}
+/* Blocchi laterali (Produzione e Consumo) */
 .power-sub {
     display: flex;
-    flex-direction: column; /* Testo sopra, Numero sotto */
-    align-items: center;    /* Centra testo e numero tra loro */
+    flex-direction: column;
+    align-items: center;
     flex: 1;
+    min-width: 80px; /* Garantisce uno spazio vitale per l'etichetta */
 }
-
-/* Etichette Gialle (Leggermente più grandi) */
+/* Etichette Gialle */
 .sub-w-label {
-    font-size: 12px;        /* Aumentato per leggibilità */
+    font-size: 11px;       /* Ridotto di 1px per sicurezza */
     font-weight: 900;
     color: #fbbf24;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     margin-bottom: 2px;
-    white-space: nowrap;
+    white-space: nowrap;   /* FORZA il testo a stare su una sola riga */
+    text-align: center;
 }
 
 /* Numeri Gialli */
