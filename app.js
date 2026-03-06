@@ -346,24 +346,30 @@ function resetDetailDisplay() {
     if (display) display.innerHTML = `<span style="color:#fbbf24;">TOCCA UNA BARRA PER I DETTAGLI</span>`;
 }
 /**
- * Cambia il colore di sfondo dell'intera applicazione
- * @param {string} color - Il codice esadecimale del colore scelto
+ 
+ * Gestisce i 4 temi colore dell'app
+ * @param {string} color - Il colore esadecimale passato dal tasto nel Garage
  */
 function changeBg(color) {
-    // Applichiamo il colore direttamente al body
+    // 1. Applichiamo lo sfondo principale
     document.body.style.backgroundColor = color;
     
-    // Opzionale: salviamo la preferenza nel browser così al ricaricamento
-    // l'utente ritrova il colore che aveva scelto
-    localStorage.setItem('vibe_solar_bg', color);
+    // 2. Determiniamo il colore del bordo coordinato in base al tema scelto
+    let accentColor = "#38bdf8"; // Default (Blu Notte)
     
-    console.log("Colore interfaccia aggiornato a:", color);
+    if (color === '#1a1a1a') accentColor = "#64748b"; // Nero (Bordo Grigio)
+    if (color === '#062c1f') accentColor = "#10b981"; // Foresta (Bordo Verde)
+    if (color === '#2d0a1a') accentColor = "#f43f5e"; // Tramonto (Bordo Rosa/Rosso)
+
+    // 3. Aggiorniamo le variabili CSS per i bordi delle card e dei pulsanti
+    document.documentElement.style.setProperty('--accent-color', accentColor);
+    
+    // 4. Salviamo la scelta per il prossimo riavvio
+    localStorage.setItem('vibe_solar_bg', color);
 }
 
-// All'avvio dell'app, controlliamo se c'era un colore salvato
+// All'avvio, recuperiamo il tema salvato
 window.addEventListener('load', () => {
     const savedColor = localStorage.getItem('vibe_solar_bg');
-    if (savedColor) {
-        changeBg(savedColor);
-    }
+    if (savedColor) changeBg(savedColor);
 });
