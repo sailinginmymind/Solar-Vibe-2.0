@@ -260,15 +260,28 @@ function initSliders() {
 function updateSliderFill(slider) { slider.style.setProperty('--value', slider.value + '%'); }
 
 function editSpec(type) {
-    let current = type === 'batt' ? state.battAh : type === 'pan' ? state.panelWp : type === 'ps' ? state.psAh : state.panelPsWp;
-    let v = prompt("Inserisci valore:", current);
+    // 1. Identifichiamo il valore attuale e l'unità di misura selezionata
+    let current = type === 'batt' ? state.battAh : 
+                  type === 'pan' ? state.panelWp : 
+                  type === 'ps' ? state.psAh : state.panelPsWp;
+    // Recuperiamo l'unità (se è batteria o PS) per mostrarla nel prompt
+    let unitLabel = "";
+    if (type === 'batt') unitLabel = document.getElementById('batt_unit').value;
+    else if (type === 'ps') unitLabel = document.getElementById('ps_unit').value;
+    else unitLabel = "W"; // Per i pannelli è sempre Watt
+    // 2. Chiediamo il valore includendo l'unità nel messaggio
+    let v = prompt(`Inserisci valore (${unitLabel}):`, current);
     if (v !== null && v !== "" && !isNaN(v)) {
         if (type === 'batt') state.battAh = parseFloat(v);
         else if (type === 'pan') state.panelWp = parseFloat(v);
         else if (type === 'ps') state.psAh = parseFloat(v);
         else if (type === 'panPs') state.panelPsWp = parseFloat(v);
+        // 3. Salviamo e ricarichiamo i dati a video
         saveGarageSettings();
         loadSavedData();
+        // 4. AGGIUNTA: Forza l'aggiornamento immediato delle conversioni (Wh/Ah) e dei report
+        if (typeof updateConversions === 'function') updateConversions();
+        if (typeof updateChargeReports === 'function') updateChargeReports();
     }
 }
 
