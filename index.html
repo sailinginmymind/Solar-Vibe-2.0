@@ -29,21 +29,19 @@
                 </div>
             </div>
            <div class="power-display-container">
-    <div class="power-sub">
-        <span class="sub-w-label">FISSO</span>
-        <span id="w_services" class="small-w">0 W</span>
-    </div>
-
-    <div class="power-main">
-        <span id="w_out" class="big-w">0 W</span>
-        <span id="unit-label" class="unit-hint">TOTALE</span>
-    </div>
-
-    <div class="power-sub">
-        <span class="sub-w-label">POWER STATION</span>
-        <span id="w_ps" class="small-w">0 W</span>
-    </div>
-</div>
+                <div class="power-sub">
+                    <span class="sub-w-label">FISSO</span>
+                    <span id="w_services" class="small-w">0 W</span>
+                </div>
+                <div class="power-main">
+                    <span id="w_out" class="big-w">0 W</span>
+                    <span id="unit-label" class="unit-hint">TOTALE</span>
+                </div>
+                <div class="power-sub">
+                    <span class="sub-w-label">POWER STATION</span>
+                    <span id="w_ps" class="small-w">0 W</span>
+                </div>
+            </div>
             <div class="weather-badges">
                 <div class="w-badge"><span class="w-label">VENTO</span><span id="r-wind" class="w-val">--</span></div>
                 <div class="w-badge"><span class="w-label">UMIDITÀ</span><span id="r-hum" class="w-val">--</span></div>
@@ -60,9 +58,7 @@
                     style="background: transparent; border: none; border-bottom: 1px solid #38bdf8; color: #38bdf8; font-weight: bold; text-transform: uppercase; text-align: center; outline: none; width: 60%;">
             </div>
         </div>
-    </div>
-
-    <div id="view-energy" class="view">
+    </div> <div id="view-energy" class="view">
         <div class="card">
             <div id="detail-display" style="text-align:center; color:#fbbf24; font-weight:bold; margin-bottom:10px; min-height:1.5em;">
                 Tocca una barra per i dettagli
@@ -79,90 +75,68 @@
             <div id="days-selector" class="days-container"></div>
             <div class="scroll-hint">← trascina per vedere altri giorni →</div>
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
-<h3 class="section-title">STATO CARICA</h3>
-<div class="dual-slider-container">
-    
-    <div class="slider-box">
-        <div class="slider-header">
-            <span>POWER STATION</span>
-            <span id="ps-soc-val" class="soc-number">50%</span>
+            <h3 class="section-title">STATO CARICA</h3>
+            <div class="dual-slider-container">
+                <div class="slider-box">
+                    <div class="slider-header">
+                        <span>POWER STATION</span>
+                        <span id="ps-soc-val" class="soc-number">50%</span>
+                    </div>
+                    <input type="range" id="ps-soc-slider" min="0" max="100" value="50">
+                    <div class="report-grid mini">
+                        <div class="report-item"><span>A 80%</span><b id="ps_charge_80_txt">--</b></div>
+                        <div class="report-item"><span>A 90%</span><b id="ps_charge_90_txt">--</b></div>
+                        <div class="report-item"><span>A 100%</span><b id="ps_charge_100_txt">--</b></div>
+                    </div>
+                </div>
+                <div class="slider-box">
+                    <div class="slider-header">
+                        <span>BATT SERVIZIO</span>
+                        <span id="soc-val" class="soc-number">50%</span>
+                    </div>
+                    <input type="range" id="soc-slider" min="0" max="100" value="50">
+                    <div class="report-grid mini">
+                        <div class="report-item"><span>A 80%</span><b id="batt_charge_80_txt">--</b></div>
+                        <div class="report-item"><span>A 90%</span><b id="batt_charge_90_txt">--</b></div>
+                        <div class="report-item"><span>A 100%</span><b id="batt_charge_100_txt">--</b></div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <input type="range" id="ps-soc-slider" min="0" max="100" value="50">
-        
-        <div class="report-grid mini">
-            <div class="report-item"><span>A 80%</span><b id="ps_charge_80_txt">--</b></div>
-            <div class="report-item"><span>A 90%</span><b id="ps_charge_90_txt">--</b></div>
-            <div class="report-item"><span>A 100%</span><b id="ps_charge_100_txt">--</b></div>
-        </div>
-    </div>
-
-    <div class="slider-box">
-        <div class="slider-header">
-            <span>BATT SERVIZIO</span>
-            <span id="soc-val" class="soc-number">50%</span>
-        </div>
-        <input type="range" id="soc-slider" min="0" max="100" value="50">
-        
-        <div class="report-grid mini">
-            <div class="report-item"><span>A 80%</span><b id="batt_charge_80_txt">--</b></div>
-            <div class="report-item"><span>A 90%</span><b id="batt_charge_90_txt">--</b></div>
-            <div class="report-item"><span>A 100%</span><b id="batt_charge_100_txt">--</b></div>
-        </div>
-    </div>
-
-</div>
-
-    <div id="view-garage" class="view">
+    </div> <div id="view-garage" class="view">
         <div class="card">
             <h3 class="section-title">GARAGE</h3>
-            
             <div class="garage-input-group" style="margin-bottom: 25px;">
                 <input type="text" id="camper_name_input" placeholder="NOME CAMPER" class="manual-input">
                 <button id="btn-save-name" class="mini-btn">💾</button>
             </div>
-            
             <div class="config-group camper-border">
                 <div class="group-header">IMPIANTO FISSO CAMPER</div>
                 <div class="config-grid-row">
                     <div class="config-cell">
                         <div class="cell-label">🔋 BATTERIA SERVIZI</div>
-                        <div class="cell-value">
-                            <span id="batt_val">550</span> Ah
-                            <button id="edit-batt-btn" class="edit-mini-btn">EDIT</button>
-                        </div>
+                        <div class="cell-value"><span id="batt_val">550</span> Ah <button id="edit-batt-btn" class="edit-mini-btn">EDIT</button></div>
                     </div>
                     <div class="config-cell">
                         <div class="cell-label">☀️ PANNELLI DI S.</div>
-                        <div class="cell-value">
-                            <span id="panel_val">1120</span> W
-                            <button id="edit-pan-btn" class="edit-mini-btn">EDIT</button>
-                        </div>
+                        <div class="cell-value"><span id="panel_val">1120</span> W <button id="edit-pan-btn" class="edit-mini-btn">EDIT</button></div>
                     </div>
                 </div>
             </div>
-
             <div class="config-group ps-border">
                 <div class="group-header">UNITÀ PORTATILE / PS</div>
                 <div class="config-grid-row">
                     <div class="config-cell">
                         <div class="cell-label">🔌 POWER STATION</div>
-                        <div class="cell-value">
-                            <span id="ps_val">0</span> Ah
-                            <button id="edit-ps-btn" class="edit-mini-btn">EDIT</button>
-                        </div>
+                        <div class="cell-value"><span id="ps_val">0</span> Ah <button id="edit-ps-btn" class="edit-mini-btn">EDIT</button></div>
                     </div>
                     <div class="config-cell">
                         <div class="cell-label">☀️ PANNELLI PS</div>
-                        <div class="cell-value">
-                            <span id="panel_ps_val">0</span> W
-                            <button id="edit-pan-ps-btn" class="edit-mini-btn">EDIT</button>
-                        </div>
+                        <div class="cell-value"><span id="panel_ps_val">0</span> W <button id="edit-pan-ps-btn" class="edit-mini-btn">EDIT</button></div>
                     </div>
                 </div>
             </div>
-
             <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
-            
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                 <span style="font-size: 11px; color: #94a3b8; letter-spacing: 1px;">🎨 COLORE INTERNI</span>
                 <div style="display: flex; gap: 10px;">
@@ -172,7 +146,7 @@
                     <div onclick="changeBg('#2d0a1a')" style="width: 24px; height: 24px; border-radius: 50%; background: #2d0a1a; border: 1px solid #f43f5e; cursor: pointer;"></div>
                 </div>
             </div>
-      </div> 
+        </div>
     </div> <nav class="nav-bar">
         <div class="nav-item active" data-view="live">
             <span>🛰️</span>
