@@ -196,30 +196,31 @@ function updateReportUI(currentPower, sunH, setH) {
     if (!chart || !state.weatherData) return;
 
     // --- 1. PREPARAZIONE DATI PER IL CALCOLO ---
-    // Leggiamo i Watt specifici per ogni batteria invece del totale generico
+    // Usiamo i Watt specifici per ogni uscita
     const wattServizi = parseFloat(document.getElementById('w_services')?.innerText) || 0;
     const wattPS = parseFloat(document.getElementById('w_ps')?.innerText) || 0;
 
-    // Leggiamo le unità scelte dall'utente nel Garage
-    const bUnit = document.getElementById('batt_unit').value;
-    const pUnit = document.getElementById('ps_unit').value;
-
-    // Convertiamo i valori dello state in Wh (se sono Ah, moltiplichiamo per 12.8)
-    const capS_Wh = bUnit === "Ah" ? (state.battAh * 12.8) : state.battAh;
-    const capPS_Wh = pUnit === "Ah" ? (state.psAh * 12.8) : state.psAh;
-
     // --- 2. AGGIORNAMENTO TEMPI POWER STATION ---
-    if (capPS_Wh > 0) {
-        document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wattPS, capPS_Wh);
-        document.getElementById('ps_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 90, wattPS, capPS_Wh);
-        document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wattPS, capPS_Wh);
+    // Se psAh è 0, non calcola nulla e mette "--"
+    if (state.psAh > 0) {
+        document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wattPS, state.psAh);
+        document.getElementById('ps_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 90, wattPS, state.psAh);
+        document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wattPS, state.psAh);
+    } else {
+        document.getElementById('ps_charge_80_txt').innerText = "--";
+        document.getElementById('ps_charge_90_txt').innerText = "--";
+        document.getElementById('ps_charge_100_txt').innerText = "--";
     }
     
     // --- 3. AGGIORNAMENTO TEMPI BATTERIA SERVIZIO ---
-    if (capS_Wh > 0) {
-        document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, wattServizi, capS_Wh);
-        document.getElementById('batt_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, wattServizi, capS_Wh);
-        document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, wattServizi, capS_Wh);
+    if (state.battAh > 0) {
+        document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, wattServizi, state.battAh);
+        document.getElementById('batt_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, wattServizi, state.battAh);
+        document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, wattServizi, state.battAh);
+    } else {
+        document.getElementById('batt_charge_80_txt').innerText = "--";
+        document.getElementById('batt_charge_90_txt').innerText = "--";
+        document.getElementById('batt_charge_100_txt').innerText = "--";
     }
 
     // --- 4. DISEGNO GRAFICO (Rimanente parte invariata) ---
