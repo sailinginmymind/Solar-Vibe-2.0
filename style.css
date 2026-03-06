@@ -1344,8 +1344,8 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
 .report-grid.mini {
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 colonne uguali */
-    gap: 10px;
-    margin-top: 15px;
+    gap: 12px;
+    margin-top: 20px;
 }
 
 /* La singola celletta del report */
@@ -1355,20 +1355,21 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     align-items: center;
     justify-content: center;
     background: var(--bg-badge);
-    padding: 8px 5px;
+    padding: 12px 10px;
+    min-height: 65px;    /* Gli dà corpo visivo */
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .report-item .lbl {
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     color: #94a3b8;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     font-weight: bold;
 }
 
 .report-item .val {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     color: var(--accento); /* Diventa ROSSO se scegli il tema rosso! */
     text-shadow: 0 0 10px rgba(244, 63, 94, 0.2);
 }
