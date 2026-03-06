@@ -345,35 +345,35 @@ async function updateAll() {
         console.error("Errore updateAll:", e); 
     }
 }
-function updateReportUI(currentPower, sunH, setH) {
-    const chart = document.getElementById('hourly-chart');
-    const detailBox = document.getElementById('detail-display');
-    const totalDisplay = document.getElementById('total-wh-day');
-    
-    if (!chart || !state.weatherData) return;
+// --- LOGICA DOPPIO REPORT SEPARATO (PS e SERVIZI) ---
 
-// --- AGGIUNTA LOGICA POWER STATION (CORRETTA) ---
-
-// 1. Usiamo i nomi esatti del tuo 'state': battAh e psAh
 const capServizio = state.battAh || 0;
-const capPS = state.psAh || 0; // <--- Modificato da powerStationAh a psAh
-const capacitaTotaleAh = capServizio + capPS;
+const capPS = state.psAh || 0;
 
-// 2. Calcoliamo l'energia attuale (Ah) in base ai due slider
-const ahAttualiServizio = capServizio * (state.currentSOC / 100);
-const ahAttualiPS = capPS * (state.currentPsSOC / 100);
-const ahTotaleReale = ahAttualiServizio + ahAttualiPS;
+// 1. CALCOLO PER POWER STATION (Basato sullo slider di sinistra)
+if (capPS > 0) {
+    document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, currentPower, capPS);
+    document.getElementById('ps_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 90, currentPower, capPS);
+    document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, currentPower, capPS);
+} else {
+    // Se non c'è una PS nel garage, mettiamo i trattini
+    ['ps_charge_80_txt', 'ps_charge_90_txt', 'ps_charge_100_txt'].forEach(id => {
+        document.getElementById(id).innerText = "--";
+    });
+}
 
-// 3. Calcoliamo la percentuale media del sistema completo
-const socMedio = capacitaTotaleAh > 0 ? (ahTotaleReale / capacitaTotaleAh) * 100 : 0;
+// 2. CALCOLO PER BATTERIA SERVIZIO (Basato sullo slider di destra)
+if (capServizio > 0) {
+    document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, capServizio);
+    document.getElementById('batt_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, capServizio);
+    document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, capServizio);
+} else {
+    ['batt_charge_80_txt', 'batt_charge_90_txt', 'batt_charge_100_txt'].forEach(id => {
+        document.getElementById(id).innerText = "--";
+    });
+}
 
-// 4. Passiamo i dati al motore di calcolo
-// currentPower deve essere la produzione solare attuale in Watt
-document.getElementById('charge_80_txt').innerText = SolarEngine.estimateChargeTime(socMedio, 80, currentPower, capacitaTotaleAh);
-document.getElementById('charge_90_txt').innerText = SolarEngine.estimateChargeTime(socMedio, 90, currentPower, capacitaTotaleAh);
-document.getElementById('charge_100_txt').innerText = SolarEngine.estimateChargeTime(socMedio, 100, currentPower, capacitaTotaleAh);
-
-// ------------------------------------------------
+// ----------------------------------------------------
     chart.innerHTML = "";
     // ... resto della funzione (il ciclo for e showDetail che hai scritto tu vanno benissimo) ...
     let dailyTotal = 0;
