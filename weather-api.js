@@ -17,7 +17,6 @@ const WeatherAPI = {
     // Scarica i dati meteo
     fetchForecast: async (lat, lng, date) => {
         try {
-            // Usiamo &timezone=auto per far calcolare a Open-Meteo il fuso orario dalla posizione
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m&daily=sunrise,sunset&timezone=auto&start_date=${date}&end_date=${date}`;
             
             const response = await fetch(url);
@@ -25,10 +24,10 @@ const WeatherAPI = {
             
             const data = await response.json();
 
-            // 2. SALVIAMO IL FUSO ORARIO DELLA CITTÀ
+            // SALVIAMO IL FUSO ORARIO DELLA CITTÀ
             if (data.utc_offset_seconds !== undefined) {
-                timezoneOffsetSeconds = data.utc_offset_seconds;
-                // Aggiorniamo subito l'ora visualizzata
+                window.timezoneOffsetSeconds = data.utc_offset_seconds;
+                // Aggiorniamo subito l'ora e il sistema solare
                 updateDashboardClock();
             }
 
@@ -42,30 +41,44 @@ const WeatherAPI = {
 
 /**
  * FUNZIONE OROLOGIO SINCRONIZZATO
- * Calcola l'ora in base alla città scelta (usando display-hour-center)
+ * Aggiorna ora centrale, data, input e posizione del sole
  */
 function updateDashboardClock() {
-    // Usiamo l'ID presente nel tuo HTML: display-hour-center
     const clockElement = document.getElementById('display-hour-center'); 
+    const inputTime = document.getElementById('input-time'); // Riquadro ora in basso
+    const inputDate = document.getElementById('input-date'); // Riquadro data in basso
+
     if (!clockElement) return;
 
     const oraLocale = new Date();
+    let timeToUse = oraLocale;
 
-    if (timezoneOffsetSeconds !== null) {
-        // 1. Calcoliamo l'ora universale (UTC)
+    if (window.timezoneOffsetSeconds !== null) {
+        // Calcoliamo l'ora della città (es. Taipei)
         const utcTimeMs = oraLocale.getTime() + (oraLocale.getTimezoneOffset() * 60000);
-        
-        // 2. Aggiungiamo lo scostamento della città cercata
-        const cityTime = new Date(utcTimeMs + (timezoneOffsetSeconds * 1000));
-        
-        const h = cityTime.getHours().toString().padStart(2, '0');
-        const m = cityTime.getMinutes().toString().padStart(2, '0');
-        clockElement.innerText = `${h}:${m}`;
-    } else {
-        // Se non hai ancora cercato una città, mostra l'ora del tuo telefono/PC
-        const h = oraLocale.getHours().toString().padStart(2, '0');
-        const m = oraLocale.getMinutes().toString().padStart(2, '0');
-        clockElement.innerText = `${h}:${m}`;
+        timeToUse = new Date(utcTimeMs + (window.timezoneOffsetSeconds * 1000));
+    }
+
+    // 1. Aggiorna l'ora nel cerchio centrale
+    const h = timeToUse.getHours().toString().padStart(2, '0');
+    const m = timeToUse.getMinutes().toString().padStart(2, '0');
+    clockElement.innerText = `${h}:${m}`;
+
+    // 2. Aggiorna il riquadro dell'ora in basso (input-time)
+    if (inputTime) inputTime.value = `${h}:${m}`;
+
+    // 3. Aggiorna il riquadro della data in basso (input-date)
+    if (inputDate) {
+        const yyyy = timeToUse.getFullYear();
+        const mm = (timeToUse.getMonth() + 1).toString().padStart(2, '0');
+        const dd = timeToUse.getDate().toString().padStart(2, '0');
+        inputDate.value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    // 4. SINCRONIZZA IL SOLE
+    // Questa funzione aggiorna la posizione del sole in base alla nuova ora
+    if (typeof updateSolarSystem === 'function') {
+        updateSolarSystem(); 
     }
 }
 
