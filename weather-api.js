@@ -1,10 +1,5 @@
-/**
- * WEATHER-API.JS
- * Gestisce le chiamate al servizio meteo Open-Meteo e l'ora locale della città
- */
-
-// 1. Variabile per salvare il fuso orario (Offset)
-let timezoneOffsetSeconds = null;
+// Usiamo window. per renderla visibile anche agli altri file JS (solar-engine.js, app.js)
+window.timezoneOffsetSeconds = null;
 
 const WeatherAPI = {
     // Recupera la posizione GPS dell'utente
