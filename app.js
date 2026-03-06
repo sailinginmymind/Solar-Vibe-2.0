@@ -369,23 +369,31 @@ function editSpec(type) {
  * Calcola e scrive la conversione Wh/Ah subito sotto i valori principali nel Garage.
  * Utilizza il coefficiente 12.8V per batterie LiFePO4.
  */
+/**
+ * Aggiorna le conversioni incrociate nel Garage
+ * Spiegazione:
+ * - Batteria: Valore in Ah (inserito) -> Calcola Wh (sotto) moltiplicando per 12.8
+ * - Power Station: Valore in Wh (inserito) -> Calcola Ah (sotto) DIVIDENDO per 12.8
+ */
 function updateConversions() {
-    // 1. GESTIONE BATTERIA SERVIZIO (Solo Ah -> Wh)
+    // 1. GESTIONE BATTERIA SERVIZIO (Rimane Ah -> Wh)
     const bAh = parseFloat(document.getElementById('batt_val').innerText) || 0;
     const bConvVal = document.getElementById('batt_conv_val');
 
     if (bConvVal) {
-        // Calcoliamo i Wh partendo dai Ah inseriti
+        // Moltiplichiamo: Ah * 12.8 = Wh
         bConvVal.innerText = Math.round(bAh * 12.8);
     }
 
-    // 2. GESTIONE POWER STATION (Solo Ah -> Wh)
-    const pAh = parseFloat(document.getElementById('ps_val').innerText) || 0;
+    // 2. GESTIONE POWER STATION (Invertita: Wh -> Ah)
+    // Ora prendiamo il valore principale che l'utente inserisce come Wh
+    const pWh = parseFloat(document.getElementById('ps_val').innerText) || 0;
     const pConvVal = document.getElementById('ps_conv_val');
 
     if (pConvVal) {
-        // Calcoliamo i Wh partendo dai Ah inseriti
-        pConvVal.innerText = Math.round(pAh * 12.8);
+        // DIVIDIAMO: Wh / 12.8 = Ah
+        // Esempio: 1280 Wh / 12.8 = 100 Ah
+        pConvVal.innerText = Math.round(pWh / 12.8);
     }
 }
 
