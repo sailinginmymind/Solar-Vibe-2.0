@@ -60,74 +60,74 @@
         </div>
     </div> 
 
-    <div id="view-energy" class="view">
-        <div class="card">
-            <div id="detail-display" style="text-align:center; color:#fbbf24; font-weight:bold; margin-bottom:10px; min-height:1.5em;">
-                Tocca una barra per i dettagli
-            </div>
-            <h3 class="section-title">PREVISIONE ODIERNA</h3>
-            <div id="hourly-chart" class="chart-container"></div>
-            <div class="total-display-box">
-                <div class="label-stack">
-                    <span>PRODUZIONE</span>
-                    <span>TOTALE <span class="eq-symbol">=</span></span>
-                </div>
-                <div class="value-huge" id="total-wh-day">0 Wh</div>
-            </div>
-            <div id="days-selector" class="days-container"></div>
-            <div class="scroll-hint">← trascina per vedere altri giorni →</div>
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
-            
-            <h3 class="section-title">STATO CARICA</h3>
-            <div class="dual-slider-container">
-                
-                <div class="slider-box">
-                    <div class="slider-header">
-                        <span>POWER STATION</span>
-                        <span id="ps-soc-val" class="soc-number">50%</span>
-                    </div>
-                    <input type="range" id="ps-soc-slider" min="0" max="100" value="50">
-                    <div class="report-grid mini">
-                        <div class="report-item">
-                            <span class="lbl">A 80%</span>
-                            <b class="val" id="ps_charge_80_txt">--</b>
-                        </div>
-                        <div class="report-item">
-                            <span class="lbl">A 90%</span>
-                            <b class="val" id="ps_charge_90_txt">--</b>
-                        </div>
-                        <div class="report-item">
-                            <span class="lbl">A 100%</span>
-                            <b class="val" id="ps_charge_100_txt">--</b>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slider-box">
-                    <div class="slider-header">
-                        <span>BATT SERVIZIO</span>
-                        <span id="soc-val" class="soc-number">50%</span>
-                    </div>
-                    <input type="range" id="soc-slider" min="0" max="100" value="50">
-                    <div class="report-grid mini">
-                        <div class="report-item">
-                            <span class="lbl">A 80%</span>
-                            <b class="val" id="batt_charge_80_txt">--</b>
-                        </div>
-                        <div class="report-item">
-                            <span class="lbl">A 90%</span>
-                            <b class="val" id="batt_charge_90_txt">--</b>
-                        </div>
-                        <div class="report-item">
-                            <span class="lbl">A 100%</span>
-                            <b class="val" id="batt_charge_100_txt">--</b>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+  <div id="view-energy" class="view">
+    <div class="card">
+        <div id="detail-display" style="text-align:center; color:#fbbf24; font-weight:bold; margin-bottom:10px; min-height:1.5em;">
+            Tocca una barra per i dettagli
         </div>
-    </div> 
+        <h3 class="section-title">PREVISIONE ODIERNA</h3>
+        <div id="hourly-chart" class="chart-container"></div>
+        <div class="total-display-box">
+            <div class="label-stack">
+                <span>PRODUZIONE</span>
+                <span>TOTALE <span class="eq-symbol">=</span></span>
+            </div>
+            <div class="value-huge" id="total-wh-day">0 Wh</div>
+        </div>
+        <div id="days-selector" class="days-container"></div>
+        <div class="scroll-hint">← trascina per vedere altri giorni →</div>
+        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
+        
+        <h3 class="section-title">STATO CARICA</h3>
+        <div class="dual-slider-container">
+            
+            <div class="slider-box">
+                <div class="slider-header">
+                    <span>BATT SERVIZIO</span>
+                    <span id="soc-val" class="soc-number">50%</span>
+                </div>
+                <input type="range" id="soc-slider" min="0" max="100" value="50">
+                <div class="report-grid mini">
+                    <div class="report-item">
+                        <span class="lbl">A 80%</span>
+                        <b class="val" id="batt_charge_80_txt">--</b>
+                    </div>
+                    <div class="report-item">
+                        <span class="lbl">A 90%</span>
+                        <b class="val" id="batt_charge_90_txt">--</b>
+                    </div>
+                    <div class="report-item">
+                        <span class="lbl">A 100%</span>
+                        <b class="val" id="batt_charge_100_txt">--</b>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-box">
+                <div class="slider-header">
+                    <span>POWER STATION</span>
+                    <span id="ps-soc-val" class="soc-number">50%</span>
+                </div>
+                <input type="range" id="ps-soc-slider" min="0" max="100" value="50">
+                <div class="report-grid mini">
+                    <div class="report-item">
+                        <span class="lbl">A 80%</span>
+                        <b class="val" id="ps_charge_80_txt">--</b>
+                    </div>
+                    <div class="report-item">
+                        <span class="lbl">A 90%</span>
+                        <b class="val" id="ps_charge_90_txt">--</b>
+                    </div>
+                    <div class="report-item">
+                        <span class="lbl">A 100%</span>
+                        <b class="val" id="ps_charge_100_txt">--</b>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
     <div id="view-garage" class="view">
         <div class="card">
