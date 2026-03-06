@@ -1301,3 +1301,26 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
         align-items: flex-start !important; 
     }
 }
+.mini-report-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.mini-badge {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 5px;
+    border-radius: 8px;
+    font-size: 10px;
+    color: #94a3b8;
+    flex: 1;
+    text-align: center;
+    border: 1px solid rgba(56, 189, 248, 0.1);
+}
+
+.mini-badge b {
+    display: block;
+    color: var(--accento);
+    font-size: 12px;
+}
