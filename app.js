@@ -345,3 +345,25 @@ function resetDetailDisplay() {
     const display = document.getElementById('detail-display');
     if (display) display.innerHTML = `<span style="color:#fbbf24;">TOCCA UNA BARRA PER I DETTAGLI</span>`;
 }
+/**
+ * Cambia il colore di sfondo dell'intera applicazione
+ * @param {string} color - Il codice esadecimale del colore scelto
+ */
+function changeBg(color) {
+    // Applichiamo il colore direttamente al body
+    document.body.style.backgroundColor = color;
+    
+    // Opzionale: salviamo la preferenza nel browser così al ricaricamento
+    // l'utente ritrova il colore che aveva scelto
+    localStorage.setItem('vibe_solar_bg', color);
+    
+    console.log("Colore interfaccia aggiornato a:", color);
+}
+
+// All'avvio dell'app, controlliamo se c'era un colore salvato
+window.addEventListener('load', () => {
+    const savedColor = localStorage.getItem('vibe_solar_bg');
+    if (savedColor) {
+        changeBg(savedColor);
+    }
+});
