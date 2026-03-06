@@ -347,29 +347,34 @@ function resetDetailDisplay() {
 }
 /**
  
- * Gestisce i 4 temi colore dell'app
- * @param {string} color - Il colore esadecimale passato dal tasto nel Garage
+/**
+ * Cambia il tema dell'app aggiungendo la classe corrispondente al body.
+ * Sfrutta le variabili CSS già definite nel foglio di stile.
+ * @param {string} color - Il codice colore esagonale passato dall'HTML
  */
 function changeBg(color) {
-    // 1. Applichiamo lo sfondo principale
+    // 1. Rimuoviamo tutte le classi tema precedenti per evitare conflitti
+    document.body.classList.remove('tema-verde', 'tema-rosso', 'tema-grigio');
+    
+    // 2. In base al colore cliccato, aggiungiamo la classe corretta
+    // Nota: il tema blu (default) non ha bisogno di classe perché è nel :root
+    if (color === '#062c1f') {
+        document.body.classList.add('tema-verde');
+    } else if (color === '#2d0a1a') {
+        document.body.classList.add('tema-rosso');
+    } else if (color === '#1a1a1a') {
+        document.body.classList.add('tema-grigio');
+    }
+    
+    // 3. Forziamo comunque il background-color per sicurezza (opzionale)
     document.body.style.backgroundColor = color;
-    
-    // 2. Determiniamo il colore del bordo coordinato in base al tema scelto
-    let accentColor = "#38bdf8"; // Default (Blu Notte)
-    
-    if (color === '#1a1a1a') accentColor = "#64748b"; // Nero (Bordo Grigio)
-    if (color === '#062c1f') accentColor = "#10b981"; // Foresta (Bordo Verde)
-    if (color === '#2d0a1a') accentColor = "#f43f5e"; // Tramonto (Bordo Rosa/Rosso)
 
-    // 3. Aggiorniamo le variabili CSS per i bordi delle card e dei pulsanti
-    document.documentElement.style.setProperty('--accent-color', accentColor);
-    
-    // 4. Salviamo la scelta per il prossimo riavvio
-    localStorage.setItem('vibe_solar_bg', color);
+    // 4. Salviamo la scelta nel browser
+    localStorage.setItem('vibe_solar_bg_color', color);
 }
 
-// All'avvio, recuperiamo il tema salvato
-window.addEventListener('load', () => {
-    const savedColor = localStorage.getItem('vibe_solar_bg');
-    if (savedColor) changeBg(savedColor);
+// Al caricamento, ripristiniamo il tema salvato
+window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('vibe_solar_bg_color');
+    if (saved) changeBg(saved);
 });
