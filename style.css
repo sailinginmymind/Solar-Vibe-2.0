@@ -1278,61 +1278,14 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     cursor: pointer;
     box-shadow: 0 0 10px var(--accento) !important;
 }
-/* --- OTTIMIZZAZIONE MOBILE PER SLIDER --- */
-@media (max-width: 480px) {
-    /* Forza il testo dell'header a spezzarsi se necessario */
-    .slider-header span:first-child {
-        display: block;
-        max-width: 80px;      /* Costringe "BATT SERVIZIO" a scendere */
-        line-height: 1.2;     /* Tiene le due righe vicine */
-        font-size: 10px;      /* Leggermente più piccolo per stare nel box */
-        text-align: left;
-    }
-
-    /* Assicuriamoci che il numero abbia il suo spazio riservato */
-    .soc-number {
-        min-width: 70px !important; 
-        text-align: right;
-        flex-shrink: 0;       /* Impedisce al numero di rimpicciolirsi */
-    }
-
-    /* Allinea il testo in alto e il numero al centro della sua zona */
-    .slider-header {
-        align-items: flex-start !important; 
-    }
-}
-.mini-report-grid {
-    display: flex;
-    justify-content: space-between;
-    gap: 5px;
-    margin-top: 10px;
-}
-
-.mini-badge {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 5px;
-    border-radius: 8px;
-    font-size: 10px;
-    color: #94a3b8;
-    flex: 1;
-    text-align: center;
-    border: 1px solid rgba(56, 189, 248, 0.1);
-}
-
-.mini-badge b {
-    display: block;
-    color: var(--accento);
-    font-size: 12px;
-}
-/* Contenitore che tiene Power Station e Batt Servizio */
+/* --- STRUTTURA GENERALE REPORT (VALE PER TUTTI) --- */
 .dual-slider-container {
     display: flex;
-    flex-direction: column; /* Uno sopra l'altro di base (mobile) */
+    flex-direction: column; 
     gap: 25px;
     margin-top: 20px;
 }
 
-/* Box singolo dello slider */
 .slider-box {
     background: var(--bg-card);
     padding: 15px;
@@ -1340,43 +1293,73 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* La griglia con i tempi 80%, 90%, 100% */
-.report-grid.mini {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 colonne uguali */
-    gap: 12px;
-    margin-top: 20px;
-}
+/* --- OTTIMIZZAZIONE PREMIUM PER TELEFONO --- */
+@media (max-width: 480px) {
+    /* Header dello slider: gestiamo il testo lungo del camper */
+    .slider-header span:first-child {
+        display: block;
+        max-width: 90px;
+        line-height: 1.2;
+        font-size: 11px;
+        text-align: left;
+        font-weight: bold;
+        color: #94a3b8;
+    }
 
-/* La singola celletta del report */
-.report-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-badge);
-    padding: 12px 10px;
-    min-height: 65px;    /* Gli dà corpo visivo */
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
+    .soc-number {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--accento);
+    }
 
-.report-item .lbl {
-    font-size: 0.75rem;
-    color: #94a3b8;
-    margin-bottom: 6px;
-    font-weight: bold;
-}
+    /* La griglia: ora a 3 blocchi vicini che si toccano */
+    .report-grid.mini {
+        display: flex;         /* Flex rende i blocchi super flessibili */
+        gap: 2px;              /* Spazio minimo per l'effetto "fascia" */
+        margin-top: 15px;
+        width: 100%;
+    }
 
-.report-item .val {
-    font-size: 1.1rem;
-    color: var(--accento); /* Diventa ROSSO se scegli il tema rosso! */
-    text-shadow: 0 0 10px rgba(244, 63, 94, 0.2);
+    .report-item {
+        flex: 1;               /* Si dividono lo spazio al millimetro */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.07);
+        padding: 15px 5px;     /* Più alti e spaziosi */
+        min-height: 70px;
+        border-radius: 4px;    /* Angoli dritti per sembrare uniti */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Etichette (A 80%) - Font incrementato come richiesto */
+    .report-item .lbl {
+        font-size: 0.85rem;    /* Più grande e leggibile */
+        color: #cbd5e1;        /* Un grigio più chiaro per contrasto */
+        margin-bottom: 5px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    /* Valore ore (es. 0.5h) */
+    .report-item .val {
+        font-size: 1.2rem;     /* Grande impatto visivo */
+        color: var(--accento);
+        font-weight: 800;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
 }
 
 /* --- ADATTAMENTO PER TABLET/PC --- */
 @media (min-width: 768px) {
     .dual-slider-container {
-        flex-direction: row; /* Affiancati su schermi grandi */
+        flex-direction: row; 
+    }
+    
+    .report-grid.mini {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
     }
 }
