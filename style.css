@@ -1351,15 +1351,39 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     }
 }
 
-/* --- ADATTAMENTO PER TABLET/PC --- */
+/* --- ADATTAMENTO PER TABLET/PC (Sopra i 768px) --- */
 @media (min-width: 768px) {
+    /* Mettiamo i due box affiancati con spazio tra loro */
     .dual-slider-container {
         flex-direction: row; 
+        gap: 15px; /* Spazio tra il box Power Station e Batt Servizio */
     }
-    
+
+    .slider-box {
+        flex: 1; /* Entrambi i box occupano la stessa larghezza */
+        padding: 20px;
+    }
+
+    /* La griglia dei risultati su PC deve avere più respiro */
     .report-grid.mini {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
+        display: flex;
+        gap: 6px; /* Leggero spazio su PC per non farli sembrare un blocco unico informe */
+        margin-top: 15px;
+    }
+
+    .report-item {
+        flex: 1;
+        padding: 10px 5px;
+        min-height: 60px;
+        border-radius: 6px; /* Angoli un po' più definiti su PC */
+    }
+
+    /* Testo leggermente più equilibrato per schermi grandi */
+    .report-item .lbl {
+        font-size: 0.75rem; 
+    }
+
+    .report-item .val {
+        font-size: 1rem;
     }
 }
