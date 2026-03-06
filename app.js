@@ -277,12 +277,6 @@ async function updateAll() {
 
     if (!lat || !lng || !displayVal) return;
 
-    displayVal.style.color = "#38bdf8"; 
-    if (displayLabel) {
-        displayLabel.innerText = "POTENZA ISTANTANEA";
-        displayLabel.style.cursor = "default";
-    }
-
     try {
         if (isGpsSyncing) {
             await updateCityName(lat, lng); 
@@ -303,132 +297,96 @@ async function updateAll() {
         document.getElementById('sunset-txt').innerText = sunset;
         document.getElementById('display-hour-center').innerText = time;
 
-        document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
-        document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°";
-        document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
-        document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
-
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
 
-        // 1. Calcolo Potenza per i Pannelli Fissi del Camper
-        const powerServices = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
-        
-        // 2. Calcolo Potenza per i Pannelli della Power Station
-        const powerPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
-        
-        // 3. Calcolo Totale
-        const totalPower = powerServices + powerPS;
+        // 1. Calcolo Potenze separate
+        const pServices = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
+        const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
+        const totalPower = pServices + pPS;
 
-        // AGGIORNAMENTO UI DASHBOARD
+        // 2. Aggiornamento UI Dashboard
         displayVal.innerText = Math.round(totalPower) + " W";
-        
-        const leftDisplay = document.getElementById('w_services');
-        if (leftDisplay) leftDisplay.innerText = Math.round(powerServices) + " W";
-        
-        const rightDisplay = document.getElementById('w_ps');
-        if (rightDisplay) rightDisplay.innerText = Math.round(powerPS) + " W";
+        if (document.getElementById('w_services')) document.getElementById('w_services').innerText = Math.round(pServices) + " W";
+        if (document.getElementById('w_ps')) document.getElementById('w_ps').innerText = Math.round(pPS) + " W";
 
+        // 3. Posizionamento Sole
         if (typeof updateSunUI === 'function') updateSunUI(hDec, sunH, setH);
 
-        // --- NUOVA LOGICA PER IL REPORT ---
-        // Calcoliamo quanti Ah totali abbiamo basandoci sui DUE slider
-        const currentAhServices = state.battAh * (state.currentSOC / 100);
-        const currentAhPS = state.psAh * (state.currentPsSOC / 100);
-        const totalCurrentAh = currentAhServices + currentAhPS;
-        const totalMaxAh = state.battAh + state.psAh;
-
-        // Passiamo questi dati a updateReportUI
-        updateReportUI(totalPower, sunH, setH, totalCurrentAh, totalMaxAh);
+        // 4. CHIAMATA AL REPORT (Passiamo i Watt totali e i dati del sole)
+        updateReportUI(totalPower, sunH, setH);
 
     } catch (e) { 
         console.error("Errore updateAll:", e); 
     }
 }
-// --- LOGICA DOPPIO REPORT SEPARATO (PS e SERVIZI) ---
+function updateReportUI(currentPower, sunH, setH) {
+    const chart = document.getElementById('hourly-chart');
+    const detailBox = document.getElementById('detail-display');
+    const totalDisplay = document.getElementById('total-wh-day');
+    
+    if (!chart || !state.weatherData) return;
 
-const capServizio = state.battAh || 0;
-const capPS = state.psAh || 0;
+    // --- A. CALCOLO TEMPI DI RICARICA SEPARATI ---
+    const capServizio = state.battAh || 0;
+    const capPS = state.psAh || 0;
 
-// 1. CALCOLO PER POWER STATION (Basato sullo slider di sinistra)
-if (capPS > 0) {
-    document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, currentPower, capPS);
-    document.getElementById('ps_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 90, currentPower, capPS);
-    document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, currentPower, capPS);
-} else {
-    // Se non c'è una PS nel garage, mettiamo i trattini
-    ['ps_charge_80_txt', 'ps_charge_90_txt', 'ps_charge_100_txt'].forEach(id => {
-        document.getElementById(id).innerText = "--";
-    });
-}
+    // Report Power Station (Slider Sinistro)
+    if (capPS > 0) {
+        document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, currentPower, capPS);
+        document.getElementById('ps_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 90, currentPower, capPS);
+        document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, currentPower, capPS);
+    }
 
-// 2. CALCOLO PER BATTERIA SERVIZIO (Basato sullo slider di destra)
-if (capServizio > 0) {
-    document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, capServizio);
-    document.getElementById('batt_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, capServizio);
-    document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, capServizio);
-} else {
-    ['batt_charge_80_txt', 'batt_charge_90_txt', 'batt_charge_100_txt'].forEach(id => {
-        document.getElementById(id).innerText = "--";
-    });
-}
+    // Report Batteria Servizio (Slider Destro)
+    if (capServizio > 0) {
+        document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, currentPower, capServizio);
+        document.getElementById('batt_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, currentPower, capServizio);
+        document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, currentPower, capServizio);
+    }
 
-// ----------------------------------------------------
+    // --- B. DISEGNO GRAFICO ---
     chart.innerHTML = "";
-    // ... resto della funzione (il ciclo for e showDetail che hai scritto tu vanno benissimo) ...
     let dailyTotal = 0;
     const startHour = Math.floor(sunH);
     const endHour = Math.ceil(setH);
 
     for (let h = startHour; h <= endHour; h++) {
         const cloud = state.weatherData.hourly.cloud_cover[h] || 0;
+        // Calcoliamo la produzione oraria basandoci sui pannelli fissi (camper)
         const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, cloud);
         dailyTotal += hP;
 
         const bar = document.createElement('div');
         bar.className = 'bar';
-        bar.style.height = Math.max(5, (hP / state.panelWp * 100)) + "%";
+        bar.style.height = Math.max(5, (hP / (state.panelWp || 1) * 100)) + "%";
 
-       const showDetail = () => {
-    clearTimeout(chartSelectionTimer);
-    document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
-    bar.classList.add('active');
-    
-    if (detailBox) {
-        detailBox.style.display = "flex";
-        detailBox.style.justifyContent = "center";
-        detailBox.style.alignItems = "baseline"; 
+        const showDetail = () => {
+            clearTimeout(chartSelectionTimer);
+            document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
+            bar.classList.add('active');
+            
+            if (detailBox) {
+                detailBox.innerHTML = `
+                    <span style="color:#fbbf24;">ORE </span>
+                    <b style="color:#fbbf24; margin-left:4px;">${h}:00</b> 
+                    <span style="color:#fbbf24; margin:0 10px; opacity:0.5;">→</span> 
+                    <b style="color:#fbbf24;">${Math.round(hP)} W</b>
+                `;
+            }
 
-        // Costruiamo il contenuto forzando il GIALLO su tutto
-        detailBox.innerHTML = `
-            <span style="color:#fbbf24;">ORE </span>
-            <b style="color:#fbbf24; margin-left:4px;">${h}:00</b> 
-            <span style="color:#fbbf24; margin:0 10px; opacity:0.5;">→</span> 
-            <b style="color:#fbbf24;">${Math.round(hP)} W</b>
-        `;
-        
-        detailBox.style.fontSize = "18px"; 
-        detailBox.style.color = "#fbbf24"; // Colore base giallo
-        detailBox.style.fontWeight = "900";
-        detailBox.style.textShadow = "none"; // Rimuove il bagliore blu/azzurro
-    }
+            chartSelectionTimer = setTimeout(() => {
+                bar.classList.remove('active');
+                resetDetailDisplay();
+            }, 2000);
+        };
 
-    chartSelectionTimer = setTimeout(() => {
-        bar.classList.remove('active');
-        resetDetailDisplay();
-    }, 2000);
-};
-
-        bar.addEventListener('mouseenter', showDetail);
         bar.addEventListener('click', showDetail);
         chart.appendChild(bar);
-    } // Fine ciclo for
-
-    if (totalDisplay) {
-        totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
     }
-} 
 
+    if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
+}
 function switchView(vId, el) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
