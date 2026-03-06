@@ -79,7 +79,7 @@
             <div id="days-selector" class="days-container"></div>
             <div class="scroll-hint">← trascina per vedere altri giorni →</div>
             <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
-         <h3 class="section-title">STATO CARICA</h3>
+<h3 class="section-title">STATO CARICA</h3>
 <div class="dual-slider-container">
     
     <div class="slider-box">
@@ -88,6 +88,12 @@
             <span id="ps-soc-val" class="soc-number">50%</span>
         </div>
         <input type="range" id="ps-soc-slider" min="0" max="100" value="50">
+        
+        <div class="report-grid mini">
+            <div class="report-item"><span>A 80%</span><b id="ps_charge_80_txt">--</b></div>
+            <div class="report-item"><span>A 90%</span><b id="ps_charge_90_txt">--</b></div>
+            <div class="report-item"><span>A 100%</span><b id="ps_charge_100_txt">--</b></div>
+        </div>
     </div>
 
     <div class="slider-box">
@@ -96,22 +102,15 @@
             <span id="soc-val" class="soc-number">50%</span>
         </div>
         <input type="range" id="soc-slider" min="0" max="100" value="50">
-    </div>
-
-</div>
-           <div class="report-grid">
-    <div class="report-item"><span>A 80% IN</span><b id="ps_charge_80_txt">--</b></div>
-    <div class="report-item"><span>A 90% IN</span><b id="ps_charge_90_txt">--</b></div>
-    <div class="report-item"><span>A 100% IN</span><b id="ps_charge_100_txt">--</b></div>
-</div>
-
-<div class="report-grid">
-    <div class="report-item"><span>A 80% IN</span><b id="batt_charge_80_txt">--</b></div>
-    <div class="report-item"><span>A 90% IN</span><b id="batt_charge_90_txt">--</b></div>
-    <div class="report-item"><span>A 100% IN</span><b id="batt_charge_100_txt">--</b></div>
-</div>
+        
+        <div class="report-grid mini">
+            <div class="report-item"><span>A 80%</span><b id="batt_charge_80_txt">--</b></div>
+            <div class="report-item"><span>A 90%</span><b id="batt_charge_90_txt">--</b></div>
+            <div class="report-item"><span>A 100%</span><b id="batt_charge_100_txt">--</b></div>
         </div>
     </div>
+
+</div>
 
     <div id="view-garage" class="view">
         <div class="card">
