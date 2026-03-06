@@ -124,6 +124,21 @@ async function updateAll() {
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
+        // --- INIZIO AGGIORNAMENTO BADGE METEO ---
+        // Preleviamo i dati dall'oggetto 'hourly' dell'API usando l'indice dell'ora (hourIdx)
+        if (document.getElementById('r-wind')) 
+            document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
+
+        if (document.getElementById('r-hum')) 
+            document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
+
+        if (document.getElementById('r-temp')) 
+            document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°C";
+
+        if (document.getElementById('r-cloud-percent')) 
+            document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
+        // --- FINE AGGIORNAMENTO BADGE METEO ---
+
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         
@@ -134,6 +149,7 @@ async function updateAll() {
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
 
+        // Calcolo delle potenze basato sulla copertura nuvolosa attuale
         const pServices = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
         const totalPower = pServices + pPS;
@@ -144,7 +160,7 @@ async function updateAll() {
 
         updateSunUI(hDec, sunH, setH);
         updateReportUI(totalPower, sunH, setH);
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Errore nel caricamento dati:", e); }
 }
 
 function updateReportUI(currentPower, sunH, setH) {
