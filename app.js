@@ -246,12 +246,33 @@ function editSpec(type) {
 }
 
 function saveGarageSettings() {
-    const name = document.getElementById('camper_name_input').value;
+    // 1. Prendiamo il valore dall'input
+    const nameInput = document.getElementById('camper_name_input');
+    const name = nameInput.value.trim();
+    // 2. Salvataggio nel localStorage (il tuo codice originale)
     localStorage.setItem('vibe_camper_name', name);
     localStorage.setItem('vibe_batt_ah', state.battAh);
     localStorage.setItem('vibe_panel_wp', state.panelWp);
     localStorage.setItem('vibe_ps_ah', state.psAh);
     localStorage.setItem('vibe_ps_panel_wp', state.panelPsWp);
+    // 3. AGGIORNAMENTO ISTANTANEO DEL TITOLO (Quello che mancava)
+    const display = document.getElementById('camper-name-display');
+    if (display && name !== "") {
+        display.innerText = name.toUpperCase();
+    }
+    // 4. Feedback visivo per l'utente
+    // Invece di un alert invasivo, facciamo cambiare colore al pulsante per un secondo
+    const saveBtn = document.getElementById('btn-save-name');
+    if (saveBtn) {
+        const originalContent = saveBtn.innerHTML;
+        saveBtn.innerHTML = "✅ SALVATO";
+        saveBtn.style.color = "#22c55e"; // Verde
+        
+        setTimeout(() => {
+            saveBtn.innerHTML = originalContent;
+            saveBtn.style.color = "";
+        }, 2000);
+    }
     updateAll();
 }
 
