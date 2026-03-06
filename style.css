@@ -1292,7 +1292,23 @@ input[type=range] { width: 100%; accent-color: #38bdf8; }
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
+/* --- BASE UNIVERSALE RIQUADRI (Per evitare che spariscano ridimensionando) --- */
+.report-grid.mini {
+    display: flex;
+    width: 100%;
+    gap: 4px;
+}
 
+.report-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 10px 5px;
+}
 /* --- OTTIMIZZAZIONE PREMIUM PER TELEFONO --- */
 @media (max-width: 480px) {
     /* Header dello slider: gestiamo il testo lungo del camper */
