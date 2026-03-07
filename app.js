@@ -179,14 +179,10 @@ async function updateAll() {
     const dateInput = document.getElementById('input-date');
     const timeInput = document.getElementById('input-time');
 
-    // 1. Leggiamo la data dal quadratino
-    if (dateInput?.value) {
-        dataSelezionata = new Date(dateInput.value);
-    }
-
-    // 2. Leggiamo l'ora dal quadratino (o mettiamo l'attuale se vuoto)
+    // Se l'utente ha scritto qualcosa nel campo ora, usiamo quello.
+    // Altrimenti (e solo se il campo è proprio vuoto) mettiamo l'ora attuale.
     let time = timeInput.value;
-    if (!time) {
+    if (!time || time === "") {
         const oraLocale = new Date();
         time = oraLocale.getHours().toString().padStart(2,'0') + ":" + oraLocale.getMinutes().toString().padStart(2,'0');
         timeInput.value = time;
