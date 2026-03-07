@@ -1,5 +1,5 @@
 /**
- * APP.JS - Versione Definitiva Fix Ora e Posizione
+ * APP.JS - Versione Definitiva Corretta
  */
 let chartSelectionTimer;
 let dataSelezionata = new Date(); 
@@ -30,9 +30,8 @@ window.onload = () => {
     setupStars();
     generaBottoniGiorni();
     
-    switchView('live', document.querySelector('[data-view="live"]'));
+    switchView('live', document.querySelector('[data-view=\"live\"]'));
 
-    // Al primo avvio, se è tutto vuoto, prova il GPS, altrimenti calcola e basta
     const latVal = document.getElementById('input-lat').value;
     if (!latVal) {
         handleGpsSync(); 
@@ -49,21 +48,21 @@ function initEventListeners() {
     const gpsBtn = document.getElementById('btn-gps');
     if (gpsBtn) gpsBtn.addEventListener('click', handleGpsSync);
 
-    // Gestione Input ORA e DATA
+    // FIX: Usiamo 'input' invece di 'change' per aggiornamento istantaneo
     const timeInput = document.getElementById('input-time');
     if (timeInput) {
-        timeInput.addEventListener('change', updateAll);
+        timeInput.addEventListener('input', () => updateAll(true)); 
     }
 
     const dateInput = document.getElementById('input-date');
     if (dateInput) {
-        dateInput.addEventListener('change', () => {
-            dataSelezionata = new Date(dateInput.value);
+        dateInput.addEventListener('input', (e) => {
+            if (!e.target.value) return;
+            dataSelezionata = new Date(e.target.value);
             aggiornaTuttaInterfaccia();
         });
     }
 
-    // Coordinate e Città
     const cityInput = document.getElementById('city-input');
     if (cityInput) {
         cityInput.addEventListener('change', function () {
@@ -74,7 +73,7 @@ function initEventListeners() {
 
     ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.addEventListener('change', updateAll);
+        if (el) el.addEventListener('change', () => updateAll(false));
     });
 
     const saveNameBtn = document.getElementById('btn-save-name');
@@ -100,18 +99,16 @@ async function handleGpsSync() {
         if (latInput) latInput.value = coords.latitude.toFixed(4);
         if (lngInput) lngInput.value = coords.longitude.toFixed(4);
 
-        // Il GPS forza l'ora attuale
         const oraStringa = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         if (timeInput) timeInput.value = oraStringa;
 
         dataSelezionata = new Date();
         if (dateInput) dateInput.value = dataSelezionata.toISOString().split('T')[0];
 
-        // Aggiorna nome città solo qui
         await updateCityName(coords.latitude, coords.longitude);
         
         generaBottoniGiorni();
-        updateAll();
+        updateAll(false); // Falso perché vogliamo che l'API calcoli il fuso locale
 
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e"; 
@@ -135,7 +132,6 @@ async function updateAll(isManualTime = false) {
 
     if (!lat || !lng) return;
 
-    // 1. Se NON stiamo scrivendo a mano, inizializziamo l'ora se manca
     if (!timeInput.value) {
         const now = new Date();
         timeInput.value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
@@ -144,41 +140,34 @@ async function updateAll(isManualTime = false) {
     try {
         const dateStr = dataSelezionata.toISOString().split('T')[0];
         
-        // 2. Chiamiamo l'API. 
-        // IMPORTANTE: Se NON è un inserimento manuale (isManualTime = false), 
-        // l'API forzerà l'aggiornamento dell'ora locale del posto.
+        // Passiamo il parametro all'API per decidere se aggiornare l'ora dell'input
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, dateStr, !isManualTime);
         
         if (!state.weatherData) return;
 
-        // 3. Prendiamo l'ora (che ora è stata aggiornata dal fuso se abbiamo cambiato città)
         let time = timeInput.value;
         const [ore, minuti] = time.split(':').map(Number);
-        const hourIdx = ore;
+        const hourIdx = Math.min(ore, 23); // Sicurezza indice array
         const hDec = ore + (minuti / 60);
 
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
-        // Aggiornamento Badge Meteo
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°C";
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
 
-        // Alba/Tramonto
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         document.getElementById('sunrise-txt').innerText = sunrise;
         document.getElementById('sunset-txt').innerText = sunset;
         
-        // Aggiorna l'orologio centrale con l'ora dell'input
         document.getElementById('display-hour-center').innerText = time;
 
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
 
-        // Calcolo Wattaggio
         const pServ = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
         
@@ -186,7 +175,6 @@ async function updateAll(isManualTime = false) {
         if (document.getElementById('w_services')) document.getElementById('w_services').innerText = Math.round(pServ) + " W";
         if (document.getElementById('w_ps')) document.getElementById('w_ps').innerText = Math.round(pPS) + " W";
 
-        // MUOVE IL SOLE
         updateSunUI(hDec, sunH, setH);
         updateReportUI(pServ + pPS, sunH, setH);
 
