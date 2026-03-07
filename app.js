@@ -113,7 +113,7 @@ async function handleGpsSync() {
         generaBottoniGiorni();
         updateAll();
 
-        btn.innerText = "✅ OK";
+        btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e"; 
     } catch (err) {
         btn.innerText = "❌ ERRORE GPS";
