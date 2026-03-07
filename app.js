@@ -38,13 +38,9 @@ window.onload = () => {
     // 4. ATTIVAZIONE NAV BAR: Mostra la Dashboard all'avvio
     switchView('live', document.querySelector('[data-view="live"]'));
 
-     // 5. Avvio automatico dati GPS solo se i campi sono vuoti o all'apertura
+    // 5. Avvio automatico dati GPS
     const gpsBtn = document.getElementById('btn-gps');
-    const timeInput = document.getElementById('input-time');
-    
-    // Se l'ora è vuota (primo avvio), allora forza il GPS
-    if (gpsBtn && (!timeInput || !timeInput.value)) {
-        gpsBtn.click();
+    if (gpsBtn) gpsBtn.click();
 };
 
 /**
@@ -182,32 +178,27 @@ function editSpec(type) {
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
-    const dateInput = document.getElementById('input-date');
-    const timeInput = document.getElementById('input-time');
+    const dateInput = document.getElementById('input-date'); // <--- 1. Prendi l'elemento input
 
-    // 1. Sincronizziamo la data
+    // --- AGGIUNTA FONDAMENTALE ---
+    // Se l'utente ha cambiato la data nell'input, aggiorniamo la variabile globale
     if (dateInput && dateInput.value) {
         dataSelezionata = new Date(dateInput.value);
     }
+    // ------------------------------
 
     const date = dataSelezionata.toISOString().split('T')[0];
     const nowCity = SolarEngine.getCurrentCityTime();
-
-    // 2. LOGICA ORA: Se l'utente non ha scritto nulla, mettiamo l'ora attuale nell'input
-    // Se l'utente ha scritto qualcosa, usiamo quello e NON lo sovrascriviamo.
-    if (timeInput && !timeInput.value) {
-        timeInput.value = nowCity.getHours().toString().padStart(2, '0') + ":" + 
-                          nowCity.getMinutes().toString().padStart(2, '0');
-    }
-    const time = timeInput.value;
-    
+    const time = document.getElementById('input-time').value || 
+             (nowCity.getHours().toString().padStart(2,'0') + ":" + nowCity.getMinutes().toString().padStart(2,'0'));
     const displayVal = document.getElementById('w_out');
+    
     if (!lat || !lng || !displayVal) return;
 
     try {
-        // Aggiorna il nome città solo durante il sync GPS reale
         if (isGpsSyncing) await updateCityName(lat, lng); 
         
+        // Ora fetchForecast userà la data aggiornata!
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
         if (!state.weatherData) return;
 
@@ -216,32 +207,33 @@ async function updateAll() {
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
-        // Aggiornamento Badge Meteo
+        // --- AGGIORNAMENTO BADGE METEO ---
         if (document.getElementById('r-wind')) 
             document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
+
         if (document.getElementById('r-hum')) 
             document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
+
         if (document.getElementById('r-temp')) 
             document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°C";
+
         if (document.getElementById('r-cloud-percent')) 
             document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
 
-        // Alba e Tramonto
+        // --- CALCOLO ALBA E TRAMONTO ---
+        // Usiamo [0] perché fetchForecast restituisce i dati per il giorno richiesto
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         
         document.getElementById('sunrise-txt').innerText = sunrise;
         document.getElementById('sunset-txt').innerText = sunset;
-        
-        // Aggiorna il display centrale dell'ora
         document.getElementById('display-hour-center').innerText = time;
 
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
-        window.lastSunH = sunH; 
-        window.lastSetH = setH;
-
-        // Calcolo potenze (Formula con parabola schiacciata che abbiamo messo nel SolarEngine)
+            window.lastSunH = sunH; 
+            window.lastSetH = setH;
+        // Calcolo potenze
         const pServices = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
         const totalPower = pServices + pPS;
@@ -253,10 +245,9 @@ async function updateAll() {
         updateSunUI(hDec, sunH, setH);
         updateReportUI(totalPower, sunH, setH);
         
-        // --- NOTA IMPORTANTE ---
-        // Ho rimosso generaBottoniGiorni() da qui. 
-        // Se lo lasciamo, ogni volta che scrivi l'ora lui ricrea i bottoni, 
-        // i bottoni chiamano aggiornaTuttaInterfaccia e l'ora si resetta.
+        // OPZIONALE: Se hai il calendario nel Report, aggiorna anche i bottoni evidenziati
+        if (typeof generaBottoniGiorni === 'function') generaBottoniGiorni();
+
     } catch (e) { 
         console.error("Errore nel caricamento dati:", e); 
     }
