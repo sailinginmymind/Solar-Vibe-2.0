@@ -283,11 +283,12 @@ function generaBottoniGiorni() {
     }
 }
 
-function aggiornaTuttaInterfaccia() {
+function aggiornaTuttaInterfaccia(isManual = true) {
     const inputDate = document.getElementById('input-date');
     if (inputDate) inputDate.value = dataSelezionata.toISOString().split('T')[0];
+    
     generaBottoniGiorni();
-    updateAll();
+    updateAll(isManual); // Passa il comando a updateAll
 }
 
 async function updateCityName(lat, lng) {
