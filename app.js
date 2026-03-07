@@ -168,8 +168,12 @@ async function updateAll() {
     const dateInput = document.getElementById('input-date');
     const timeInput = document.getElementById('input-time');
 
-    if (dateInput?.value) dataSelezionata = new Date(dateInput.value);
+    // 1. Leggiamo la data dal quadratino
+    if (dateInput?.value) {
+        dataSelezionata = new Date(dateInput.value);
+    }
 
+    // 2. Leggiamo l'ora dal quadratino (o mettiamo l'attuale se vuoto)
     let time = timeInput.value;
     if (!time) {
         const oraLocale = new Date();
@@ -181,20 +185,31 @@ async function updateAll() {
 
     try {
         const dateStr = dataSelezionata.toISOString().split('T')[0];
+        
+        // Chiamata API (carica i dati per quella data specifica)
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, dateStr);
         if (!state.weatherData) return;
 
-        const hourIdx = parseInt(time.split(':')[0]);
-        const hDec = (hourIdx + parseInt(time.split(':')[1])/60);
+        // --- IL FIX È QUI ---
+        const orarioDiviso = time.split(':');
+        const ore = parseInt(orarioDiviso[0]);
+        const minuti = parseInt(orarioDiviso[1]);
+        
+        // hourIdx serve per pescare i dati negli array (0-23)
+        const hourIdx = ore; 
+        // hDec serve per il calcolo matematico del sole (es: 14.5 se sono le 14:30)
+        const hDec = ore + (minuti / 60);
+
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
-        // Badge Meteo
+        // Aggiorniamo i Badge Meteo usando l'ora selezionata (hourIdx)
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°C";
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
 
+        // Alba e Tramonto
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         document.getElementById('sunrise-txt').innerText = sunrise;
@@ -204,17 +219,20 @@ async function updateAll() {
         const sunH = (parseInt(sunrise.split(':')[0]) + parseInt(sunrise.split(':')[1])/60);
         const setH = (parseInt(sunset.split(':')[0]) + parseInt(sunset.split(':')[1])/60);
 
+        // Calcolo potenze basato sulla NUOVA ora (hDec)
         const pServ = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
         
+        // Aggiorna i display Watt
         document.getElementById('w_out').innerText = Math.round(pServ + pPS) + " W";
         if (document.getElementById('w_services')) document.getElementById('w_services').innerText = Math.round(pServ) + " W";
         if (document.getElementById('w_ps')) document.getElementById('w_ps').innerText = Math.round(pPS) + " W";
 
+        // Muove il sole e aggiorna il grafico
         updateSunUI(hDec, sunH, setH);
         updateReportUI(pServ + pPS, sunH, setH);
 
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Errore updateAll:", e); }
 }
 
 function updateReportUI(currentPower, sunH, setH) {
