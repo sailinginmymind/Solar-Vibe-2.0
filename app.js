@@ -59,7 +59,7 @@ function initEventListeners() {
         dateInput.addEventListener('input', (e) => {
             if (!e.target.value) return;
             dataSelezionata = new Date(e.target.value);
-            aggiornaTuttaInterfaccia();
+            aggiornaTuttaInterfaccia(true);
         });
     }
 
