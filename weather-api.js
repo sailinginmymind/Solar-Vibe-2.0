@@ -1,8 +1,7 @@
-// Usiamo window. per renderla visibile anche agli altri file JS (solar-engine.js, app.js)
+// Usiamo window. per renderla visibile anche agli altri file JS
 window.timezoneOffsetSeconds = null;
 
 const WeatherAPI = {
-    // Recupera la posizione GPS dell'utente
     getUserLocation: () => {
         return new Promise((resolve, reject) => {
             if (!navigator.geolocation) reject({ code: 0, message: "GPS non supportato" });
@@ -14,7 +13,6 @@ const WeatherAPI = {
         });
     },
 
-    // Scarica i dati meteo
     fetchForecast: async (lat, lng, date) => {
         try {
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m&daily=sunrise,sunset&timezone=auto&start_date=${date}&end_date=${date}`;
@@ -24,10 +22,9 @@ const WeatherAPI = {
             
             const data = await response.json();
 
-            // SALVIAMO IL FUSO ORARIO DELLA CITTÀ
             if (data.utc_offset_seconds !== undefined) {
                 window.timezoneOffsetSeconds = data.utc_offset_seconds;
-                // Aggiorniamo subito l'ora e il sistema solare
+                // Aggiorniamo l'interfaccia
                 updateDashboardClock();
             }
 
@@ -40,8 +37,8 @@ const WeatherAPI = {
 };
 
 /**
- * FUNZIONE OROLOGIO SINCRONIZZATO
- * Aggiorna ora centrale, data, input e posizione del sole
+ * FUNZIONE OROLOGIO
+ * Modificata per NON sovrascrivere i tuoi inserimenti manuali
  */
 function updateDashboardClock() {
     const clockElement = document.getElementById('display-hour-center'); 
@@ -60,23 +57,33 @@ function updateDashboardClock() {
 
     const h = timeToUse.getHours().toString().padStart(2, '0');
     const m = timeToUse.getMinutes().toString().padStart(2, '0');
-    const hDec = timeToUse.getHours() + (timeToUse.getMinutes() / 60);
-
-    // 1. Aggiorna i testi
+    
+    // 1. Aggiorna sempre il testo centrale (quello grande)
     clockElement.innerText = `${h}:${m}`;
-    if (inputTime) inputTime.value = `${h}:${m}`;
 
-    // 2. Aggiorna la data solo se necessario
-    if (inputDate) {
+    // 2. AGGIORNA GLI INPUT SOLO SE SONO VUOTI
+    // Se tu hai già scritto un'ora, l'app NON la tocca più.
+    if (inputTime && (inputTime.value === "" || !inputTime.value)) {
+        inputTime.value = `${h}:${m}`;
+    }
+
+    if (inputDate && (inputDate.value === "" || !inputDate.value)) {
         const yyyy = timeToUse.getFullYear();
         const mm = (timeToUse.getMonth() + 1).toString().padStart(2, '0');
         const dd = timeToUse.getDate().toString().padStart(2, '0');
         inputDate.value = `${yyyy}-${mm}-${dd}`;
     }
 
-    // 3. MUOVI IL SOLE (Senza scaricare dati meteo ogni secondo)
-    if (typeof updateSunUI === 'function' && window.lastSunH !== undefined) {
-        updateSunUI(hDec, window.lastSunH, window.lastSetH); 
+    // 3. MUOVI IL SOLE
+    // Prendiamo l'ora dall'input (quella decisa da te) per muovere il sole correttamente
+    if (inputTime && inputTime.value) {
+        const [hIn, mIn] = inputTime.value.split(':').map(Number);
+        const hDecManual = hIn + (mIn / 60);
+        if (typeof updateSunUI === 'function' && window.lastSunH !== undefined) {
+            updateSunUI(hDecManual, window.lastSunH, window.lastSetH); 
+        }
     }
 }
 
+// IMPORTANTE: Rimuovi o commenta questa riga se vuoi che l'ora non scatti da sola ogni secondo
+// setInterval(updateDashboardClock, 1000);
