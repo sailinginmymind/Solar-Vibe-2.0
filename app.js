@@ -21,29 +21,31 @@ window.onload = () => {
     initEventListeners();
     initSliders(); 
     
-    // 1. Carichiamo i dati salvati (Nome, Ah e Watt)
+    // 1. Carichiamo i dati salvati
     loadSavedData();
     
-    // 2. SINCRONIZZAZIONE AVVIO
-    // Calcoliamo subito i Wh basandoci sui Ah appena caricati
+    // 2. Sincronizzazione avvio
     if (typeof updateConversions === 'function') updateConversions();
-    // Ricalcoliamo tutta l'interfaccia (Meteo e Report) con i dati salvati
     if (typeof updateAll === 'function') updateAll();
-    // 3. Estetica e Giorni
+    
+    // 3. Estetica
     setupStars();
     generaBottoniGiorni();
-    // 4. ATTIVAZIONE NAV BAR: Mostra la Dashboard all'avvio
+    
+    // 4. Nav Bar
     switchView('live', document.querySelector('[data-view="live"]'));
-    //5
+
+    // 5. GPS Automatico (Solo se serve)
     const gpsBtn = document.getElementById('btn-gps');
     const timeInput = document.getElementById('input-time');
-// Clicca il GPS solo se non hai già un'ora (es. ricarichi la pagina e il campo è vuoto)
-if (gpsBtn && timeInput && !timeInput.value) {
-    gpsBtn.click();
-} else {
-    // Altrimenti calcola i dati con quello che c'è già
-    updateAll();
-}
+    
+    // Clicca il GPS solo se l'ora è vuota
+    if (gpsBtn && timeInput && !timeInput.value) {
+        gpsBtn.click();
+    } else {
+        updateAll();
+    }
+};
 /**
  * Inizializza tutti i collegamenti ai tasti e agli input.
  * Spiegazione: Ho rimosso i riferimenti a 'batt_unit' e 'ps_unit' perché 
@@ -83,9 +85,42 @@ function initEventListeners() {
     // Non serve aggiungere altro qui per evitare conflitti.
 }
 // --- FUNZIONE GPS CON RIPRISTINO GLOW ---
+window.onload = () => {
+    initEventListeners();
+    initSliders(); 
+    
+    // 1. Carichiamo i dati salvati
+    loadSavedData();
+    
+    // 2. Sincronizzazione avvio
+    if (typeof updateConversions === 'function') updateConversions();
+    if (typeof updateAll === 'function') updateAll();
+    
+    // 3. Estetica
+    setupStars();
+    generaBottoniGiorni();
+    
+    // 4. Nav Bar
+    switchView('live', document.querySelector('[data-view="live"]'));
+
+    // 5. GPS Automatico (Solo se serve)
+    const gpsBtn = document.getElementById('btn-gps');
+    const timeInput = document.getElementById('input-time');
+    
+    // Clicca il GPS solo se l'ora è vuota
+    if (gpsBtn && timeInput && !timeInput.value) {
+        gpsBtn.click();
+    } else {
+        updateAll();
+    }
+}; // <--- QUESTA GRAFFA CHIUDE IL WINDOW.ONLOAD E LIBERA LE FUNZIONI SOTTO
+
+// --- FUNZIONE GPS CORRETTA ---
 async function handleGpsSync() {
     isGpsSyncing = true;
     const btn = document.getElementById('btn-gps');
+    const timeInput = document.getElementById('input-time'); // <--- AGGIUNTA: Ora la funzione sa cos'è timeInput
+    
     if (!btn) return;
 
     btn.disabled = true;
@@ -97,25 +132,26 @@ async function handleGpsSync() {
         
         document.getElementById('input-lat').value = coords.latitude.toFixed(4);
         document.getElementById('input-lng').value = coords.longitude.toFixed(4);
-        // Se il campo ora è vuoto, metti l'ora attuale.
-        // Se l'utente ha già iniziato a scrivere, NON sovrascrivere nulla.
-        if (!timeInput.value || timeInput.value === "") {
+
+        // PROTEZIONE ORA: se hai già scritto, non sovrascrive
+        if (timeInput && (!timeInput.value || timeInput.value === "")) {
             timeInput.value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         }
+        
         dataSelezionata = new Date();
         generaBottoniGiorni();
         aggiornaTuttaInterfaccia();
 
-        // --- EFFETTO GLOW ---
+        // Effetto Successo
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e"; 
-        btn.style.boxShadow = "0 0 20px #22c55e"; // <--- RIPRISTINO GLOW
+        btn.style.boxShadow = "0 0 20px #22c55e";
         btn.style.borderColor = "#4ade80";
 
     } catch (err) {
         btn.innerText = "❌ ERRORE GPS";
         btn.style.background = "#ef4444";
-        btn.style.boxShadow = "0 0 20px #ef4444"; // <--- GLOW ROSSO ERRORE
+        btn.style.boxShadow = "0 0 20px #ef4444";
     } finally {
         btn.disabled = false;
         isGpsSyncing = false;
