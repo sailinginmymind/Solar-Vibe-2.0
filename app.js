@@ -38,11 +38,16 @@ window.onload = () => {
     // 4. ATTIVAZIONE NAV BAR: Mostra la Dashboard all'avvio
     switchView('live', document.querySelector('[data-view="live"]'));
 
-    // 5. Avvio automatico dati GPS
-    const gpsBtn = document.getElementById('btn-gps');
-    if (gpsBtn) gpsBtn.click();
-};
+// Trova il punto 5 in window.onload e sostituiscilo così:
+const gpsBtn = document.getElementById('btn-gps');
+const timeInput = document.getElementById('input-time');
 
+// Clicca il GPS solo se non c'è già un'ora impostata (campo vuoto)
+if (gpsBtn && timeInput && timeInput.value === "") {
+    gpsBtn.click();
+} else {
+    updateAll(); // Se l'ora c'è già, calcola e basta
+}
 /**
  * Inizializza tutti i collegamenti ai tasti e agli input.
  * Spiegazione: Ho rimosso i riferimenti a 'batt_unit' e 'ps_unit' perché 
@@ -96,8 +101,11 @@ async function handleGpsSync() {
         
         document.getElementById('input-lat').value = coords.latitude.toFixed(4);
         document.getElementById('input-lng').value = coords.longitude.toFixed(4);
-        document.getElementById('input-time').value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        
+        // Se il campo ora è vuoto, metti l'ora attuale.
+        // Se l'utente ha già iniziato a scrivere, NON sovrascrivere nulla.
+        if (!timeInput.value || timeInput.value === "") {
+            timeInput.value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        }
         dataSelezionata = new Date();
         generaBottoniGiorni();
         aggiornaTuttaInterfaccia();
@@ -119,9 +127,9 @@ async function handleGpsSync() {
         setTimeout(() => { 
             btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE"; 
             btn.style.background = ""; 
-            btn.style.boxShadow = ""; // <--- SPEGNE GLOW
+            btn.style.boxShadow = ""; 
             btn.style.borderColor = "";
-        }, 3000);
+        }, 2000);
     }
 }
 /**
