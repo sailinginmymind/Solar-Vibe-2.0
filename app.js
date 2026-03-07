@@ -177,14 +177,11 @@ function editSpec(type) {
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
-    const dateInput = document.getElementById('input-date'); // <--- 1. Prendi l'elemento input
+    const dateInput = document.getElementById('input-date');
 
-    // --- AGGIUNTA FONDAMENTALE ---
-    // Se l'utente ha cambiato la data nell'input, aggiorniamo la variabile globale
     if (dateInput && dateInput.value) {
         dataSelezionata = new Date(dateInput.value);
     }
-    // ------------------------------
 
     const date = dataSelezionata.toISOString().split('T')[0];
     const time = document.getElementById('input-time').value;
@@ -195,7 +192,6 @@ async function updateAll() {
     try {
         if (isGpsSyncing) await updateCityName(lat, lng); 
         
-        // Ora fetchForecast userà la data aggiornata!
         state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
         if (!state.weatherData) return;
 
@@ -218,7 +214,6 @@ async function updateAll() {
             document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
 
         // --- CALCOLO ALBA E TRAMONTO ---
-        // Usiamo [0] perché fetchForecast restituisce i dati per il giorno richiesto
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         
@@ -241,8 +236,7 @@ async function updateAll() {
         updateSunUI(hDec, sunH, setH);
         updateReportUI(totalPower, sunH, setH);
         
-        // OPZIONALE: Se hai il calendario nel Report, aggiorna anche i bottoni evidenziati
-        if (typeof generaBottoniGiorni === 'function') generaBottoniGiorni();
+        // <--- QUI HO TOLTO generaBottoniGiorni() PER EVITARE IL RESET DELL'ORA
 
     } catch (e) { 
         console.error("Errore nel caricamento dati:", e); 
