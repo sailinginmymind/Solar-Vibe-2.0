@@ -50,9 +50,10 @@ function initEventListeners() {
     if (gpsBtn) gpsBtn.addEventListener('click', handleGpsSync);
 
     // Gestione Input ORA e DATA
-    const timeInput = document.getElementById('input-time');
+   const timeInput = document.getElementById('input-time');
     if (timeInput) {
-        timeInput.addEventListener('change', updateAll);
+        // 'input' reagisce a ogni numero che cambi istantaneamente
+        timeInput.addEventListener('input', updateAll);
     }
 
     const dateInput = document.getElementById('input-date');
@@ -127,58 +128,55 @@ async function handleGpsSync() {
     }
 }
 
-async function updateAll(isManualTime = false) {
+async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
     const timeInput = document.getElementById('input-time');
-    const dateInput = document.getElementById('input-date');
+    const displayHourCenter = document.getElementById('display-hour-center');
 
     if (!lat || !lng) return;
 
-    // 1. Se NON stiamo scrivendo a mano, inizializziamo l'ora se manca
-    if (!timeInput.value) {
-        const now = new Date();
-        timeInput.value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+    // 1. Prendiamo l'ora dall'input. Se è vuoto, mettiamo l'ora attuale.
+    let timeValue = timeInput.value;
+    if (!timeValue) {
+        const oraLocale = new Date();
+        timeValue = oraLocale.getHours().toString().padStart(2, '0') + ":" + oraLocale.getMinutes().toString().padStart(2, '0');
+        timeInput.value = timeValue;
     }
 
     try {
+        // Scarichiamo il meteo per la data selezionata
         const dateStr = dataSelezionata.toISOString().split('T')[0];
-        
-        // 2. Chiamiamo l'API. 
-        // IMPORTANTE: Se NON è un inserimento manuale (isManualTime = false), 
-        // l'API forzerà l'aggiornamento dell'ora locale del posto.
-        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, dateStr, !isManualTime);
-        
+        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, dateStr);
         if (!state.weatherData) return;
 
-        // 3. Prendiamo l'ora (che ora è stata aggiornata dal fuso se abbiamo cambiato città)
-        let time = timeInput.value;
-        const [ore, minuti] = time.split(':').map(Number);
-        const hourIdx = ore;
-        const hDec = ore + (minuti / 60);
+        // 2. CONVERTIAMO L'ORA MANUALE IN DATI PER IL MOTORE
+        const [ore, minuti] = timeValue.split(':').map(Number);
+        const hourIdx = ore; // L'indice nell'array Open-Meteo (0-23)
+        const hDec = ore + (minuti / 60); // L'ora decimale per muovere il sole
 
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
-        // Aggiornamento Badge Meteo
+        // 3. AGGIORNIAMO I DATI METEO DI QUELL'ORA SPECIFICA
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°C";
         document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
+        
+        // Aggiorna l'orologio grande centrale
+        if (displayHourCenter) displayHourCenter.innerText = timeValue;
 
-        // Alba/Tramonto
+        // 4. CALCOLIAMO ALBA E TRAMONTO
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         document.getElementById('sunrise-txt').innerText = sunrise;
         document.getElementById('sunset-txt').innerText = sunset;
-        
-        // Aggiorna l'orologio centrale con l'ora dell'input
-        document.getElementById('display-hour-center').innerText = time;
 
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
 
-        // Calcolo Wattaggio
+        // 5. CALCOLIAMO LA PRODUZIONE SOLARE DI QUELL'ORA
         const pServ = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
         
@@ -186,11 +184,11 @@ async function updateAll(isManualTime = false) {
         if (document.getElementById('w_services')) document.getElementById('w_services').innerText = Math.round(pServ) + " W";
         if (document.getElementById('w_ps')) document.getElementById('w_ps').innerText = Math.round(pPS) + " W";
 
-        // MUOVE IL SOLE
+        // 6. SPOSTIAMO IL SOLE NELLA POSIZIONE DI QUELL'ORA
         updateSunUI(hDec, sunH, setH);
         updateReportUI(pServ + pPS, sunH, setH);
 
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Errore aggiornamento:", e); }
 }
 
 // --- FUNZIONI GARAGE E LOGICA ---
