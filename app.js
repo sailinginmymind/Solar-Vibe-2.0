@@ -27,26 +27,22 @@ window.onload = () => {
     // 2. SINCRONIZZAZIONE AVVIO
     // Calcoliamo subito i Wh basandoci sui Ah appena caricati
     if (typeof updateConversions === 'function') updateConversions();
-    
     // Ricalcoliamo tutta l'interfaccia (Meteo e Report) con i dati salvati
     if (typeof updateAll === 'function') updateAll();
-    
     // 3. Estetica e Giorni
     setupStars();
     generaBottoniGiorni();
-    
     // 4. ATTIVAZIONE NAV BAR: Mostra la Dashboard all'avvio
     switchView('live', document.querySelector('[data-view="live"]'));
-
-// Trova il punto 5 in window.onload e sostituiscilo così:
-const gpsBtn = document.getElementById('btn-gps');
-const timeInput = document.getElementById('input-time');
-
-// Clicca il GPS solo se non c'è già un'ora impostata (campo vuoto)
-if (gpsBtn && timeInput && timeInput.value === "") {
+    //5
+    const gpsBtn = document.getElementById('btn-gps');
+    const timeInput = document.getElementById('input-time');
+// Clicca il GPS solo se non hai già un'ora (es. ricarichi la pagina e il campo è vuoto)
+if (gpsBtn && timeInput && !timeInput.value) {
     gpsBtn.click();
 } else {
-    updateAll(); // Se l'ora c'è già, calcola e basta
+    // Altrimenti calcola i dati con quello che c'è già
+    updateAll();
 }
 /**
  * Inizializza tutti i collegamenti ai tasti e agli input.
