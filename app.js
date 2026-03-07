@@ -1,5 +1,5 @@
 /**
- * APP.JS - Versione Integrale Corretta
+ * APP.JS - Versione Definitiva Fix Ora e Posizione
  */
 let chartSelectionTimer;
 let dataSelezionata = new Date(); 
@@ -17,13 +17,11 @@ let state = {
     weatherData: null
 };
 
-// --- UNICA FUNZIONE DI AVVIO ---
 window.onload = () => {
     initEventListeners();
     initSliders(); 
     loadSavedData();
     
-    // Ripristina tema salvato
     const savedColor = localStorage.getItem('vibe_solar_bg_color');
     if (savedColor) changeBg(savedColor);
 
@@ -34,11 +32,9 @@ window.onload = () => {
     
     switchView('live', document.querySelector('[data-view="live"]'));
 
-    // GPS Automatico: solo se mancano i dati
+    // Al primo avvio, se è tutto vuoto, prova il GPS, altrimenti calcola e basta
     const latVal = document.getElementById('input-lat').value;
-    const timeInput = document.getElementById('input-time');
-    
-    if (!latVal && timeInput && !timeInput.value) {
+    if (!latVal) {
         handleGpsSync(); 
     } else {
         updateAll();
@@ -46,47 +42,45 @@ window.onload = () => {
 };
 
 function initEventListeners() {
-    // 1. Navigazione
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
     
-    // 2. Tasto GPS
     const gpsBtn = document.getElementById('btn-gps');
     if (gpsBtn) gpsBtn.addEventListener('click', handleGpsSync);
 
-    // 3. INPUT MANUALI (IL FIX)
-    // Usiamo 'input' così l'app reagisce mentre scrivi o cambi i valori
+    // Gestione Input ORA e DATA
     const timeInput = document.getElementById('input-time');
-    const dateInput = document.getElementById('input-date');
-
     if (timeInput) {
-        timeInput.addEventListener('input', () => {
-            // Quando scrivi l'ora, forziamo l'aggiornamento dei calcoli
-            updateAll();
-        });
+        timeInput.addEventListener('change', updateAll);
     }
 
+    const dateInput = document.getElementById('input-date');
     if (dateInput) {
         dateInput.addEventListener('change', () => {
-            // Quando cambi data, aggiorniamo la variabile globale e l'interfaccia
             dataSelezionata = new Date(dateInput.value);
             aggiornaTuttaInterfaccia();
         });
     }
 
-    // Coordinate
+    // Coordinate e Città
+    const cityInput = document.getElementById('city-input');
+    if (cityInput) {
+        cityInput.addEventListener('change', function () {
+            const query = this.value.trim();
+            if (query.length >= 3) searchCityCoords(query);
+        });
+    }
+
     ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', updateAll);
     });
 
-    // Salvataggio Garage
     const saveNameBtn = document.getElementById('btn-save-name');
     if (saveNameBtn) saveNameBtn.onclick = saveGarageSettings;
 }
 
-// --- LOGICA GPS ---
 async function handleGpsSync() {
     isGpsSyncing = true;
     const btn = document.getElementById('btn-gps');
@@ -106,43 +100,95 @@ async function handleGpsSync() {
         if (latInput) latInput.value = coords.latitude.toFixed(4);
         if (lngInput) lngInput.value = coords.longitude.toFixed(4);
 
-        if (timeInput && (!timeInput.value || timeInput.value === "")) {
-            timeInput.value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        }
+        // Il GPS forza l'ora attuale
+        const oraStringa = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        if (timeInput) timeInput.value = oraStringa;
 
-        if (dateInput && (!dateInput.value || dateInput.value === "")) {
-            dataSelezionata = new Date();
-            dateInput.value = dataSelezionata.toISOString().split('T')[0];
-        }
+        dataSelezionata = new Date();
+        if (dateInput) dateInput.value = dataSelezionata.toISOString().split('T')[0];
 
+        // Aggiorna nome città solo qui
         await updateCityName(coords.latitude, coords.longitude);
+        
         generaBottoniGiorni();
         updateAll();
 
-        btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
+        btn.innerText = "✅ OK";
         btn.style.background = "#22c55e"; 
-        btn.style.boxShadow = "0 0 20px #22c55e";
-        btn.style.borderColor = "#4ade80";
-
     } catch (err) {
         btn.innerText = "❌ ERRORE GPS";
-        btn.style.background = "#ef4444";
-        btn.style.boxShadow = "0 0 20px #ef4444";
     } finally {
         btn.disabled = false;
         isGpsSyncing = false;
         setTimeout(() => { 
             btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE"; 
-            btn.style.background = ""; btn.style.boxShadow = ""; btn.style.borderColor = "";
+            btn.style.background = ""; 
         }, 2000);
     }
 }
 
-// --- LOGICA GARAGE E CALCOLI ---
-function editSpec(type) {
-    let current = 0;
-    let label = "";
+async function updateAll() {
+    const lat = document.getElementById('input-lat').value;
+    const lng = document.getElementById('input-lng').value;
+    const timeInput = document.getElementById('input-time');
+    const dateInput = document.getElementById('input-date');
 
+    if (!lat || !lng) return;
+
+    // Prendiamo l'ora ESATTA dal quadratino
+    let time = timeInput.value;
+    if (!time) {
+        const now = new Date();
+        time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+        timeInput.value = time;
+    }
+
+    try {
+        const dateStr = dataSelezionata.toISOString().split('T')[0];
+        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, dateStr);
+        if (!state.weatherData) return;
+
+        // Calcolo indici orari
+        const [ore, minuti] = time.split(':').map(Number);
+        const hourIdx = ore;
+        const hDec = ore + (minuti / 60);
+
+        const hourly = state.weatherData.hourly;
+        const daily = state.weatherData.daily;
+
+        // Update Badge Meteo
+        document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
+        document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
+        document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°C";
+        document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
+
+        // Alba/Tramonto
+        const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
+        const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
+        document.getElementById('sunrise-txt').innerText = sunrise;
+        document.getElementById('sunset-txt').innerText = sunset;
+        document.getElementById('display-hour-center').innerText = time;
+
+        const sunH = SolarEngine.timeToDecimal(sunrise);
+        const setH = SolarEngine.timeToDecimal(sunset);
+
+        // Calcolo Wattaggio reale
+        const pServ = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
+        const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
+        
+        document.getElementById('w_out').innerText = Math.round(pServ + pPS) + " W";
+        if (document.getElementById('w_services')) document.getElementById('w_services').innerText = Math.round(pServ) + " W";
+        if (document.getElementById('w_ps')) document.getElementById('w_ps').innerText = Math.round(pPS) + " W";
+
+        updateSunUI(hDec, sunH, setH);
+        updateReportUI(pServ + pPS, sunH, setH);
+
+    } catch (e) { console.error(e); }
+}
+
+// --- FUNZIONI GARAGE E LOGICA ---
+function editSpec(type) {
+    let current = 0; let label = "";
     if (type === 'batt') { current = state.battAh; label = "Capacità Batteria (Ah)"; }
     else if (type === 'ps') { current = state.psAh; label = "Capacità Power Station (Wh)"; }
     else if (type === 'pan') { current = state.panelWp; label = "Potenza Pannelli Camper (W)"; }
@@ -155,11 +201,7 @@ function editSpec(type) {
         else if (type === 'ps') state.psAh = val;
         else if (type === 'pan') state.panelWp = val;
         else if (type === 'panPs') state.panelPsWp = val;
-
-        saveGarageSettings();
-        loadSavedData();
-        updateConversions();
-        updateAll();
+        saveGarageSettings(); loadSavedData(); updateConversions(); updateAll();
     }
 }
 
@@ -167,82 +209,12 @@ function updateConversions() {
     const bAh = parseFloat(document.getElementById('batt_val').innerText) || 0;
     const bConvVal = document.getElementById('batt_conv_val');
     if (bConvVal) bConvVal.innerText = Math.round(bAh * 12.8);
-
     const pWh = parseFloat(document.getElementById('ps_val').innerText) || 0;
     const pConvVal = document.getElementById('ps_conv_val');
     if (pConvVal) pConvVal.innerText = Math.round(pWh / 12.8);
 }
 
-async function updateAll() {
-    const lat = document.getElementById('input-lat').value;
-    const lng = document.getElementById('input-lng').value;
-    const dateInput = document.getElementById('input-date');
-    const timeInput = document.getElementById('input-time');
-
-    // Se l'utente ha scritto qualcosa nel campo ora, usiamo quello.
-    // Altrimenti (e solo se il campo è proprio vuoto) mettiamo l'ora attuale.
-    let time = timeInput.value;
-    if (!time || time === "") {
-        const oraLocale = new Date();
-        time = oraLocale.getHours().toString().padStart(2,'0') + ":" + oraLocale.getMinutes().toString().padStart(2,'0');
-        timeInput.value = time;
-    }
-
-    if (!lat || !lng) return;
-
-    try {
-        const dateStr = dataSelezionata.toISOString().split('T')[0];
-        
-        // Chiamata API (carica i dati per quella data specifica)
-        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, dateStr);
-        if (!state.weatherData) return;
-
-        // --- IL FIX È QUI ---
-        const orarioDiviso = time.split(':');
-        const ore = parseInt(orarioDiviso[0]);
-        const minuti = parseInt(orarioDiviso[1]);
-        
-        // hourIdx serve per pescare i dati negli array (0-23)
-        const hourIdx = ore; 
-        // hDec serve per il calcolo matematico del sole (es: 14.5 se sono le 14:30)
-        const hDec = ore + (minuti / 60);
-
-        const hourly = state.weatherData.hourly;
-        const daily = state.weatherData.daily;
-
-        // Aggiorniamo i Badge Meteo usando l'ora selezionata (hourIdx)
-        document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
-        document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
-        document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°C";
-        document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
-
-        // Alba e Tramonto
-        const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
-        const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
-        document.getElementById('sunrise-txt').innerText = sunrise;
-        document.getElementById('sunset-txt').innerText = sunset;
-        document.getElementById('display-hour-center').innerText = time;
-
-        const sunH = (parseInt(sunrise.split(':')[0]) + parseInt(sunrise.split(':')[1])/60);
-        const setH = (parseInt(sunset.split(':')[0]) + parseInt(sunset.split(':')[1])/60);
-
-        // Calcolo potenze basato sulla NUOVA ora (hDec)
-        const pServ = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
-        const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
-        
-        // Aggiorna i display Watt
-        document.getElementById('w_out').innerText = Math.round(pServ + pPS) + " W";
-        if (document.getElementById('w_services')) document.getElementById('w_services').innerText = Math.round(pServ) + " W";
-        if (document.getElementById('w_ps')) document.getElementById('w_ps').innerText = Math.round(pPS) + " W";
-
-        // Muove il sole e aggiorna il grafico
-        updateSunUI(hDec, sunH, setH);
-        updateReportUI(pServ + pPS, sunH, setH);
-
-    } catch (e) { console.error("Errore updateAll:", e); }
-}
-
-function updateReportUI(currentPower, sunH, setH) {
+function updateReportUI(totalPower, sunH, setH) {
     const chart = document.getElementById('hourly-chart');
     const totalDisplay = document.getElementById('total-wh-day');
     if (!chart || !state.weatherData) return;
@@ -250,15 +222,12 @@ function updateReportUI(currentPower, sunH, setH) {
     const wServ = parseFloat(document.getElementById('w_services')?.innerText) || 0;
     const wPS = parseFloat(document.getElementById('w_ps')?.innerText) || 0;
 
-    // Tempi ricarica
     const psAhEquiv = state.psAh / 12.8; 
     document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wPS, psAhEquiv);
     document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wPS, psAhEquiv);
-    
     document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, wServ, state.battAh);
     document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, wServ, state.battAh);
 
-    // Grafico
     chart.innerHTML = "";
     let dailyTotal = 0;
     for (let h = Math.floor(sunH); h <= Math.ceil(setH); h++) {
@@ -276,7 +245,6 @@ function updateReportUI(currentPower, sunH, setH) {
     if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
 }
 
-// --- UTILITY ---
 function saveGarageSettings() {
     const name = document.getElementById('camper_name_input').value.trim();
     localStorage.setItem('vibe_camper_name', name);
@@ -284,13 +252,11 @@ function saveGarageSettings() {
     localStorage.setItem('vibe_panel_wp', state.panelWp);
     localStorage.setItem('vibe_ps_ah', state.psAh);
     localStorage.setItem('vibe_panel_ps_wp', state.panelPsWp);
-    
     const display = document.getElementById('camper-name-display');
     if (display && name) display.innerText = name.toUpperCase();
-
     const btn = document.getElementById('btn-save-name');
-    btn.style.background = "#16a34a"; btn.style.boxShadow = "0 0 20px #22c55e";
-    setTimeout(() => { btn.style.background = ""; btn.style.boxShadow = ""; }, 1500);
+    btn.style.background = "#16a34a";
+    setTimeout(() => { btn.style.background = ""; }, 1500);
 }
 
 function loadSavedData() {
@@ -333,7 +299,7 @@ async function updateCityName(lat, lng) {
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=it`);
         const data = await response.json();
-        const city = data.address.city || data.address.town || data.address.village || "POSIZIONE GPS";
+        const city = data.address.city || data.address.town || data.address.village || "POSIZIONE";
         document.getElementById('city-input').value = city.toUpperCase();
     } catch (e) { console.error(e); }
 }
