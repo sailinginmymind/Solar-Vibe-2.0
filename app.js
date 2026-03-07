@@ -119,8 +119,13 @@ window.onload = () => {
 async function handleGpsSync() {
     isGpsSyncing = true;
     const btn = document.getElementById('btn-gps');
-    const timeInput = document.getElementById('input-time'); // <--- AGGIUNTA: Ora la funzione sa cos'è timeInput
     
+    // 1. Definiamo i riferimenti agli input QUI dentro, così la funzione li vede
+    const timeInput = document.getElementById('input-time');
+    const dateInput = document.getElementById('input-date');
+    const latInput = document.getElementById('input-lat');
+    const lngInput = document.getElementById('input-lng');
+
     if (!btn) return;
 
     btn.disabled = true;
@@ -130,19 +135,27 @@ async function handleGpsSync() {
         const coords = await WeatherAPI.getUserLocation();
         const now = new Date();
         
-        document.getElementById('input-lat').value = coords.latitude.toFixed(4);
-        document.getElementById('input-lng').value = coords.longitude.toFixed(4);
+        // 2. Aggiorna sempre le coordinate (perché hai premuto il tasto GPS)
+        if (latInput) latInput.value = coords.latitude.toFixed(4);
+        if (lngInput) lngInput.value = coords.longitude.toFixed(4);
 
-        // PROTEZIONE ORA: se hai già scritto, non sovrascrive
+        // 3. PROTEZIONE ORA: Scrive l'ora attuale SOLO se il campo è vuoto
         if (timeInput && (!timeInput.value || timeInput.value === "")) {
             timeInput.value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         }
-        
-        dataSelezionata = new Date();
-        generaBottoniGiorni();
-        aggiornaTuttaInterfaccia();
 
-        // Effetto Successo
+        // 4. PROTEZIONE DATA: Reset ad "Oggi" SOLO se non c'è già una data inserita
+        if (!dateInput.value || dateInput.value === "") {
+            dataSelezionata = new Date();
+            dateInput.value = dataSelezionata.toISOString().split('T')[0];
+        }
+
+        // 5. Aggiorna il nome della città e il resto dell'interfaccia
+        await updateCityName(coords.latitude, coords.longitude);
+        generaBottoniGiorni();
+        updateAll(); // Usiamo updateAll invece di aggiornaTuttaInterfaccia per non sovrascrivere i campi
+
+        // Effetto Glow Successo
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e"; 
         btn.style.boxShadow = "0 0 20px #22c55e";
