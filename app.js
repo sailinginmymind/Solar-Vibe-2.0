@@ -68,11 +68,12 @@ function initEventListeners() {
         });
     }
 
-    // 4. Input manuali (Ora, Data, Coordinate)
-    ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', updateAll);
-    });
+// In app.js
+['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
+    const el = document.getElementById(id);
+    // Cambia 'change' con 'input' per vedere i Watt cambiare mentre muovi l'ora
+    if (el) el.addEventListener('input', updateAll); 
+});
 
     // 5. Salvataggio nome camper
     const saveNameBtn = document.getElementById('btn-save-name');
