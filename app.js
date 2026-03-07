@@ -71,10 +71,14 @@ function initEventListeners() {
         });
     }
 
-    // 4. Input manuali (Ora, Data, Coordinate)
+   // 4. Input manuali (Ora, Data, Coordinate)
     ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.addEventListener('change', updateAll);
+        if (el) {
+            // Usiamo 'blur' (quando esci dal campo) o 'change' (invio) 
+            // invece di 'input' per evitare reset mentre digiti
+            el.addEventListener('change', updateAll);
+        }
     });
 
     // 5. Salvataggio nome camper
@@ -225,23 +229,29 @@ function editSpec(type) {
         console.log("Valore aggiornato:", val);
     }
 }
-// --- TUTTO IL RESTO RIMANE INVARIATO (LOGICA E CALCOLI) ---
 
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
     const dateInput = document.getElementById('input-date');
+    const timeInput = document.getElementById('input-time'); // Riferimento all'ora
 
     if (dateInput && dateInput.value) {
         dataSelezionata = new Date(dateInput.value);
     }
 
     const date = dataSelezionata.toISOString().split('T')[0];
-    const time = document.getElementById('input-time').value;
-    const displayVal = document.getElementById('w_out');
     
-    if (!lat || !lng || !displayVal) return;
+    // --- FIX ORA: Se l'utente sta scrivendo, usiamo quella. Se è vuoto, mettiamo l'ora attuale ---
+    let time = timeInput.value;
+    if (!time || time === "") {
+        const oraLocale = new Date();
+        time = oraLocale.getHours().toString().padStart(2,'0') + ":" + oraLocale.getMinutes().toString().padStart(2,'0');
+        timeInput.value = time;
+    }
 
+    const displayVal = document.getElementById('w_out');
+    if (!lat || !lng || !displayVal) return;
     try {
         if (isGpsSyncing) await updateCityName(lat, lng); 
         
