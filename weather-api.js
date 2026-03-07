@@ -40,7 +40,7 @@ const WeatherAPI = {
  * FUNZIONE OROLOGIO
  * Modificata per NON sovrascrivere i tuoi inserimenti manuali
  */
-function updateDashboardClock() {
+function updateDashboardClock(force = false) {
     const clockElement = document.getElementById('display-hour-center'); 
     const inputTime = document.getElementById('input-time'); 
     const inputDate = document.getElementById('input-date'); 
@@ -58,24 +58,24 @@ function updateDashboardClock() {
     const h = timeToUse.getHours().toString().padStart(2, '0');
     const m = timeToUse.getMinutes().toString().padStart(2, '0');
     
-    // 1. Aggiorna sempre il testo centrale (quello grande)
+    // 1. Aggiorna sempre il testo centrale
     clockElement.innerText = `${h}:${m}`;
 
-    // 2. AGGIORNA GLI INPUT SOLO SE SONO VUOTI
-    // Se tu hai già scritto un'ora, l'app NON la tocca più.
-    if (inputTime && (inputTime.value === "" || !inputTime.value)) {
+    // 2. AGGIORNA GLI INPUT SOLO SE VUOTI *O* SE FORZATO (es. cambio città)
+    if (inputTime && (inputTime.value === "" || force)) {
         inputTime.value = `${h}:${m}`;
     }
 
-    if (inputDate && (inputDate.value === "" || !inputDate.value)) {
+    if (inputDate && (inputDate.value === "" || force)) {
         const yyyy = timeToUse.getFullYear();
         const mm = (timeToUse.getMonth() + 1).toString().padStart(2, '0');
         const dd = timeToUse.getDate().toString().padStart(2, '0');
         inputDate.value = `${yyyy}-${mm}-${dd}`;
+        // Sincronizza la variabile globale di app.js
+        if (typeof dataSelezionata !== 'undefined') dataSelezionata = new Date(timeToUse);
     }
 
     // 3. MUOVI IL SOLE
-    // Prendiamo l'ora dall'input (quella decisa da te) per muovere il sole correttamente
     if (inputTime && inputTime.value) {
         const [hIn, mIn] = inputTime.value.split(':').map(Number);
         const hDecManual = hIn + (mIn / 60);
@@ -84,6 +84,3 @@ function updateDashboardClock() {
         }
     }
 }
-
-// IMPORTANTE: Rimuovi o commenta questa riga se vuoi che l'ora non scatti da sola ogni secondo
-// setInterval(updateDashboardClock, 1000);
