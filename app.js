@@ -127,7 +127,7 @@ async function handleGpsSync() {
     }
 }
 
-async function updateAll() {
+async function updateAll(isManualTime = false) {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
     const timeInput = document.getElementById('input-time');
@@ -135,20 +135,24 @@ async function updateAll() {
 
     if (!lat || !lng) return;
 
-    // Prendiamo l'ora ESATTA dal quadratino
-    let time = timeInput.value;
-    if (!time) {
+    // 1. Se NON stiamo scrivendo a mano, inizializziamo l'ora se manca
+    if (!timeInput.value) {
         const now = new Date();
-        time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-        timeInput.value = time;
+        timeInput.value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
     }
 
     try {
         const dateStr = dataSelezionata.toISOString().split('T')[0];
-        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, dateStr);
+        
+        // 2. Chiamiamo l'API. 
+        // IMPORTANTE: Se NON è un inserimento manuale (isManualTime = false), 
+        // l'API forzerà l'aggiornamento dell'ora locale del posto.
+        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, dateStr, !isManualTime);
+        
         if (!state.weatherData) return;
 
-        // Calcolo indici orari
+        // 3. Prendiamo l'ora (che ora è stata aggiornata dal fuso se abbiamo cambiato città)
+        let time = timeInput.value;
         const [ore, minuti] = time.split(':').map(Number);
         const hourIdx = ore;
         const hDec = ore + (minuti / 60);
@@ -156,7 +160,7 @@ async function updateAll() {
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
-        // Update Badge Meteo
+        // Aggiornamento Badge Meteo
         document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
         document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
         document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°C";
@@ -167,12 +171,14 @@ async function updateAll() {
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
         document.getElementById('sunrise-txt').innerText = sunrise;
         document.getElementById('sunset-txt').innerText = sunset;
+        
+        // Aggiorna l'orologio centrale con l'ora dell'input
         document.getElementById('display-hour-center').innerText = time;
 
         const sunH = SolarEngine.timeToDecimal(sunrise);
         const setH = SolarEngine.timeToDecimal(sunset);
 
-        // Calcolo Wattaggio reale
+        // Calcolo Wattaggio
         const pServ = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
         
@@ -180,6 +186,7 @@ async function updateAll() {
         if (document.getElementById('w_services')) document.getElementById('w_services').innerText = Math.round(pServ) + " W";
         if (document.getElementById('w_ps')) document.getElementById('w_ps').innerText = Math.round(pPS) + " W";
 
+        // MUOVE IL SOLE
         updateSunUI(hDec, sunH, setH);
         updateReportUI(pServ + pPS, sunH, setH);
 
