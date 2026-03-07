@@ -13,7 +13,7 @@ const WeatherAPI = {
         });
     },
 
-    fetchForecast: async (lat, lng, date) => {
+   fetchForecast: async (lat, lng, date) => {
         try {
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m&daily=sunrise,sunset&timezone=auto&start_date=${date}&end_date=${date}`;
             
@@ -24,8 +24,8 @@ const WeatherAPI = {
 
             if (data.utc_offset_seconds !== undefined) {
                 window.timezoneOffsetSeconds = data.utc_offset_seconds;
-                // Aggiorniamo l'interfaccia
-                updateDashboardClock();
+                // PASSIAMO TRUE PER FORZARE L'AGGIORNAMENTO DEL FUSO ORARIO
+                updateDashboardClock(true); 
             }
 
             return data;
