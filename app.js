@@ -38,9 +38,7 @@ window.onload = () => {
     // 4. ATTIVAZIONE NAV BAR: Mostra la Dashboard all'avvio
     switchView('live', document.querySelector('[data-view="live"]'));
 
-    // 5. Avvio automatico dati GPS
-    const gpsBtn = document.getElementById('btn-gps');
-    if (gpsBtn) gpsBtn.click();
+ 
 };
 
 /**
