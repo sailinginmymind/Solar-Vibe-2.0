@@ -1,5 +1,5 @@
 /**
- * APP.JS - Versione Integrale con Fix Nav Bar e Glow
+ * APP.JS - Versione Integrale Corretta
  */
 let chartSelectionTimer;
 let dataSelezionata = new Date(); 
@@ -17,52 +17,42 @@ let state = {
     weatherData: null
 };
 
+// --- UNICA FUNZIONE DI AVVIO ---
 window.onload = () => {
     initEventListeners();
     initSliders(); 
-    
-    // 1. Carichiamo i dati salvati
     loadSavedData();
     
-    // 2. Sincronizzazione avvio
+    // Ripristina tema salvato
+    const savedColor = localStorage.getItem('vibe_solar_bg_color');
+    if (savedColor) changeBg(savedColor);
+
     if (typeof updateConversions === 'function') updateConversions();
-    if (typeof updateAll === 'function') updateAll();
     
-    // 3. Estetica
     setupStars();
     generaBottoniGiorni();
     
-    // 4. Nav Bar
     switchView('live', document.querySelector('[data-view="live"]'));
 
-    // 5. GPS Automatico (Solo se serve)
-    const gpsBtn = document.getElementById('btn-gps');
+    // GPS Automatico: solo se mancano i dati
+    const latVal = document.getElementById('input-lat').value;
     const timeInput = document.getElementById('input-time');
     
-    // Clicca il GPS solo se l'ora è vuota
-    if (gpsBtn && timeInput && !timeInput.value) {
-        gpsBtn.click();
+    if (!latVal && timeInput && !timeInput.value) {
+        handleGpsSync(); 
     } else {
         updateAll();
     }
 };
-/**
- * Inizializza tutti i collegamenti ai tasti e agli input.
- * Spiegazione: Ho rimosso i riferimenti a 'batt_unit' e 'ps_unit' perché 
- * abbiamo eliminato i menu a tendina. Ho anche rimosso i collegamenti 
- * via ID per i tasti EDIT, dato che ora usiamo l'onclick diretto nell'HTML.
- */
+
 function initEventListeners() {
-    // 1. Navigazione tra le schermate (Dashboard, Report, Garage)
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
     
-    // 2. Tasto GPS
     const gpsBtn = document.getElementById('btn-gps');
     if (gpsBtn) gpsBtn.addEventListener('click', handleGpsSync);
 
-    // 3. Ricerca città manuale
     const cityInput = document.getElementById('city-input');
     if (cityInput) {
         cityInput.addEventListener('change', function () {
@@ -71,67 +61,30 @@ function initEventListeners() {
         });
     }
 
-   // 4. Input manuali (Ora, Data, Coordinate)
     ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-            // Usiamo 'blur' (quando esci dal campo) o 'change' (invio) 
-            // invece di 'input' per evitare reset mentre digiti
-            el.addEventListener('change', updateAll);
+            el.addEventListener('change', () => {
+                if (id === 'input-date') dataSelezionata = new Date(el.value);
+                updateAll();
+            });
         }
     });
 
-    // 5. Salvataggio nome camper
     const saveNameBtn = document.getElementById('btn-save-name');
     if (saveNameBtn) saveNameBtn.onclick = saveGarageSettings;
-    // NOTA: I tasti EDIT (batt, ps, pan, panPs) ora sono gestiti 
-    // direttamente dall'attributo onclick="editSpec(...)" nel file HTML.
-    // Non serve aggiungere altro qui per evitare conflitti.
 }
-// --- FUNZIONE GPS CON RIPRISTINO GLOW ---
-window.onload = () => {
-    initEventListeners();
-    initSliders(); 
-    
-    // 1. Carichiamo i dati salvati
-    loadSavedData();
-    
-    // 2. Sincronizzazione avvio
-    if (typeof updateConversions === 'function') updateConversions();
-    if (typeof updateAll === 'function') updateAll();
-    
-    // 3. Estetica
-    setupStars();
-    generaBottoniGiorni();
-    
-    // 4. Nav Bar
-    switchView('live', document.querySelector('[data-view="live"]'));
 
-    // 5. GPS Automatico (Solo se serve)
-    const gpsBtn = document.getElementById('btn-gps');
-    const timeInput = document.getElementById('input-time');
-    
-    // Clicca il GPS solo se l'ora è vuota
-    if (gpsBtn && timeInput && !timeInput.value) {
-        gpsBtn.click();
-    } else {
-        updateAll();
-    }
-}; // <--- QUESTA GRAFFA CHIUDE IL WINDOW.ONLOAD E LIBERA LE FUNZIONI SOTTO
-
-// --- FUNZIONE GPS CORRETTA ---
+// --- LOGICA GPS ---
 async function handleGpsSync() {
     isGpsSyncing = true;
     const btn = document.getElementById('btn-gps');
-    
-    // 1. Definiamo i riferimenti agli input QUI dentro, così la funzione li vede
     const timeInput = document.getElementById('input-time');
     const dateInput = document.getElementById('input-date');
     const latInput = document.getElementById('input-lat');
     const lngInput = document.getElementById('input-lng');
 
     if (!btn) return;
-
     btn.disabled = true;
     btn.innerText = "🛰️ RICERCA POSIZIONE...";
 
@@ -139,27 +92,22 @@ async function handleGpsSync() {
         const coords = await WeatherAPI.getUserLocation();
         const now = new Date();
         
-        // 2. Aggiorna sempre le coordinate (perché hai premuto il tasto GPS)
         if (latInput) latInput.value = coords.latitude.toFixed(4);
         if (lngInput) lngInput.value = coords.longitude.toFixed(4);
 
-        // 3. PROTEZIONE ORA: Scrive l'ora attuale SOLO se il campo è vuoto
         if (timeInput && (!timeInput.value || timeInput.value === "")) {
             timeInput.value = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
         }
 
-        // 4. PROTEZIONE DATA: Reset ad "Oggi" SOLO se non c'è già una data inserita
-        if (!dateInput.value || dateInput.value === "") {
+        if (dateInput && (!dateInput.value || dateInput.value === "")) {
             dataSelezionata = new Date();
             dateInput.value = dataSelezionata.toISOString().split('T')[0];
         }
 
-        // 5. Aggiorna il nome della città e il resto dell'interfaccia
         await updateCityName(coords.latitude, coords.longitude);
         generaBottoniGiorni();
-        updateAll(); // Usiamo updateAll invece di aggiornaTuttaInterfaccia per non sovrascrivere i campi
+        updateAll();
 
-        // Effetto Glow Successo
         btn.innerText = "✅ SINCRONIZZAZIONE RIUSCITA";
         btn.style.background = "#22c55e"; 
         btn.style.boxShadow = "0 0 20px #22c55e";
@@ -172,138 +120,101 @@ async function handleGpsSync() {
     } finally {
         btn.disabled = false;
         isGpsSyncing = false;
-        
         setTimeout(() => { 
             btn.innerText = "📡 AGGIORNA GPS E ORA ATTUALE"; 
-            btn.style.background = ""; 
-            btn.style.boxShadow = ""; 
-            btn.style.borderColor = "";
+            btn.style.background = ""; btn.style.boxShadow = ""; btn.style.borderColor = "";
         }, 2000);
     }
 }
-/**
- * FUNZIONE EDIT UNIVERSALE
- * Spiegazione: Gestisce i prompt per tutti i valori del garage.
- * Nota: 'ps' salva Wh (Wattora), 'batt' salva Ah (Ampere/ora).
- */
-function editSpec(type) {
-    console.log("Apertura edit per:", type); // Serve per vedere se il tasto risponde
 
+// --- LOGICA GARAGE E CALCOLI ---
+function editSpec(type) {
     let current = 0;
     let label = "";
 
-    // 1. Recupero il valore attuale dallo 'state'
-    if (type === 'batt') {
-        current = state.battAh || 0;
-        label = "Capacità Batteria SERVIZI (Ah)";
-    } else if (type === 'ps') {
-        current = state.psAh || 0; 
-        label = "Capacità POWER STATION (Wh)";
-    } else if (type === 'pan') {
-        current = state.panelWp || 0;
-        label = "Potenza Pannelli Camper (W)";
-    } else if (type === 'panPs') {
-        current = state.panelPsWp || 0;
-        label = "Potenza Pannelli PS (W)";
-    }
+    if (type === 'batt') { current = state.battAh; label = "Capacità Batteria (Ah)"; }
+    else if (type === 'ps') { current = state.psAh; label = "Capacità Power Station (Wh)"; }
+    else if (type === 'pan') { current = state.panelWp; label = "Potenza Pannelli Camper (W)"; }
+    else if (type === 'panPs') { current = state.panelPsWp; label = "Potenza Pannelli PS (W)"; }
 
-    // 2. Mostro il box di inserimento
     const v = prompt(`Modifica ${label}:`, current);
-
-    // 3. Se l'utente preme OK e mette un numero
     if (v !== null && v !== "" && !isNaN(v)) {
         const val = parseFloat(v);
-        
-        // Aggiorno lo stato
         if (type === 'batt') state.battAh = val;
         else if (type === 'ps') state.psAh = val;
         else if (type === 'pan') state.panelWp = val;
         else if (type === 'panPs') state.panelPsWp = val;
 
-        // 4. Salvo e rinfresco tutta l'app
-        saveGarageSettings(); // Salva su memoria telefono
-        if (typeof loadSavedData === 'function') loadSavedData();      // Aggiorna i testi
-        if (typeof updateConversions === 'function') updateConversions(); // Aggiorna i Wh/Ah piccoli
-        if (typeof updateAll === 'function') updateAll();              // Ricalcola il Report
-        
-        console.log("Valore aggiornato:", val);
+        saveGarageSettings();
+        loadSavedData();
+        updateConversions();
+        updateAll();
     }
+}
+
+function updateConversions() {
+    const bAh = parseFloat(document.getElementById('batt_val').innerText) || 0;
+    const bConvVal = document.getElementById('batt_conv_val');
+    if (bConvVal) bConvVal.innerText = Math.round(bAh * 12.8);
+
+    const pWh = parseFloat(document.getElementById('ps_val').innerText) || 0;
+    const pConvVal = document.getElementById('ps_conv_val');
+    if (pConvVal) pConvVal.innerText = Math.round(pWh / 12.8);
 }
 
 async function updateAll() {
     const lat = document.getElementById('input-lat').value;
     const lng = document.getElementById('input-lng').value;
     const dateInput = document.getElementById('input-date');
-    const timeInput = document.getElementById('input-time'); // Riferimento all'ora
+    const timeInput = document.getElementById('input-time');
 
-    if (dateInput && dateInput.value) {
-        dataSelezionata = new Date(dateInput.value);
-    }
+    if (dateInput?.value) dataSelezionata = new Date(dateInput.value);
 
-    const date = dataSelezionata.toISOString().split('T')[0];
-    
-    // --- FIX ORA: Se l'utente sta scrivendo, usiamo quella. Se è vuoto, mettiamo l'ora attuale ---
     let time = timeInput.value;
-    if (!time || time === "") {
+    if (!time) {
         const oraLocale = new Date();
         time = oraLocale.getHours().toString().padStart(2,'0') + ":" + oraLocale.getMinutes().toString().padStart(2,'0');
         timeInput.value = time;
     }
 
-    const displayVal = document.getElementById('w_out');
-    if (!lat || !lng || !displayVal) return;
+    if (!lat || !lng) return;
+
     try {
-        if (isGpsSyncing) await updateCityName(lat, lng); 
-        
-        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, date);
+        const dateStr = dataSelezionata.toISOString().split('T')[0];
+        state.weatherData = await WeatherAPI.fetchForecast(lat, lng, dateStr);
         if (!state.weatherData) return;
 
         const hourIdx = parseInt(time.split(':')[0]);
-        const hDec = SolarEngine.timeToDecimal(time);
+        const hDec = (hourIdx + parseInt(time.split(':')[1])/60);
         const hourly = state.weatherData.hourly;
         const daily = state.weatherData.daily;
 
-        // --- AGGIORNAMENTO BADGE METEO ---
-        if (document.getElementById('r-wind')) 
-            document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
+        // Badge Meteo
+        document.getElementById('r-wind').innerText = Math.round(hourly.wind_speed_10m[hourIdx]) + " km/h";
+        document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
+        document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°C";
+        document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
 
-        if (document.getElementById('r-hum')) 
-            document.getElementById('r-hum').innerText = hourly.relative_humidity_2m[hourIdx] + "%";
-
-        if (document.getElementById('r-temp')) 
-            document.getElementById('r-temp').innerText = Math.round(hourly.temperature_2m[hourIdx]) + "°C";
-
-        if (document.getElementById('r-cloud-percent')) 
-            document.getElementById('r-cloud-percent').innerText = hourly.cloud_cover[hourIdx] + "%";
-
-        // --- CALCOLO ALBA E TRAMONTO ---
         const sunrise = daily.sunrise[0].split('T')[1].substring(0, 5);
         const sunset = daily.sunset[0].split('T')[1].substring(0, 5);
-        
         document.getElementById('sunrise-txt').innerText = sunrise;
         document.getElementById('sunset-txt').innerText = sunset;
         document.getElementById('display-hour-center').innerText = time;
 
-        const sunH = SolarEngine.timeToDecimal(sunrise);
-        const setH = SolarEngine.timeToDecimal(sunset);
+        const sunH = (parseInt(sunrise.split(':')[0]) + parseInt(sunrise.split(':')[1])/60);
+        const setH = (parseInt(sunset.split(':')[0]) + parseInt(sunset.split(':')[1])/60);
 
-        // Calcolo potenze
-        const pServices = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
+        const pServ = SolarEngine.calculatePower(hDec, sunH, setH, state.panelWp, hourly.cloud_cover[hourIdx]);
         const pPS = SolarEngine.calculatePower(hDec, sunH, setH, state.panelPsWp, hourly.cloud_cover[hourIdx]);
-        const totalPower = pServices + pPS;
-
-        displayVal.innerText = Math.round(totalPower) + " W";
-        if (document.getElementById('w_services')) document.getElementById('w_services').innerText = Math.round(pServices) + " W";
+        
+        document.getElementById('w_out').innerText = Math.round(pServ + pPS) + " W";
+        if (document.getElementById('w_services')) document.getElementById('w_services').innerText = Math.round(pServ) + " W";
         if (document.getElementById('w_ps')) document.getElementById('w_ps').innerText = Math.round(pPS) + " W";
 
         updateSunUI(hDec, sunH, setH);
-        updateReportUI(totalPower, sunH, setH);
-        
-        // <--- QUI HO TOLTO generaBottoniGiorni() PER EVITARE IL RESET DELL'ORA
+        updateReportUI(pServ + pPS, sunH, setH);
 
-    } catch (e) { 
-        console.error("Errore nel caricamento dati:", e); 
-    }
+    } catch (e) { console.error(e); }
 }
 
 function updateReportUI(currentPower, sunH, setH) {
@@ -311,227 +222,50 @@ function updateReportUI(currentPower, sunH, setH) {
     const totalDisplay = document.getElementById('total-wh-day');
     if (!chart || !state.weatherData) return;
 
-    // --- 1. PREPARAZIONE DATI PER IL CALCOLO ---
-    // Recuperiamo i Watt attuali dai display della Dashboard
-    const wattServizi = parseFloat(document.getElementById('w_services')?.innerText) || 0;
-    const wattPS = parseFloat(document.getElementById('w_ps')?.innerText) || 0;
+    const wServ = parseFloat(document.getElementById('w_services')?.innerText) || 0;
+    const wPS = parseFloat(document.getElementById('w_ps')?.innerText) || 0;
 
-    // --- 2. AGGIORNAMENTO TEMPI POWER STATION ---
-    // NOTA: state.psAh ora contiene Wh. Dividiamo per 12.8 per dare gli Ah al motore
-    if (state.psAh > 0) {
-        const psAhEquiv = state.psAh / 12.8; 
-        document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wattPS, psAhEquiv);
-        document.getElementById('ps_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 90, wattPS, psAhEquiv);
-        document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wattPS, psAhEquiv);
-    } else {
-        document.getElementById('ps_charge_80_txt').innerText = "--";
-        document.getElementById('ps_charge_90_txt').innerText = "--";
-        document.getElementById('ps_charge_100_txt').innerText = "--";
-    }
+    // Tempi ricarica
+    const psAhEquiv = state.psAh / 12.8; 
+    document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wPS, psAhEquiv);
+    document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wPS, psAhEquiv);
     
-    // --- 3. AGGIORNAMENTO TEMPI BATTERIA SERVIZIO ---
-    // Qui rimane tutto uguale perché state.battAh sono già Ah
-    if (state.battAh > 0) {
-        document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, wattServizi, state.battAh);
-        document.getElementById('batt_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, wattServizi, state.battAh);
-        document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, wattServizi, state.battAh);
-    } else {
-        document.getElementById('batt_charge_80_txt').innerText = "--";
-        document.getElementById('batt_charge_90_txt').innerText = "--";
-        document.getElementById('batt_charge_100_txt').innerText = "--";
-    }
+    document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, wServ, state.battAh);
+    document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, wServ, state.battAh);
 
-    // --- 4. DISEGNO GRAFICO (Rimanente parte invariata) ---
+    // Grafico
     chart.innerHTML = "";
     let dailyTotal = 0;
-    const startH = Math.floor(sunH);
-    const endH = Math.ceil(setH);
-
-    for (let h = startH; h <= endH; h++) {
+    for (let h = Math.floor(sunH); h <= Math.ceil(setH); h++) {
         const cloud = state.weatherData.hourly.cloud_cover[h] || 0;
-        const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp, cloud);
+        const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp + state.panelPsWp, cloud);
         dailyTotal += hP;
         const bar = document.createElement('div');
         bar.className = 'bar';
-        bar.style.height = Math.max(5, (hP / (state.panelWp || 1) * 100)) + "%";
+        bar.style.height = Math.max(5, (hP / ((state.panelWp + state.panelPsWp) || 1) * 100)) + "%";
         bar.onclick = () => {
-            document.querySelectorAll('.bar').forEach(b => b.classList.remove('active'));
-            bar.classList.add('active');
-            const detailBox = document.getElementById('detail-display');
-            if (detailBox) detailBox.innerHTML = `<span style="color:#fbbf24;">ORE ${h}:00 → ${Math.round(hP)} W</span>`;
-            setTimeout(() => { bar.classList.remove('active'); resetDetailDisplay(); }, 2000);
+            document.getElementById('detail-display').innerHTML = `<span style="color:#fbbf24;">ORE ${h}:00 → ${Math.round(hP)} W</span>`;
         };
         chart.appendChild(bar);
     }
     if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
 }
 
-function switchView(vId, el) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    const target = document.getElementById('view-' + vId);
-    if (target) target.classList.add('active');
-    if (el) el.classList.add('active');
-}
-
-function initSliders() {
-    const sliders = [{ id: 'ps-soc-slider', valId: 'ps-soc-val', stateKey: 'currentPsSOC' }, { id: 'soc-slider', valId: 'soc-val', stateKey: 'currentSOC' }];
-    sliders.forEach(s => {
-        const el = document.getElementById(s.id);
-        if (el) {
-            el.addEventListener('input', (e) => {
-                state[s.stateKey] = e.target.value;
-                if (document.getElementById(s.valId)) document.getElementById(s.valId).innerText = e.target.value + "%";
-                updateSliderFill(el);
-                updateAll();
-            });
-            updateSliderFill(el);
-        }
-    });
-}
-
-function updateSliderFill(slider) { slider.style.setProperty('--value', slider.value + '%'); }
-
-/**
- * FUNZIONE EDIT UNIVERSALE
- * Spiegazione: Gestisce i prompt per tutti i valori del garage.
- * Nota: 'ps' salva Wh, 'batt' salva Ah.
- */
-function editSpec(type) {
-    // 1. Log di controllo (se premi F12 nel browser vedrai se la funzione parte)
-    console.log("Tentativo di modifica per:", type);
-
-    let current = 0;
-    let label = "";
-
-    // 2. Recupero dati dallo stato
-    if (type === 'batt') {
-        current = state.battAh || 0;
-        label = "Capacità Batteria (Ah)";
-    } else if (type === 'ps') {
-        current = state.psAh || 0; // Salviamo Wh per la Power Station
-        label = "Capacità Power Station (Wh)";
-    } else if (type === 'pan') {
-        current = state.panelWp || 0;
-        label = "Potenza Pannelli Camper (W)";
-    } else if (type === 'panPs') {
-        current = state.panelPsWp || 0;
-        label = "Potenza Pannelli PS (W)";
-    }
-
-    // 3. Apertura Prompt
-    const v = prompt(`Inserisci ${label}:`, current);
-
-    // 4. Validazione e salvataggio
-    if (v !== null && v !== "" && !isNaN(v)) {
-        const val = parseFloat(v);
-        
-        if (type === 'batt') state.battAh = val;
-        else if (type === 'ps') state.psAh = val;
-        else if (type === 'pan') state.panelWp = val;
-        else if (type === 'panPs') state.panelPsWp = val;
-
-        // 5. Aggiornamento a cascata
-        saveGarageSettings();
-        if (typeof loadSavedData === 'function') loadSavedData();
-        if (typeof updateConversions === 'function') updateConversions();
-        if (typeof updateAll === 'function') updateAll();
-        
-        console.log("Valore aggiornato con successo:", val);
-    }
-}
-/**
- * Calcola e scrive la conversione Wh/Ah subito sotto i valori principali nel Garage.
- * Utilizza il coefficiente 12.8V per batterie LiFePO4.
- */
-/**
- * Aggiorna le conversioni incrociate nel Garage
- * Spiegazione:
- * - Batteria: Valore in Ah (inserito) -> Calcola Wh (sotto) moltiplicando per 12.8
- * - Power Station: Valore in Wh (inserito) -> Calcola Ah (sotto) DIVIDENDO per 12.8
- */
-function updateConversions() {
-    // 1. GESTIONE BATTERIA SERVIZIO (Rimane Ah -> Wh)
-    const bAh = parseFloat(document.getElementById('batt_val').innerText) || 0;
-    const bConvVal = document.getElementById('batt_conv_val');
-
-    if (bConvVal) {
-        // Moltiplichiamo: Ah * 12.8 = Wh
-        bConvVal.innerText = Math.round(bAh * 12.8);
-    }
-
-    // 2. GESTIONE POWER STATION (Invertita: Wh -> Ah)
-    // Ora prendiamo il valore principale che l'utente inserisce come Wh
-    const pWh = parseFloat(document.getElementById('ps_val').innerText) || 0;
-    const pConvVal = document.getElementById('ps_conv_val');
-
-    if (pConvVal) {
-        // DIVIDIAMO: Wh / 12.8 = Ah
-        // Esempio: 1280 Wh / 12.8 = 100 Ah
-        pConvVal.innerText = Math.round(pWh / 12.8);
-    }
-}
-
-/**
- * Calcola i tempi di ricarica per il Report basandosi sulle unità scelte
- */
-function updateChargeReports() {
-    const wattServizi = parseFloat(document.getElementById('w_services')?.innerText) || 0;
-    const wattPS = parseFloat(document.getElementById('w_ps')?.innerText) || 0;
-    
-    // Capacità in Wh (moneta comune per il calcolo)
-    const bUnit = document.getElementById('batt_unit').value;
-    const pUnit = document.getElementById('ps_unit').value;
-    
-    const capS_Wh = bUnit === "Ah" ? (state.battAh * 12.8) : state.battAh;
-    const capPS_Wh = pUnit === "Ah" ? (state.psAh * 12.8) : state.psAh;
-
-    // Aggiorna i testi nel report chiamando la tua funzione esistente nel SolarEngine
-    // Nota: SolarEngine.estimateChargeTime deve essere aggiornato per gestire Wh se passi Wh
-    if (capPS_Wh > 0) {
-        document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wattPS, capPS_Wh / 12.8);
-        document.getElementById('ps_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 90, wattPS, capPS_Wh / 12.8);
-        document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wattPS, capPS_Wh / 12.8);
-    }
-    
-    if (capS_Wh > 0) {
-        document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, wattServizi, capS_Wh / 12.8);
-        document.getElementById('batt_charge_90_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 90, wattServizi, capS_Wh / 12.8);
-        document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, wattServizi, capS_Wh / 12.8);
-    }
-}
+// --- UTILITY ---
 function saveGarageSettings() {
-    // 1. Preleviamo il valore dall'input
-    const nameInput = document.getElementById('camper_name_input');
-    const name = nameInput.value.trim();
-    // 2. Salvataggio nel localStorage
+    const name = document.getElementById('camper_name_input').value.trim();
     localStorage.setItem('vibe_camper_name', name);
     localStorage.setItem('vibe_batt_ah', state.battAh);
     localStorage.setItem('vibe_panel_wp', state.panelWp);
     localStorage.setItem('vibe_ps_ah', state.psAh);
-    localStorage.setItem('vibe_ps_panel_wp', state.panelPsWp);
-    // 3. Aggiornamento istantaneo del titolo in alto
+    localStorage.setItem('vibe_panel_ps_wp', state.panelPsWp);
+    
     const display = document.getElementById('camper-name-display');
-    if (display && name !== "") {
-        display.innerText = name.toUpperCase();
-    }
-    // 4. EFFETTO GLOW VERDE DI CONFERMA
-    const saveBtn = document.getElementById('btn-save-name');
-    if (saveBtn) {
-        // Applichiamo lo stile di successo (Glow Verde)
-        saveBtn.style.transition = "all 0.3s ease"; // Rende l'effetto fluido
-        saveBtn.style.background = "#16a34a";       // Verde scuro
-        saveBtn.style.boxShadow = "0 0 20px #22c55e"; // Bagliore verde neon
-        saveBtn.style.borderColor = "#4ade80";      // Bordo più chiaro
-        // Dopo 1.5 secondi torna allo stile originale
-        setTimeout(() => {
-            saveBtn.style.background = ""; 
-            saveBtn.style.boxShadow = "";
-            saveBtn.style.borderColor = "";
-        }, 1500);
-    }
+    if (display && name) display.innerText = name.toUpperCase();
 
-    updateAll();
+    const btn = document.getElementById('btn-save-name');
+    btn.style.background = "#16a34a"; btn.style.boxShadow = "0 0 20px #22c55e";
+    setTimeout(() => { btn.style.background = ""; btn.style.boxShadow = ""; }, 1500);
 }
 
 function loadSavedData() {
@@ -558,7 +292,7 @@ function generaBottoniGiorni() {
         const btn = document.createElement('div');
         btn.className = 'day-btn' + (d.toDateString() === dataSelezionata.toDateString() ? ' active' : '');
         btn.innerHTML = `<span>${d.toLocaleDateString('it-IT', {weekday:'short'}).charAt(0).toUpperCase()}</span><b>${d.getDate()}</b>`;
-        btn.onclick = () => { dataSelezionata = new Date(d); generaBottoniGiorni(); aggiornaTuttaInterfaccia(); };
+        btn.onclick = () => { dataSelezionata = new Date(d); aggiornaTuttaInterfaccia(); };
         container.appendChild(btn);
     }
 }
@@ -566,6 +300,7 @@ function generaBottoniGiorni() {
 function aggiornaTuttaInterfaccia() {
     const inputDate = document.getElementById('input-date');
     if (inputDate) inputDate.value = dataSelezionata.toISOString().split('T')[0];
+    generaBottoniGiorni();
     updateAll();
 }
 
@@ -582,7 +317,7 @@ async function searchCityCoords(cityName) {
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cityName)}&limit=1`);
         const data = await response.json();
-        if (data && data.length > 0) {
+        if (data?.[0]) {
             document.getElementById('input-lat').value = parseFloat(data[0].lat).toFixed(4);
             document.getElementById('input-lng').value = parseFloat(data[0].lon).toFixed(4);
             updateAll();
@@ -620,40 +355,34 @@ function updateSunUI(hDec, sunH, setH) {
     }
 }
 
-function resetDetailDisplay() {
-    const display = document.getElementById('detail-display');
-    if (display) display.innerHTML = `<span style="color:#fbbf24;">TOCCA UNA BARRA PER I DETTAGLI</span>`;
-}
-/**
- 
-/**
- * Cambia il tema dell'app aggiungendo la classe corrispondente al body.
- * Sfrutta le variabili CSS già definite nel foglio di stile.
- * @param {string} color - Il codice colore esagonale passato dall'HTML
- */
 function changeBg(color) {
-    // 1. Rimuoviamo tutte le classi tema precedenti per evitare conflitti
     document.body.classList.remove('tema-verde', 'tema-rosso', 'tema-grigio');
-    
-    // 2. In base al colore cliccato, aggiungiamo la classe corretta
-    // Nota: il tema blu (default) non ha bisogno di classe perché è nel :root
-    if (color === '#062c1f') {
-        document.body.classList.add('tema-verde');
-    } else if (color === '#2d0a1a') {
-        document.body.classList.add('tema-rosso');
-    } else if (color === '#1a1a1a') {
-        document.body.classList.add('tema-grigio');
-    }
-    
-    // 3. Forziamo comunque il background-color per sicurezza (opzionale)
+    if (color === '#062c1f') document.body.classList.add('tema-verde');
+    else if (color === '#2d0a1a') document.body.classList.add('tema-rosso');
+    else if (color === '#1a1a1a') document.body.classList.add('tema-grigio');
     document.body.style.backgroundColor = color;
-
-    // 4. Salviamo la scelta nel browser
     localStorage.setItem('vibe_solar_bg_color', color);
 }
 
-// Al caricamento, ripristiniamo il tema salvato
-window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('vibe_solar_bg_color');
-    if (saved) changeBg(saved);
-});
+function switchView(vId, el) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    const target = document.getElementById('view-' + vId);
+    if (target) target.classList.add('active');
+    if (el) el.classList.add('active');
+}
+
+function initSliders() {
+    [{ id: 'ps-soc-slider', valId: 'ps-soc-val', stateKey: 'currentPsSOC' }, { id: 'soc-slider', valId: 'soc-val', stateKey: 'currentSOC' }].forEach(s => {
+        const el = document.getElementById(s.id);
+        if (el) {
+            el.addEventListener('input', (e) => {
+                state[s.stateKey] = e.target.value;
+                document.getElementById(s.valId).innerText = e.target.value + "%";
+                el.style.setProperty('--value', e.target.value + '%');
+                updateAll();
+            });
+            el.style.setProperty('--value', el.value + '%');
+        }
+    });
+}
