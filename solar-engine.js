@@ -4,55 +4,56 @@
  */
 
 const SolarEngine = {
-    // Calcola la produzione istantanea (Watt)
+    // Calcola la produzione istantanea (Watt) per pannelli FISSI ORIZZONTALI
     calculatePower(hDec, sunH, setH, panelWp, cloudCover) {
         if (hDec < sunH || hDec > setH) return 0;
       
-        // Progressione arco solare (0.0 a 1.0)
+        // 1. Progressione arco solare (0.0 all'alba, 1.0 al tramonto)
         const progress = (hDec - sunH) / (setH - sunH);
-        const arcHeight = Math.sin(progress * Math.PI);
         
-        // Fattore meteo (conservativo: le nubi riducono ma non azzerano sempre tutto)
-        const weatherFactor = (100 - (cloudCover * 0.86)) / 100;
+        // 2. LA PARABOLA SCHIACCIATA
+        // Usiamo Math.sin per l'arco, ma eleviamo il risultato al QUADRATO (Math.pow(..., 2)).
+        // Questo simula la fisica del pannello piatto: 
+        // - Al mattino e sera (sole basso) la resa scende drasticamente.
+        // - Solo a mezzogiorno (sole a picco) la parabola raggiunge il picco.
+        const rawArc = Math.sin(progress * Math.PI);
+        const arcHeight = Math.pow(rawArc, 2); 
         
-        return arcHeight * panelWp * weatherFactor;
+        // 3. Fattore meteo (calibrato: le nubi su pannelli piatti pesano di più)
+        const weatherFactor = (100 - (cloudCover * 0.90)) / 100;
+        
+        // 4. Calcolo finale
+        let power = arcHeight * panelWp * weatherFactor;
+
+        // Se il risultato è piccolissimo, restituiamo 0
+        return power < 0.5 ? 0 : power;
     },
 
    // Calcola il tempo necessario per ricaricare la batteria (Ah) fino a un certo SOC (%)
-    estimateChargeTime(currentSoc, targetSoc, currentPower, battAh) {
-        // 1. Controlli di sicurezza: se non c'è sole o i dati sono 0
+   estimateChargeTime(currentSoc, targetSoc, currentPower, battAh) {
         if (currentPower <= 5 || battAh <= 0) return "--";
-        
-        // Se la batteria è già al target o sopra
         if (parseFloat(currentSoc) >= targetSoc) return "OK";
 
         const voltage = 12.8;
-        const lossFactor = 0.85; // Efficienza MPPT e cadute di tensione cavi
+        const lossFactor = 0.85; // Efficienza MPPT e cavi
         
-        // 2. Calcoliamo l'energia totale della batteria in Wh
         const totalWh = battAh * voltage;
-        
-        // 3. Calcoliamo quanta energia (Wh) manca per arrivare al target
         const energyNeeded = totalWh * ((targetSoc - currentSoc) / 100);
         
-        // 4. Calcoliamo le ore necessarie (Energia / Potenza netta)
-        // Sottraiamo un piccolo consumo base (es. 10W per centralina/sensori)
         const netPower = (currentPower * lossFactor) - 10; 
         
         if (netPower <= 0) return "∞";
 
         const hoursDecimal = energyNeeded / netPower;
-
-        // Se il tempo stimato supera i 2 giorni, mostriamo un limite
         if (hoursDecimal > 48) return ">48h";
 
-        // 5. Formattazione in ore e minuti (es: 1h 45m invece di 1.8h)
         const h = Math.floor(hoursDecimal);
         const m = Math.round((hoursDecimal - h) * 60);
 
         return h > 0 ? `${h}h ${m}m` : `${m}m`;
     },
-getCurrentCityTime() {
+
+    getCurrentCityTime() {
         const oraLocale = new Date();
         if (window.timezoneOffsetSeconds !== null) {
             const utcTimeMs = oraLocale.getTime() + (oraLocale.getTimezoneOffset() * 60000);
@@ -60,7 +61,7 @@ getCurrentCityTime() {
         }
         return oraLocale;
     },
-    // Converte orario stringa (HH:MM) in ore decimali
+
     timeToDecimal(timeStr) {
         const [hours, minutes] = timeStr.split(':').map(Number);
         return hours + (minutes / 60);
