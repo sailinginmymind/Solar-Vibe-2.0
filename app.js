@@ -46,31 +46,42 @@ window.onload = () => {
 };
 
 function initEventListeners() {
+    // 1. Navigazione
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchView(item.dataset.view, item));
     });
     
+    // 2. Tasto GPS
     const gpsBtn = document.getElementById('btn-gps');
     if (gpsBtn) gpsBtn.addEventListener('click', handleGpsSync);
 
-    const cityInput = document.getElementById('city-input');
-    if (cityInput) {
-        cityInput.addEventListener('change', function () {
-            const query = this.value.trim();
-            if (query.length >= 3) searchCityCoords(query);
+    // 3. INPUT MANUALI (IL FIX)
+    // Usiamo 'input' così l'app reagisce mentre scrivi o cambi i valori
+    const timeInput = document.getElementById('input-time');
+    const dateInput = document.getElementById('input-date');
+
+    if (timeInput) {
+        timeInput.addEventListener('input', () => {
+            // Quando scrivi l'ora, forziamo l'aggiornamento dei calcoli
+            updateAll();
         });
     }
 
-    ['input-time', 'input-date', 'input-lat', 'input-lng'].forEach(id => {
+    if (dateInput) {
+        dateInput.addEventListener('change', () => {
+            // Quando cambi data, aggiorniamo la variabile globale e l'interfaccia
+            dataSelezionata = new Date(dateInput.value);
+            aggiornaTuttaInterfaccia();
+        });
+    }
+
+    // Coordinate
+    ['input-lat', 'input-lng'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('change', () => {
-                if (id === 'input-date') dataSelezionata = new Date(el.value);
-                updateAll();
-            });
-        }
+        if (el) el.addEventListener('change', updateAll);
     });
 
+    // Salvataggio Garage
     const saveNameBtn = document.getElementById('btn-save-name');
     if (saveNameBtn) saveNameBtn.onclick = saveGarageSettings;
 }
