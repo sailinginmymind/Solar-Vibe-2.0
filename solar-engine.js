@@ -52,14 +52,7 @@ const SolarEngine = {
 
         return h > 0 ? `${h}h ${m}m` : `${m}m`;
     },
-getCurrentCityTime() {
-        const oraLocale = new Date();
-        if (window.timezoneOffsetSeconds !== null) {
-            const utcTimeMs = oraLocale.getTime() + (oraLocale.getTimezoneOffset() * 60000);
-            return new Date(utcTimeMs + (window.timezoneOffsetSeconds * 1000));
-        }
-        return oraLocale;
-    },
+
     // Converte orario stringa (HH:MM) in ore decimali
     timeToDecimal(timeStr) {
         const [hours, minutes] = timeStr.split(':').map(Number);
