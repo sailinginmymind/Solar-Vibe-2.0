@@ -12,20 +12,25 @@ const WeatherAPI = {
         });
     },
 
-    fetchForecast: async (lat, lng, date) => {
+    fetchForecast: async (lat, lng, date, updateInputs = false) => {
         try {
             const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&hourly=temperature_2m,relative_humidity_2m,cloud_cover,wind_speed_10m&daily=sunrise,sunset&timezone=auto&start_date=${date}&end_date=${date}`;
+            
             const response = await fetch(url);
             const data = await response.json();
 
             if (data.utc_offset_seconds !== undefined) {
                 window.timezoneOffsetSeconds = data.utc_offset_seconds;
-                // Forza l'aggiornamento dell'ora perché è cambiata la posizione
-                updateDashboardClock(true); 
+                
+                // Se updateInputs è true (es. quando cambi città o premi GPS), 
+                // allineiamo l'ora del simulatore a quella locale del posto.
+                if (updateInputs) {
+                    updateDashboardClock(true); 
+                }
             }
             return data;
         } catch (err) {
-            console.error(err);
+            console.error("Errore API:", err);
             return null;
         }
     }
