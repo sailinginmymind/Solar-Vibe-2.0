@@ -214,33 +214,60 @@ function updateReportUI(totalPower, sunH, setH) {
     const totalDisplay = document.getElementById('total-wh-day');
     if (!chart || !state.weatherData) return;
 
+    // 1. Recupero Watt istantanei
     const wServ = parseFloat(document.getElementById('w_services')?.innerText) || 0;
     const wPS = parseFloat(document.getElementById('w_ps')?.innerText) || 0;
-
     const psAhEquiv = state.psAh / 12.8; 
-    document.getElementById('ps_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wPS, psAhEquiv);
-    document.getElementById('ps_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wPS, psAhEquiv);
-    document.getElementById('batt_charge_80_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 80, wServ, state.battAh);
-    document.getElementById('batt_charge_100_txt').innerText = SolarEngine.estimateChargeTime(state.currentSOC, 100, wServ, state.battAh);
 
+    const safeSet = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = val;
+    };
+
+    // 2. Aggiornamento tempi di ricarica
+    safeSet('batt_charge_80_txt', SolarEngine.estimateChargeTime(state.currentSOC, 80, wServ, state.battAh));
+    safeSet('batt_charge_90_txt', SolarEngine.estimateChargeTime(state.currentSOC, 90, wServ, state.battAh));
+    safeSet('batt_charge_100_txt', SolarEngine.estimateChargeTime(state.currentSOC, 100, wServ, state.battAh));
+    safeSet('ps_charge_80_txt', SolarEngine.estimateChargeTime(state.currentPsSOC, 80, wPS, psAhEquiv));
+    safeSet('ps_charge_90_txt', SolarEngine.estimateChargeTime(state.currentPsSOC, 90, wPS, psAhEquiv));
+    safeSet('ps_charge_100_txt', SolarEngine.estimateChargeTime(state.currentPsSOC, 100, wPS, psAhEquiv));
+
+    // 3. DISEGNO GRAFICO (Solo ore di luce)
     chart.innerHTML = "";
     let dailyTotal = 0;
-    for (let h = Math.floor(sunH); h <= Math.ceil(setH); h++) {
+    
+    // Arrotondiamo l'alba per difetto e il tramonto per eccesso per includere le mezze ore
+    const startH = Math.floor(sunH);
+    const endH = Math.ceil(setH);
+
+    for (let h = startH; h <= endH; h++) {
+        // Calcoliamo la produzione per ogni ora
         const cloud = state.weatherData.hourly.cloud_cover[h] || 0;
         const hP = SolarEngine.calculatePower(h, sunH, setH, state.panelWp + state.panelPsWp, cloud);
         dailyTotal += hP;
+
         const bar = document.createElement('div');
         bar.className = 'bar';
-        bar.style.height = Math.max(5, (hP / ((state.panelWp + state.panelPsWp) || 1) * 100)) + "%";
+        
+        const maxPotenza = (state.panelWp + state.panelPsWp) || 1;
+        bar.style.height = Math.max(5, (hP / maxPotenza * 100)) + "%";
+        
+        // Evidenzia l'ora selezionata se rientra nel range visualizzato
+        const timeInput = document.getElementById('input-time');
+        if (timeInput && timeInput.value) {
+            const currentH = parseInt(timeInput.value.split(':')[0]);
+            if (h === currentH) bar.style.background = "var(--accent, #fbbf24)";
+        }
+
         bar.onclick = () => {
-            document.getElementById('detail-display').innerHTML = `<span style="color:#fbbf24;">ORE ${h}:00 → ${Math.round(hP)} W</span>`;
+            const detail = document.getElementById('detail-display');
+            if (detail) detail.innerHTML = `<span style="color:#fbbf24;">ORE ${h}:00 → ${Math.round(hP)} W</span>`;
         };
         chart.appendChild(bar);
     }
-    if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
-}
 
-function saveGarageSettings() {
+    if (totalDisplay) totalDisplay.innerText = Math.round(dailyTotal) + " Wh";
+}function saveGarageSettings() {
     const name = document.getElementById('camper_name_input').value.trim();
     localStorage.setItem('vibe_camper_name', name);
     localStorage.setItem('vibe_batt_ah', state.battAh);
